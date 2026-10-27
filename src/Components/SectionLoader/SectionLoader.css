@@ -1,0 +1,33 @@
+
+/* =========================================
+   Section / Content Loader
+========================================= */
+
+.section-loader {
+    width: 100%;
+    min-height: 180px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-loader-spinner {
+    width: 26px;
+    height: 26px;
+
+    display: block;
+
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+
+    border-radius: 50%;
+
+    animation: sectionLoaderSpin 0.75s linear infinite;
+}
+
+@keyframes sectionLoaderSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,657 @@
+/* =====================================================
+COMMUNITY POST CARD
+===================================================== */
+
+.community-post-card {
+    width: 100%;
+    min-width: 0;
+    padding: 22px 21px 12px;
+
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+
+    font-family: var(--font-primary);
+    overflow: hidden;
+}
+
+.community-post-author {
+    display: flex;
+    position: relative;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.community-post-avatar {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    margin-top: 2px;
+
+    object-fit: cover;
+    border-radius: 50%;
+    background: var(--color-surface-hover);
+}
+
+.community-post-author-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.community-post-author-info h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.community-post-role {
+    margin: 1px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.community-post-time {
+    display: block;
+    margin-top: 6px;
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.community-post-menu-btn {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.community-post-menu-btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+/* =====================================================
+POST TEXT
+===================================================== */
+
+.community-post-text {
+    margin-top: 17px;
+    min-width: 0;
+}
+
+.community-post-text p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.community-post-more-btn {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 0;
+
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.community-post-more-btn:hover {
+    color: var(--color-text-primary);
+}
+
+/* =====================================================
+IMAGE CAROUSEL
+===================================================== */
+
+.community-post-images {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    margin-top: 15px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-hover);
+}
+
+.community-post-image-track {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.community-post-image-track::-webkit-scrollbar {
+    display: none;
+}
+
+.community-post-image-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+}
+
+.community-post-image-slide img {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    background: var(--color-surface-hover);
+}
+
+.community-post-image-counter {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: rgba(20, 22, 25, 0.72);
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.community-post-image-controls {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+
+    pointer-events: none;
+}
+
+.community-post-image-controls button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 50%;
+    background: rgba(20, 22, 25, 0.65);
+    color: #fff;
+
+    cursor: pointer;
+    pointer-events: auto;
+
+    transition:
+        background var(--transition-fast),
+        opacity var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.community-post-image-controls button:hover:not(:disabled) {
+    background: rgba(20, 22, 25, 0.9);
+    transform: scale(1.06);
+}
+
+.community-post-image-controls button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* =====================================================
+CODE SNIPPET
+===================================================== */
+
+.community-post-code {
+    width: 100%;
+    min-width: 0;
+    margin-top: 15px;
+    overflow: hidden;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+.community-post-code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    min-height: 39px;
+    padding: 7px 11px;
+
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-hover);
+}
+
+.community-post-code-header>span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.community-post-copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.community-post-copy-btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-hover);
+}
+
+.community-post-code-editor {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.community-post-code-editor .cm-editor {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 12px;
+}
+
+.community-post-code-editor .cm-gutters {
+    background: var(--color-surface-hover);
+    color: var(--color-text-muted);
+    border-right: 1px solid var(--color-border);
+}
+
+.community-post-code-editor .cm-activeLine,
+.community-post-code-editor .cm-activeLineGutter {
+    background: transparent;
+}
+
+.community-post-code-editor .cm-content {
+    padding: 10px 0;
+}
+
+.community-post-code-editor .cm-line {
+    padding: 0 12px;
+}
+
+/* =====================================================
+TAGS
+===================================================== */
+
+.community-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 15px;
+}
+
+.community-post-tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: 5px 9px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+
+    font-size: 15px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+/* =====================================================
+ENGAGEMENT STATS
+===================================================== */
+
+.community-post-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-top: 22px;
+    padding-bottom: 13px;
+
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.community-post-stats>span,
+.community-post-stats>div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.community-post-stats>div {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.community-post-stats>div span+span::before {
+    content: "·";
+    margin-right: 6px;
+}
+
+.community-post-stats .fa-heart {
+    color: var(--color-text-secondary);
+}
+
+.community-post-stats .is-liked {
+    color: var(--color-danger);
+}
+
+.community-post-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--color-border);
+}
+
+/* =====================================================
+ACTION BUTTONS (No Hover Effect)
+===================================================== */
+
+.community-post-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+    padding-top: 8px;
+}
+
+.community-post-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    min-height: 40px;
+    padding: 7px 4px;
+
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-secondary);
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+
+    /* Transition hata di hai taake koi effect na aaye */
+    transition: none;
+}
+
+/* Hover bilkul khatam kar diya hai taake green background na aaye */
+.community-post-actions button:hover {
+    background: transparent !important;
+    color: var(--color-text-secondary) !important;
+}
+
+.community-post-actions button>i {
+    font-size: 14px;
+}
+
+.community-post-actions button.is-liked {
+    color: var(--color-danger);
+}
+
+.community-post-actions button.is-bookmarked {
+    background: var(--color-accent-soft);
+    border-color: rgba(45, 164, 78, 0.25);
+    color: var(--color-accent);
+}
+
+.community-post-type {
+    margin-top: 12px;
+    margin-bottom: 10px;
+}
+
+.post-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    background: var(--color-surface-hover);
+}
+
+/* Base Bookmark Box Button */
+.bookmark-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 48px;
+  height: 52px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bookmark-btn:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.bookmark-btn i {
+  font-size: 14px;
+}
+
+/* Active / Bookmarked State (Jab true ho) */
+.bookmark-btn.bookmark-active {
+  background-color: var(--color-accent);
+  border-color: var(--color-border);
+  color: var(--color-accent) !important;
+}
+
+.bookmark-btn.bookmark-active i {
+  color: var(--color-accent) !important; /* Agar aap accent color dena chahein toh var(--color-accent) bhi kar sakte hain */
+}
+
+
+.post-card {
+    position: relative;   /* dropdown ke absolute positioning ke liye zaroori */
+}
+
+.post-card-menu {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+}
+
+.post-menu-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.post-menu-trigger:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+.post-menu-dropdown {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    min-width: 170px;
+    padding: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 8px);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md, 0 10px 30px rgba(0, 0, 0, .14));
+    animation: dropdownFadeIn .15s ease;
+}
+
+.post-menu-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    background: transparent;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 550;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease;
+}
+
+.post-menu-dropdown button i {
+    width: 14px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.post-menu-dropdown button:hover {
+    background: var(--color-surface-hover);
+}
+
+.post-menu-dropdown button.delete-option {
+    color: var(--color-danger);
+}
+
+.post-menu-dropdown button.delete-option i {
+    color: var(--color-danger);
+}
+
+.post-menu-dropdown button.delete-option:hover {
+    background: rgba(207, 34, 46, 0.08);
+}
+
+
+/* =====================================================
+   DROPDOWN ANIMATION
+===================================================== */
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =====================================================
+RESPONSIVE
+===================================================== */
+
+@media (max-width: 600px) {
+    .community-post-card {
+        padding: 16px 14px 9px;
+        border-radius: var(--radius-lg);
+    }
+
+    .community-post-image-slide img {
+        max-height: 400px;
+        aspect-ratio: 4 / 3;
+    }
+
+    .community-post-image-controls {
+        display: none;
+    }
+
+    .community-post-actions {
+        gap: 2px;
+    }
+
+    .community-post-actions button {
+        gap: 5px;
+        font-size: 11px;
+    }
+
+    .community-post-actions button>i {
+        font-size: 13px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .community-post-menu-btn,
+    .community-post-copy-btn,
+    .community-post-image-controls button,
+    .community-post-actions button {
+        transition: none;
+    }
+}

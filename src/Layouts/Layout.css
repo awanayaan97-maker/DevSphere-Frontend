@@ -1,0 +1,40 @@
+
+
+.app-layout {
+    min-height: 100vh;
+
+    background: var(--bg-color);
+
+    color: var(--text-primary);
+}
+
+
+.app-body {
+    display: flex;
+
+    min-height: calc(100vh - 68px);
+}
+
+
+.page-content {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 32px;
+}
+
+
+@media (max-width: 760px) {
+
+    .app-body {
+        min-height: calc(100vh - 62px);
+    }
+
+    .page-content {
+        padding: 20px 15px;
+
+        padding-bottom: 90px;
+    }
+
+}

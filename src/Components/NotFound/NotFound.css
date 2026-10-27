@@ -1,0 +1,140 @@
+
+.notfound-page {
+    min-height: 70vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px 20px;
+}
+
+.notfound-content {
+    max-width: 480px;
+    text-align: center;
+}
+
+.notfound-code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    margin-bottom: 20px;
+
+    font-family: var(--font-primary);
+    font-size: clamp(72px, 14vw, 120px);
+    font-weight: 800;
+
+    line-height: 1;
+    letter-spacing: -0.03em;
+
+    color: var(--color-text-primary);
+}
+
+.notfound-code-zero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: clamp(60px, 11vw, 96px);
+    height: clamp(60px, 11vw, 96px);
+
+    border-radius: 50%;
+
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+
+    animation: notfoundPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes notfoundPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+.notfound-content h1 {
+    margin: 0 0 12px;
+
+    color: var(--color-text-primary);
+
+    font-family: var(--font-primary);
+    font-size: 24px;
+    font-weight: 800;
+
+    letter-spacing: -0.02em;
+}
+
+.notfound-content p {
+    margin: 0 0 32px;
+
+    color: var(--color-text-secondary);
+
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.notfound-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.notfound-btn-primary,
+.notfound-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 11px 20px;
+
+    border-radius: var(--radius-md);
+
+    font-family: var(--font-primary);
+    font-size: 13px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.notfound-btn-primary {
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.notfound-btn-primary:hover {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+}
+
+.notfound-btn-secondary {
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-primary);
+}
+
+.notfound-btn-secondary:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-border-hover);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .notfound-code-zero {
+        animation: none;
+    }
+}

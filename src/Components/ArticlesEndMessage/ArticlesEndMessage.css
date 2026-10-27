@@ -1,0 +1,133 @@
+
+/* =========================================
+   Articles End Message
+========================================= */
+
+.articles-end-message {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    margin: 34px 0 20px;
+    padding: 18px 20px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    background: var(--color-surface);
+
+    box-shadow: var(--shadow-sm);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   Check Icon
+========================================= */
+
+.articles-end-icon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--color-accent);
+    border-radius: 50%;
+
+    background: var(--color-accent-soft);
+
+    color: var(--color-accent);
+
+    font-size: 14px;
+}
+
+.articles-end-icon i {
+    font-size: 12px;
+}
+
+
+/* =========================================
+   Content
+========================================= */
+
+.articles-end-content {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+
+    text-align: left;
+}
+
+.articles-end-content strong {
+    color: var(--color-text-primary);
+
+    font-size: 14px;
+    font-weight: 700;
+
+    line-height: 1.4;
+}
+
+.articles-end-content span {
+    color: var(--color-text-muted);
+
+    font-size: 12px;
+    font-weight: 400;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   Arrow
+========================================= */
+
+.articles-end-arrow {
+    margin-left: 5px;
+
+    color: var(--color-text-muted);
+
+    font-size: 10px;
+}
+
+
+/* =========================================
+   Responsive
+========================================= */
+
+@media (max-width: 600px) {
+
+    .articles-end-message {
+        gap: 10px;
+
+        margin-top: 28px;
+        padding: 15px;
+    }
+
+    .articles-end-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .articles-end-content strong {
+        font-size: 11px;
+    }
+
+    .articles-end-content span {
+        font-size: 9px;
+    }
+
+    .articles-end-arrow {
+        display: none;
+    }
+
+}

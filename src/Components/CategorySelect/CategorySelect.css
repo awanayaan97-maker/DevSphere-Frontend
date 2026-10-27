@@ -1,0 +1,102 @@
+.category-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    width: 100%;
+}
+
+.category-select-label {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-primary);
+}
+
+/* =====================================================
+   DEFAULT DROPDOWN STYLE
+===================================================== */
+.explore-filter-select {
+    width: 100%;
+    height: 40px;
+    padding: 0 32px 0 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+
+    font-family: var(--font-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+
+    transition: 
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* Clean Safe SVG Arrow for Light/Default Theme */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2359636e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+}
+
+/* Hover State */
+.explore-filter-select:hover {
+    border-color: var(--color-border-hover);
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+/* Focus State */
+.explore-filter-select:focus {
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+    color: var(--color-text-primary);
+}
+
+/* Options Dropdown Menu */
+.explore-filter-select option {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    font-size: 13px;
+}
+
+
+
+.explore-filter-select-sm {
+    width: 150px;
+    min-width: unset; /* Purani min-width ko khatam karne ke liye */
+    height: 32px;
+    padding: 0 24px 0 8px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    background-position: right 6px center;
+    background-size: 9px;
+}
+
+.explore-filter-select-sm option {
+    font-size: 12px;
+}
+
+/* =====================================================
+   DARK MODE OVERRIDES ([data-theme="dark"])
+===================================================== */
+[data-theme="dark"] .explore-filter-select {
+    /* Clean Safe SVG Arrow for Dark Theme */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .explore-filter-select option {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+}

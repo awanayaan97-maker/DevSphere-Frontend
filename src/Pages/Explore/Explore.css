@@ -1,0 +1,455 @@
+/* =========================================================
+   EXPLORE PAGE — BASE
+========================================================= */
+
+.explore-page {
+    width: min(100% - 48px, 1320px);
+    margin: 0 auto;
+    padding: 32px 0 80px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.explore-header {
+    max-width: 640px;
+    margin-bottom: 32px;
+}
+
+.explore-eyebrow {
+    display: inline-flex;
+    margin-bottom: 10px;
+    color: var(--color-accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.explore-header h1 {
+    margin: 0 0 10px;
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.explore-header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   TRENDING TOPICS (pills)
+========================================================= */
+
+.explore-trending {
+    margin-bottom: 28px;
+}
+
+.explore-trending-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.trending-pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    font-size: 12.5px;
+    font-weight: 650;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.trending-pill:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+}
+
+.trending-pill-hash {
+    color: var(--color-accent);
+    font-weight: 800;
+}
+
+.trending-pill-count {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.trending-pill-active {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.trending-pill-active .trending-pill-count {
+    color: var(--color-accent);
+}
+
+/* duplicate list items (marquee ke liye) — desktop par chhupe rahenge */
+.trending-pill-duplicate {
+    display: none;
+}
+
+
+/* =========================================================
+   MAIN GRID
+========================================================= */
+
+.explore-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: start;
+    gap: 32px;
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.explore-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.explore-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.explore-tab {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-family: var(--font-primary);
+    font-size: 13.5px;
+    font-weight: 650;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.explore-tab:hover {
+    color: var(--color-text-primary);
+}
+
+.explore-tab-active {
+    border-bottom-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+
+/* =========================================================
+   ARTICLE LIST
+========================================================= */
+
+.explore-article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.explore-load-more {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-family: var(--font-primary);
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.explore-load-more:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.explore-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.sidebar-widget {
+    padding: 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
+}
+
+.sidebar-widget-header {
+    margin-bottom: 16px;
+}
+
+.sidebar-widget-header h3 {
+    margin: 0 0 3px;
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.sidebar-widget-header span {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   FILTER SELECT (shared look — desktop sidebar + mobile top)
+========================================================= */
+
+.explore-filter-select {
+    padding: 7px 28px 7px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-family: var(--font-primary);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2359636e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+
+    transition:
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.explore-filter-select:hover {
+    border-color: var(--color-border-hover);
+    color: var(--color-text-primary);
+}
+
+.explore-filter-select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+[data-theme="dark"] .explore-filter-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+
+/* =========================================================
+   FILTER BAR — MOBILE (top of explore-main)
+========================================================= */
+
+.explore-filter-bar-mobile {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.explore-filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-text-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.explore-filter-label i {
+    color: var(--color-accent);
+    font-size: 11px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+
+    .explore-page {
+        width: calc(100% - 36px);
+    }
+
+    .explore-grid {
+        grid-template-columns: minmax(0, 1fr) 260px;
+        gap: 24px;
+    }
+}
+
+
+/* =========================================================
+   850px — YAHIN SE MOBILE LAYOUT SWITCH HOTA HAI
+   (sidebar hide, mobile dev row show, mobile filter show,
+    trending marquee enable)
+========================================================= */
+
+@media (max-width: 850px) {
+
+    .explore-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .explore-sidebar {
+        display: none;
+    }
+
+    .explore-developers-mobile {
+        display: block;
+        margin-bottom: 24px;
+    }
+
+    .explore-filter-bar-mobile {
+        display: flex;
+    }
+
+    /* Trending pills — auto-scrolling marquee */
+    .trending-pill-duplicate {
+        display: inline-flex;
+    }
+
+    .explore-trending {
+        overflow: hidden;
+
+        mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+    }
+
+    .explore-trending-list {
+        flex-wrap: nowrap;
+        width: max-content;
+
+        animation: trendingMarquee 22s linear infinite;
+    }
+
+    .explore-trending-list:hover,
+    .explore-trending-list:active {
+        animation-play-state: paused;
+    }
+
+}
+
+@keyframes trendingMarquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+
+/* =========================================================
+   MOBILE — sirf typography/spacing fine-tuning
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .explore-page {
+        width: calc(100% - 20px);
+        padding: 20px 0 60px;
+    }
+
+    .explore-header {
+        margin-bottom: 24px;
+    }
+
+    .explore-header h1 {
+        font-size: clamp(22px, 7vw, 28px);
+    }
+
+    .explore-header p {
+        font-size: 13px;
+    }
+
+    .explore-trending {
+        margin-bottom: 20px;
+    }
+
+    .trending-pill {
+        padding: 8px 12px;
+        font-size: 11.5px;
+    }
+
+    .explore-tabs {
+        gap: 2px;
+    }
+
+    .explore-tab {
+        padding: 9px 12px;
+        font-size: 12.5px;
+    }
+
+    .explore-article-list {
+        gap: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .explore-page *,
+    .explore-page *::before,
+    .explore-page *::after {
+        transition: none !important;
+    }
+
+    .explore-trending-list {
+        animation: none !important;
+    }
+
+}

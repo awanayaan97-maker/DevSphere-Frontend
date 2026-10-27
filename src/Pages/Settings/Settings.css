@@ -1,0 +1,634 @@
+.settings-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 42px 28px 80px;
+  box-sizing: border-box;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.settings-container {
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.settings-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 34px;
+}
+
+.settings-eyebrow,
+.settings-section-label,
+.delete-modal-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.settings-header p {
+  margin: 10px 0 0;
+  max-width: 600px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.settings-security-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-security-badge svg {
+  color: var(--color-accent);
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.settings-section {
+  margin-bottom: 42px;
+}
+
+.settings-section-header {
+  margin-bottom: 14px;
+}
+
+.settings-section-header h2 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: -0.015em;
+}
+
+.settings-section-header p {
+  margin: 5px 0 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+/* =========================
+   MAIN CARD
+========================= */
+
+.settings-card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-item {
+  min-height: 126px;
+  padding: 23px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 17px;
+  box-sizing: border-box;
+  transition: background var(--transition-fast);
+}
+
+.settings-item:hover {
+  background: var(--color-surface-hover);
+}
+
+.settings-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 11px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 14px;
+}
+
+.settings-icon.email {
+  color: var(--color-accent);
+}
+
+.settings-icon.password {
+  color: var(--color-warning);
+}
+
+.settings-item-content {
+  min-width: 0;
+}
+
+.settings-item-content h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.settings-item-content p {
+  max-width: 610px;
+  margin: 7px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.settings-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.settings-small-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  background: var(--color-surface-hover);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.settings-current-value {
+  margin-top: 7px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.settings-password-dots {
+  margin-top: 8px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+.settings-divider {
+  height: 1px;
+  margin: 0 23px;
+  background: var(--color-border);
+}
+
+.settings-disabled {
+  opacity: 0.62;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.settings-btn {
+  min-height: 38px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.settings-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.settings-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.settings-btn.secondary {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.settings-btn.secondary:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-hover);
+}
+
+.settings-btn.primary {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.settings-btn.primary:hover:not(:disabled) {
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+}
+
+.settings-btn.ghost {
+  border-color: var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.settings-btn.ghost:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.settings-btn.danger {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.settings-btn.danger:hover:not(:disabled) {
+  background: color-mix(
+    in srgb,
+    var(--color-danger) 10%,
+    transparent
+  );
+}
+
+/* =========================
+   EMAIL / PASSWORD EDITOR
+========================= */
+
+.settings-editor {
+  max-width: 600px;
+  margin-top: 12px;
+}
+
+.settings-input-wrapper {
+  width: 100%;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  color: var(--color-text-muted);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.settings-input-wrapper + .settings-input-wrapper {
+  margin-top: 9px;
+}
+
+.settings-input-wrapper:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.settings-input-wrapper input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 13px;
+}
+
+.settings-input-wrapper input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.settings-editor-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.settings-field-error {
+  display: block;
+  margin-top: 7px;
+  color: var(--color-danger);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+.settings-message {
+  min-height: 42px;
+  margin-bottom: 22px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+}
+
+.settings-message.success {
+  border-color: color-mix(
+    in srgb,
+    var(--color-success) 30%,
+    var(--color-border)
+  );
+  background: var(--color-accent-soft);
+  color: var(--color-success);
+}
+
+.settings-message.error {
+  border-color: color-mix(
+    in srgb,
+    var(--color-danger) 30%,
+    var(--color-border)
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-danger) 8%,
+    var(--color-surface)
+  );
+  color: var(--color-danger);
+}
+
+/* =========================
+   DANGER ZONE
+========================= */
+
+.danger-label {
+  color: var(--color-danger);
+}
+
+.danger-card {
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid color-mix(
+    in srgb,
+    var(--color-danger) 30%,
+    var(--color-border)
+  );
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.danger-content {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.danger-icon,
+.delete-modal-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  border: 1px solid color-mix(
+    in srgb,
+    var(--color-danger) 28%,
+    var(--color-border)
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-danger) 9%,
+    var(--color-surface)
+  );
+  color: var(--color-danger);
+}
+
+.danger-content h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.danger-content p {
+  max-width: 600px;
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+/* =========================
+   DELETE MODAL
+========================= */
+
+.settings-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(6px);
+}
+
+.settings-delete-modal {
+  width: min(440px, 100%);
+  padding: 28px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+}
+
+.delete-modal-icon {
+  margin-bottom: 17px;
+}
+
+.delete-modal-label {
+  color: var(--color-danger);
+}
+
+.settings-delete-modal h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.02em;
+}
+
+.settings-delete-modal p {
+  margin: 9px 0 20px;
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.settings-delete-modal label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.settings-delete-modal input {
+  width: 100%;
+  height: 43px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: 0;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 13px;
+}
+
+.settings-delete-modal input:focus {
+  border-color: var(--color-danger);
+}
+
+.delete-modal-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+
+  .settings-page {
+    padding: 28px 16px 55px;
+  }
+
+  .settings-header {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 27px;
+  }
+
+  .settings-security-badge {
+    display: none;
+  }
+
+  .settings-item {
+    grid-template-columns: 40px minmax(0, 1fr);
+    padding: 20px 17px;
+    gap: 13px;
+  }
+
+  .settings-item > .settings-btn {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .settings-divider {
+    margin: 0 17px;
+  }
+
+  .danger-card {
+    padding: 19px 17px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .danger-card > .settings-btn {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 440px) {
+
+  .settings-page {
+    padding: 24px 12px 45px;
+  }
+
+  .settings-item {
+    padding: 17px 14px;
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .settings-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .settings-item-content p {
+    font-size: 12px;
+  }
+
+  .settings-item > .settings-btn,
+  .danger-card > .settings-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .settings-editor-actions {
+    flex-direction: column-reverse;
+  }
+
+  .settings-editor-actions .settings-btn {
+    width: 100%;
+  }
+
+  .settings-delete-modal {
+    padding: 22px;
+  }
+
+  .delete-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-modal-actions .settings-btn {
+    width: 100%;
+  }
+}

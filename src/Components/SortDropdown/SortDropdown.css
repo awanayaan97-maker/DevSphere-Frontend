@@ -1,0 +1,249 @@
+/* =====================================================
+SORT DROPDOWN
+===================================================== */
+
+.sort-dropdown {
+    position: relative;
+    display: inline-block;
+    min-width: 82px;
+    font-family: var(--font-primary);
+    z-index: 30;
+}
+
+/* Trigger Button */
+
+.sort-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    min-width: 82px;
+    height: 32px;
+    padding: 0 10px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+
+    font-family: var(--font-primary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+
+    transition:
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+}
+
+.sort-dropdown-trigger:hover {
+    border-color: var(--color-border-hover);
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+.sort-dropdown-trigger:focus-visible,
+.sort-dropdown-trigger-open {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.sort-dropdown-selected-icon {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+.sort-dropdown-label {
+    flex: 1;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.sort-dropdown-chevron {
+    font-size: 9px;
+    color: var(--color-text-secondary);
+    transition: transform var(--transition-fast);
+}
+
+.sort-dropdown-chevron-open {
+    transform: rotate(180deg);
+}
+
+/* =====================================================
+DROPDOWN MENU
+===================================================== */
+
+.sort-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+
+    min-width: 155px;
+    padding: 4px 0;
+
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+
+    overflow: hidden;
+    transform-origin: top right;
+    animation: sortDropdownOpen 0.18s ease both;
+
+    z-index: 100;
+
+}
+
+@keyframes sortDropdownOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+
+}
+
+/* =====================================================
+DROPDOWN OPTIONS
+===================================================== */
+
+.sort-dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    width: 100%;
+    min-height: 30px;
+    padding: 7px 10px;
+
+    border: none;
+    border-radius: 0;
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+
+    font-family: var(--font-primary);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast);
+
+}
+
+.sort-dropdown-option>i:first-child {
+    width: 13px;
+    font-size: 11px;
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.sort-dropdown-option span {
+    flex: 1;
+}
+
+/* Neutral hover — no green background */
+
+.sort-dropdown-option:hover {
+    border-color: var(--color-border-hover);
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+.sort-dropdown-option:hover>i:first-child {
+    color: var(--color-text-primary);
+}
+
+/* Selected option stays neutral */
+
+.sort-dropdown-option-active {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+.sort-dropdown-option-active>i:first-child {
+    color: var(--color-text-primary);
+}
+
+.sort-dropdown-check {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--color-text-secondary);
+}
+
+.sort-dropdown-option:focus-visible {
+    outline: 1px solid var(--color-border-hover);
+    outline-offset: -2px;
+}
+
+/* =====================================================
+DARK MODE
+===================================================== */
+
+[data-theme="dark"] .sort-dropdown-trigger {
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .sort-dropdown-trigger:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .sort-dropdown-menu {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+}
+
+[data-theme="dark"] .sort-dropdown-option {
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .sort-dropdown-option:hover,
+[data-theme="dark"] .sort-dropdown-option-active {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .sort-dropdown-option:hover>i:first-child,
+[data-theme="dark"] .sort-dropdown-option-active>i:first-child {
+    color: var(--color-text-primary);
+}
+
+/* =====================================================
+RESPONSIVE & REDUCED MOTION
+===================================================== */
+
+@media (max-width: 480px) {
+    .sort-dropdown-menu {
+        min-width: 145px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sort-dropdown-trigger,
+    .sort-dropdown-chevron,
+    .sort-dropdown-option {
+        transition: none;
+    }
+
+    .sort-dropdown-menu {
+        animation: none;
+    }
+
+}

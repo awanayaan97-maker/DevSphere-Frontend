@@ -1,0 +1,82 @@
+
+
+.button-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 42px;
+  padding: 10px 18px;
+
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+
+  background: var(--color-accent);
+  color: #ffffff;
+
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.button-loader:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.button-loader:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button-loader:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.button-loader:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.button-loader-spinner {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+
+  animation: button-loader-spin 0.7s linear infinite;
+}
+
+.button-loader-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes button-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-loader-spinner {
+    animation-duration: 1.5s;
+  }
+
+  .button-loader {
+    transition: none;
+  }
+}

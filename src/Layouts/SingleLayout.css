@@ -1,0 +1,45 @@
+
+
+:root {
+    --navbar-height: 64px;
+}
+
+.app-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.app-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+
+    height: var(--navbar-height);
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-sizing: border-box;
+}
+
+.app-navbar-links {
+    display: flex;
+    gap: 20px;
+}
+
+.app-navbar-links a,
+.app-navbar-logo {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}

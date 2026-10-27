@@ -1,0 +1,23 @@
+.comments-list {
+    max-height: 350px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-right: 6px;
+}
+
+.comments-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 10px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}

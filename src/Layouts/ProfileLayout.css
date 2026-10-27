@@ -1,0 +1,23 @@
+
+.profile-layout {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+
+    background: var(--color-background);
+}
+
+
+.profile-main-content {
+  width: 100%;
+  padding: clamp(5px, 4vw, 35px);
+  box-sizing: border-box;
+}
+
+.profile-page {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+}

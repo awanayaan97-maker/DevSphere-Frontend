@@ -1,0 +1,86 @@
+.devsphere-logo {
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+    max-width: 100%;
+
+    text-decoration: none;
+    white-space: nowrap;
+
+    font-family: var(--font-primary);
+
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: opacity var(--transition-fast);
+}
+
+.devsphere-logo:hover {
+    opacity: 0.9;
+}
+
+.devsphere-logo-symbol {
+    color: var(--color-text-muted);
+    font-weight: 700;
+}
+
+.devsphere-logo-name {
+    color: var(--color-accent);
+    font-weight: 700;
+}
+
+
+/* ============================== */
+/* TABLET / SMALL MOBILE */
+/* ============================== */
+
+@media (max-width: 600px) {
+
+    .devsphere-logo {
+        font-size: 18px;
+    }
+
+}
+
+
+/* ============================== */
+/* MOBILE */
+/* ============================== */
+
+@media (max-width: 400px) {
+
+    .devsphere-logo {
+        font-size: 17px;
+    }
+
+}
+
+
+/* ============================== */
+/* VERY SMALL MOBILE */
+/* ============================== */
+
+@media (max-width: 350px) {
+
+    .devsphere-logo {
+        font-size: 16px;
+    }
+
+}
+
+
+/* ============================== */
+/* 300px AND BELOW */
+/* ============================== */
+
+@media (max-width: 300px) {
+
+    .devsphere-logo {
+        font-size: 15px;
+    }
+
+}

@@ -1,0 +1,149 @@
+
+
+/* =====================================================
+   COMMENT — 3-DOT MENU
+===================================================== */
+
+.comment-top {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.comment-menu {
+    position: relative;
+}
+
+.comment-menu-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.comment-menu-trigger:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+
+/* =====================================================
+   DROPDOWN
+===================================================== */
+
+.comment-menu-dropdown {
+    position: absolute;
+    top: 32px;
+    right: 0;
+    min-width: 170px;
+    padding: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 8px);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md, 0 10px 30px rgba(0, 0, 0, .14));
+    z-index: 10;
+    animation: dropdownFadeIn .15s ease;
+}
+
+.comment-menu-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    background: transparent;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 550;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease;
+}
+
+.comment-menu-dropdown button i {
+    width: 14px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.comment-menu-dropdown button:hover {
+    background: var(--color-surface-hover);
+}
+
+.comment-menu-dropdown button.delete-option {
+    color: var(--color-danger);
+}
+
+.comment-menu-dropdown button.delete-option i {
+    color: var(--color-danger);
+}
+
+.comment-menu-dropdown button.delete-option:hover {
+    background: rgba(207, 34, 46, 0.08);
+}
+
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comment-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Saare elements ke beech mein ek controlled aur chhota gap rakhne ke liye */
+}
+
+.comment-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0px; /* Agar koi extra margin ho toh usko zero kar dein */
+}
+
+.comment-text {
+    margin-top: 0px; /* Message ko name ke qareeb laane ke liye */
+    margin-bottom: 6px;
+}
+
+.comment-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.comment-user-info strong {
+    font-size: 13px;
+    color: var(--color-text-primary, #f0f6fc);
+}
+
+.comment-user-info span {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.comment-time {
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: 400;
+}

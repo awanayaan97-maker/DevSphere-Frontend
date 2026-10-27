@@ -1,0 +1,149 @@
+
+.loader-container {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--color-background, #0b0f14);
+
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+}
+
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+
+/* Logo */
+
+.loader-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1px;
+
+    color: var(--color-text-primary, #ffffff);
+
+    animation: loaderFade 1.8s ease-in-out infinite;
+}
+
+
+.logo-name {
+    color: var(--color-accent, #22c55e);
+}
+
+
+.logo-bracket {
+    color: var(--color-text-muted, #8b949e);
+    font-weight: 700;
+}
+
+
+/* Loading line */
+
+.loader-line {
+    width: 150px;
+    height: 3px;
+
+    margin-top: 20px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: var(--color-border, #242b33);
+}
+
+
+.loader-line span {
+    display: block;
+
+    width: 45%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: var(--color-accent, #22c55e);
+
+    animation: loaderProgress 1.2s ease-in-out infinite;
+}
+
+
+/* Text */
+
+.loader-text {
+    margin-top: 14px;
+
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+
+    color: var(--color-text-muted, #8b949e);
+}
+
+
+/* Animations */
+
+@keyframes loaderProgress {
+
+    0% {
+        transform: translateX(-120%);
+    }
+
+    50% {
+        transform: translateX(180%);
+    }
+
+    100% {
+        transform: translateX(300%);
+    }
+
+}
+
+
+@keyframes loaderFade {
+
+    0%,
+    100% {
+        opacity: 0.65;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .loader-logo {
+        font-size: 28px;
+    }
+
+    .loader-line {
+        width: 125px;
+    }
+
+    .loader-text {
+        font-size: 12px;
+    }
+
+}

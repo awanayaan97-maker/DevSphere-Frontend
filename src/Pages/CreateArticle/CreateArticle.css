@@ -1,0 +1,857 @@
+/* =========================================
+   Create Article Page
+========================================= */
+
+.create-article-page {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 32px 60px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   Page Header
+========================================= */
+
+.create-article-header {
+    margin-bottom: 30px;
+}
+
+.create-article-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 9px;
+
+    color: var(--color-accent);
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.create-article-eyebrow i {
+    font-size: 13px;
+}
+
+.create-article-header h1 {
+    margin: 0;
+
+    color: var(--color-text-primary);
+
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.create-article-header p {
+    max-width: 680px;
+
+    margin: 9px 0 0;
+
+    color: var(--color-text-muted);
+
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+
+.create-article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 24px;
+    align-items: start;
+}
+
+
+/* =========================================
+   Main Writing Area
+========================================= */
+
+.article-writing-area {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* =========================================
+   Cards
+========================================= */
+
+.article-info-card,
+.article-content-card,
+.article-sidebar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+
+/* =========================================
+   Article Info
+========================================= */
+
+.article-info-card {
+    padding: 26px;
+}
+
+.article-field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.article-field+.article-field {
+    margin-top: 22px;
+}
+
+.article-field label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--color-text-primary);
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.article-field label span {
+    color: var(--color-text-muted);
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+.article-field input,
+.article-field textarea,
+.sidebar-field input,
+.sidebar-field select {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    background: var(--color-background);
+    color: var(--color-text-primary);
+
+    font-family: inherit;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+
+.article-field input {
+    height: 54px;
+
+    padding: 0 17px;
+
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.article-field input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.65;
+}
+
+
+.article-field textarea {
+    min-height: 92px;
+
+    padding: 14px 16px;
+
+    resize: vertical;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.article-field textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.65;
+}
+
+
+.article-field input:focus,
+.article-field textarea:focus,
+.sidebar-field input:focus,
+.sidebar-field select:focus {
+    border-color: var(--color-accent);
+
+    box-shadow: 0 0 0 3px rgba(41, 148, 77, 0.10);
+}
+
+
+/* =========================================
+   Editor Content Card
+========================================= */
+
+.article-content-card {
+    overflow: hidden;
+}
+
+.article-content-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 22px 24px;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.article-content-heading h2 {
+    margin: 0;
+
+    color: var(--color-text-primary);
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.article-content-heading p {
+    margin: 5px 0 0;
+
+    color: var(--color-text-muted);
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+.editor-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    flex-shrink: 0;
+
+    padding: 6px 10px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+
+    color: var(--color-text-muted);
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--color-accent);
+}
+
+
+/*
+   Remove the outer editor border because
+   the Article Content card already provides it.
+*/
+
+.article-content-card .article-editor {
+    border: none;
+    border-radius: 0;
+}
+
+
+/* =========================================
+   Sidebar
+========================================= */
+
+.article-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    position: sticky;
+    top: 24px;
+}
+
+
+.article-sidebar-card {
+    padding: 22px;
+}
+
+
+/* =========================================
+   Sidebar Heading
+========================================= */
+
+.sidebar-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 24px;
+}
+
+.sidebar-heading-icon {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+
+    background: var(--color-background);
+
+    color: var(--color-accent);
+
+    font-size: 14px;
+}
+
+.sidebar-card-heading h3 {
+    margin: 0;
+
+    color: var(--color-text-primary);
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.sidebar-card-heading p {
+    margin: 3px 0 0;
+
+    color: var(--color-text-muted);
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   Sidebar Fields
+========================================= */
+
+.sidebar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-field+.sidebar-field {
+    margin-top: 21px;
+}
+
+.sidebar-field>label {
+    color: var(--color-text-primary);
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+
+/* .sidebar-field input {
+    height: 42px;
+
+    padding: 0 12px;
+
+    font-size: 12px;
+}
+
+.sidebar-field input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.65;
+} */
+
+
+.sidebar-field small {
+    color: var(--color-text-muted);
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =========================================
+   Select
+========================================= */
+
+/* .select-wrapper {
+    position: relative;
+}
+
+.sidebar-field select {
+    height: 42px;
+
+    padding: 0 38px 0 12px;
+
+    appearance: none;
+
+    cursor: pointer;
+
+    font-size: 12px;
+}
+
+.select-wrapper > i {
+    position: absolute;
+
+    top: 50%;
+    right: 13px;
+
+    transform: translateY(-50%);
+
+    pointer-events: none;
+
+    color: var(--color-text-muted);
+
+    font-size: 10px;
+} */
+
+
+/* =========================================
+   Visibility
+========================================= */
+
+/* .visibility-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visibility-option {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 11px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.visibility-option:hover {
+    background: var(--color-background);
+}
+
+.visibility-option.active {
+    border-color: var(--color-accent);
+    background: rgba(41, 148, 77, 0.06);
+}
+
+.visibility-option input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.visibility-icon {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    background: var(--color-background);
+
+    color: var(--color-text-muted);
+
+    font-size: 12px;
+}
+
+.visibility-option.active .visibility-icon {
+    color: var(--color-accent);
+}
+
+.visibility-option strong {
+    display: block;
+
+    color: var(--color-text-primary);
+
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.visibility-option span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+    line-height: 1.35;
+} */
+
+/* Sidebar wale select par extra arrows ko zabardasti khatam karne ke liye */
+.sidebar-field select,
+.sidebar-field .explore-filter-select {
+    background-image: none !important;
+    /* Agar background arrow conflict kare */
+    padding-right: 12px !important;
+}
+
+/* =========================================
+   Article Actions
+========================================= */
+
+.article-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+
+    margin-top: 24px;
+    padding-top: 20px;
+
+    border-top: 1px solid var(--color-border);
+}
+
+.article-actions button {
+    width: 100%;
+    height: 43px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    border-radius: var(--radius-md);
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+.save-draft-button {
+    border: 1px solid var(--color-border);
+
+    background: transparent;
+
+    color: var(--color-text-primary);
+}
+
+.save-draft-button:hover {
+    border-color: var(--color-accent);
+
+    color: var(--color-accent);
+}
+
+
+.publish-button {
+    border: 1px solid var(--color-accent);
+
+    background: var(--color-accent);
+
+    color: #fff;
+}
+
+.publish-button:hover {
+    background: var(--color-accent-hover);
+}
+
+.article-actions button:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================
+   Writing Tips
+========================================= */
+
+.tips-icon {
+    color: #d3a43b;
+}
+
+.writing-tips-card .sidebar-card-heading {
+    margin-bottom: 18px;
+}
+
+.writing-tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.writing-tips-list li {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 9px;
+
+    color: var(--color-text-muted);
+
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.writing-tips-list li i {
+    flex-shrink: 0;
+
+    margin-top: 2px;
+
+    color: var(--color-accent);
+
+    font-size: 10px;
+}
+
+
+
+
+
+@media (max-width: 1050px) {
+    .create-article-layout {
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 850px) {
+    .create-article-layout {
+        grid-template-columns: 1fr;
+        /* Sidebar neeche shift ho jayega */
+    }
+
+    .article-sidebar {
+        width: 100%;
+        max-width: 600px;
+        /* Mobile/Tablet par card bohot ziada chauda na dikhe */
+        margin: 0 auto;
+        /* Center alignment for sidebar */
+    }
+}
+
+@media (max-width: 600px) {
+    .create-article-page {
+        padding: 22px 16px 40px;
+    }
+
+    .article-sidebar {
+        display: flex;
+        flex-direction: column;
+        /* Stack sidebar items vertically */
+        gap: 16px;
+        width: 100%;
+    }
+
+    .article-sidebar-card {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 18px;
+    }
+
+    .article-actions {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .create-article-page {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .create-article-header h1 {
+        font-size: 23px;
+    }
+
+    .article-info-card {
+        padding: 15px;
+    }
+
+    .article-content-heading {
+        padding: 16px;
+    }
+
+}
+
+/* =========================================
+   Tags Input
+========================================= */
+
+.tags-input-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+}
+
+.tags-input-wrapper input {
+    flex: 1;
+    min-width: 0;
+
+    height: 42px;
+    padding: 0 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    background: var(--color-background);
+    color: var(--color-text-primary);
+
+    font-family: inherit;
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.tags-input-wrapper input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.65;
+}
+
+.tags-input-wrapper input:focus {
+    border-color: var(--color-accent);
+
+    box-shadow: 0 0 0 3px rgba(41, 148, 77, 0.10);
+}
+
+
+.add-tag-button {
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 0 13px;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+
+    background: transparent;
+    color: var(--color-accent);
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.add-tag-button:hover {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.add-tag-button i {
+    font-size: 10px;
+}
+
+
+/* =========================================
+   Added Tags
+========================================= */
+
+.article-tags-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    margin-top: 10px;
+}
+
+.article-tag {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 5px 8px 5px 9px;
+
+    border: 1px solid rgba(41, 148, 77, 0.35);
+    border-radius: 6px;
+
+    background: rgba(41, 148, 77, 0.08);
+    color: var(--color-accent);
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.article-tag button {
+    width: 16px;
+    height: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 4px;
+
+    background: transparent;
+    color: var(--color-accent);
+
+    cursor: pointer;
+}
+
+.article-tag button:hover {
+    background: rgba(41, 148, 77, 0.15);
+}
+
+.article-tag button i {
+    font-size: 8px;
+}

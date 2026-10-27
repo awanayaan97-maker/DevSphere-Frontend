@@ -1,0 +1,112 @@
+.theme-button {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    background: transparent;
+    color: var(--color-text-secondary);
+
+    cursor: pointer;
+
+    flex-shrink: 0;
+
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.theme-button:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-hover);
+}
+
+.theme-button i {
+    font-size: 14px;
+    line-height: 1;
+}
+
+
+/* ============================== */
+/* TABLET / SMALL MOBILE */
+/* ============================== */
+
+@media (max-width: 600px) {
+
+    .theme-button {
+        width: 32px;
+        height: 32px;
+
+        border-radius: var(--radius-sm);
+    }
+
+    .theme-button i {
+        font-size: 13px;
+    }
+
+}
+
+
+/* ============================== */
+/* MOBILE */
+/* ============================== */
+
+@media (max-width: 400px) {
+
+    .theme-button {
+        width: 31px;
+        height: 31px;
+    }
+
+    .theme-button i {
+        font-size: 12px;
+    }
+
+}
+
+
+/* ============================== */
+/* VERY SMALL MOBILE */
+/* ============================== */
+
+@media (max-width: 350px) {
+
+    .theme-button {
+        width: 30px;
+        height: 30px;
+    }
+
+    .theme-button i {
+        font-size: 12px;
+    }
+
+}
+
+
+/* ============================== */
+/* 300px AND BELOW */
+/* ============================== */
+
+@media (max-width: 320px) {
+
+    .theme-button {
+        width: 28px;
+        height: 28px;
+
+        border-radius: 5px;
+    }
+
+    .theme-button i {
+        font-size: 11px;
+    }
+
+}
