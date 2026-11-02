@@ -24,6 +24,7 @@ import AskAiButton from "../../Components/AskAiButton/AskAiButton";
 import ArticleAIChat from "../../Components/ArticleAIChat/ArticleAIChat";
 import { useBookmarkToggle } from "../../hooks/useBookmarkToggle";
 import { useLikeToggle } from "../../hooks/useLikeToggle";
+import useApiQuery from "../../hooks/useApiQuery";
 
 
 function ReadArticle() {
@@ -33,10 +34,15 @@ function ReadArticle() {
     const { user } = useContext(AuthContext)
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const commentsRef = useRef(null)
-    const { loading, error, setError, data } = useFetch(
-        `${API_URL}/api/article/publish/${id}`, token
-    );
+    const commentsRef = useRef(null);
+    const { isLoading, isError, error, setError, data } = useApiQuery({
+        url: `${API_URL}/api/article/publish/${id}`,
+        type: "GET",
+        isAuthorized: false
+    })
+    // const { loading, error, setError, data } = useFetch(
+    //     `${API_URL}/api/article/publish/${id}`, token
+    // );
 
     const { callApi, loading: commentsLoading } = useCallApi();
     const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
@@ -217,7 +223,7 @@ function ReadArticle() {
     }
 
 
-    if (loading) {
+    if (isLoading) {
         return <Loader />;
     }
 

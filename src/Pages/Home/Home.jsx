@@ -10,14 +10,8 @@ import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndM
 import NoResults from "../../Components/NoResults/NoResults";
 import { AuthContext } from "../../Context/AuthContext";
 import SortDropdown from "../../Components/SortDropdown/SortDropdown";
+import { SORT_LABELS } from "../../constants/appConstants";
 
-
-const SORT_LABELS = {
-    relevance: "Best match",
-    latest: "Latest articles",
-    oldest: "Oldest articles",
-    mostLiked: "Most liked articles"
-};
 
 function Home() {
 

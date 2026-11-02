@@ -1,68 +1,25 @@
 
 
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-
 import CommunityPostCard from "../../Components/CommunityPostCard/CommunityPostCard";
-import useCallApi from "../../hooks/useCallApi";
-
 import "./SinglePostPage.css";
+import useApiQuery from "../../hooks/useApiQuery";
 
 function SinglePostPage() {
-    const { id } = useParams();
 
+    const { id } = useParams();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-
-    const { callApi, loading } = useCallApi();
-
-    const [post, setPost] = useState(null);
-    const [error, setError] = useState("");
-
-    useEffect(() => {
-        let cancelled = false;
-
-        async function fetchPost() {
-            setPost(null);
-            setError("");
-
-            try {
-                const result = await callApi(
-                    `${API_URL}/api/post/${id}`,
-                    "GET",
-                    null,
-                    token
-                );
-
-                if (cancelled) return;
-
-                if (result?.status && result?.data) {
-                    setPost(result.data);
-                } else {
-                    setError("This post could not be found.");
-                }
-            } catch {
-                if (!cancelled) {
-                    setError("Unable to load this post. Please try again.");
-                }
-            }
-        }
-
-        if (id) {
-            fetchPost();
-        } else {
-            setError("Invalid post link.");
-        }
-
-        return () => {
-            cancelled = true;
-        };
-    }, [id]);
+    const {isLoading, isError, error, setError, data} = useApiQuery({
+        url: `${API_URL}/api/post/${id}`,
+        type: "GET",
+        isAuthorized: false
+    })
 
     return (
         <main className="single-post-page">
             <div className="single-post-container">
-                {loading && !post && !error && (
+                {isLoading && data.length == 0 && !isError && (
                     <div className="single-post-state">
                         <span className="single-post-spinner" />
                         <p>Loading post...</p>
@@ -96,7 +53,7 @@ function SinglePostPage() {
                     </div>
                 )}
 
-                {post && (
+                {data && (
                     <>
                         <div className="single-post-back">
                             <Link to="/community">
@@ -106,7 +63,7 @@ function SinglePostPage() {
                         </div>
 
                         <section className="single-post-card">
-                            <CommunityPostCard post={post} />
+                            <CommunityPostCard post={data} />
                         </section>
 
                         <section className="single-post-footer">

@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
     const API_URL = import.meta.env.VITE_API_URL;
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [notifications, setNotifications] = useState(null);
     const [unreadCount, setUnreadCount] = useState(0);
     const [socket, setSocket] = useState(null);
@@ -19,9 +20,11 @@ export function AuthProvider({ children }) {
         if(user !== null || !token?.trim()) return
          
         async function fetchUser() {
+            setLoading(true)
             const result = await callApi(`${API_URL}/api/user/`, "GET", [], token);
 
             if (result?.status) {
+                setLoading(false)
                 setUser(result)
                 setNotifications(result?.data?.notifications)
             }
@@ -104,7 +107,7 @@ export function AuthProvider({ children }) {
 
 
     return (
-        <AuthContext.Provider value={{ user, notifications, unreadCount, setUnreadCount,  socket, setUser, logout, login }}>
+        <AuthContext.Provider value={{ user, notifications, unreadCount, setUnreadCount,  socket, setUser, logout, login, loading }}>
             {children}
         </AuthContext.Provider>
     )

@@ -1,58 +1,28 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import PostCard from "../../Components/PostCard/PostCard";
-import NoResults from "../../Components/NoResults/NoResults";
-
 import "./Bookmarks.css";
-import useCallApi from "../../hooks/useCallApi";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import useLoginChecker from "../../hooks/useLoginChecker";
 import Alert from "../../Components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
 import CommunityPostCard from "../../Components/CommunityPostCard/CommunityPostCard";
+import useApiQuery from "../../hooks/useApiQuery";
 
 function Bookmarks() {
 
-
     const navigate = useNavigate()
     const API_URL = import.meta.env.VITE_API_URL;
-    const token = localStorage.getItem("token");
-    const [data, setData] = useState([])
-    const [sortBy, setSortBy] = useState("recent");
-    const [showAlert, setShowAlert] = useState(false);
     const [activeTab, setActiveTab] = useState("articles");
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
-    const { callApi, loading, error, setError, } = useCallApi();
+    const { isLoggedIn } = useLoginChecker();
+    const { data, isError, isLoading, error, setError } = useApiQuery({
+        url: `${API_URL}/api/discover/bookmark?source=${activeTab}`,
+        type: "GET",
+        isAuthorized: true
+    })
 
-
-    useEffect(() => {
-
-        if (isLoggedIn) {
-            setShowAlert(true)
-            return
-        }
-
-        async function getBookmarks() {
-
-            let source = activeTab?.trim() === "articles" ? `source=articles` : `source=posts`
-
-            const result = await callApi(`${API_URL}/api/discover/bookmark?${source}`, "GET", [], token);
-
-            if (result) {
-                console.log(result);
-                setData(result.data)
-            } else {
-                setError(result?.message)
-            }
-
-        }
-
-        getBookmarks()
-
-    }, [activeTab])
-
-    if (showAlert) return <Alert
+    if (!isLoggedIn) return <Alert
         title="Login Required"
         message="Please login or create an account"
         actionText="Login Now"
@@ -60,9 +30,9 @@ function Bookmarks() {
         onClose={() => navigate('/')}
     />
 
-    if (loading) return <SectionLoader />
+    if (isLoading) return <SectionLoader />
 
-    if (error) {
+    if (isError) {
 
         return (
             <ResponsePopup

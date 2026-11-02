@@ -88,7 +88,7 @@ function Profile() {
 
     }
 
-    if (isLoggedIn) return <Alert
+    if (!isLoggedIn) return <Alert
         title="Login Required"
         message="Please login or create an account to view your profile."
         actionText="Login Now"

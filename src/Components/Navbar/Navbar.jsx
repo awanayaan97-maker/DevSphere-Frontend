@@ -1,8 +1,8 @@
 
-
-import React, { useState, useContext, useEffect, useRef, use } from "react";
-import { Link, Links, NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import React, { useState, useContext, useEffect, useRef } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+
 import { AuthContext } from "../../Context/AuthContext";
 import Alert from "../Alert/Alert";
 import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
@@ -14,77 +14,114 @@ import ThemeToggle from "../ThemeToggle/ThemeToggle";
 function Navbar() {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
+
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [searchInput, setSearchInput] = useState("");
-    const { user, logout, notifications, unreadCount, setUnreadCount } = useContext(AuthContext);
+
+    const {
+        user,
+        logout,
+        notifications,
+        unreadCount,
+        setUnreadCount
+    } = useContext(AuthContext);
+
     const { callApi } = useCallApi();
     const API_URL = import.meta.env.VITE_API_URL;
 
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
     const notificationRef = useRef(null);
-    const prevLengthRef = useRef(0);
 
+
+    // Notification API
     useEffect(() => {
 
         if (!isNotificationOpen) return;
 
         const notificationTrue = async () => {
-            const result = await callApi(`${API_URL}/api/user/notification`, "PUT", [], token)
-        }
+            await callApi(
+                `${API_URL}/api/user/notification`,
+                "PUT",
+                [],
+                token
+            );
+        };
 
-        notificationTrue()
+        notificationTrue();
 
-    }, [isNotificationOpen])
+    }, [isNotificationOpen]);
 
+
+    // Close profile dropdown on outside click
     useEffect(() => {
+
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
                 setIsDropdownOpen(false);
             }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+
     }, []);
 
+
+    // Mobile drawer scroll lock
     useEffect(() => {
-        if (isMobileMenuOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
+
+        document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
+
+        return () => {
             document.body.style.overflow = "unset";
-        }
+        };
+
     }, [isMobileMenuOpen]);
 
+
+    // Keyboard search shortcut
     useEffect(() => {
 
-        function handleKeyDwon(e) {
+        function handleKeyDown(e) {
 
-            if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") ||
-                (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA")) {
-
+            if (
+                ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") ||
+                (
+                    e.key === "/" &&
+                    document.activeElement.tagName !== "INPUT" &&
+                    document.activeElement.tagName !== "TEXTAREA"
+                )
+            ) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (inputRef.current) {
-                    inputRef.current.focus()
-                }
-
+                inputRef.current?.focus();
             }
         }
 
-        window.addEventListener("keydown", handleKeyDwon, true);
+        window.addEventListener("keydown", handleKeyDown, true);
 
         return () => {
-            window.removeEventListener("keydown", handleKeyDwon, true)
-        }
+            window.removeEventListener("keydown", handleKeyDown, true);
+        };
 
-    })
+    }, []);
 
+
+    // Close notification and profile dropdown on outside click
     useEffect(() => {
+
         function handleClickOutside(e) {
 
             if (
@@ -111,42 +148,77 @@ function Navbar() {
     }, []);
 
 
+    // Logout
     const handleLogoutConfirm = () => {
-        logout()
+        logout();
+
         setIsDropdownOpen(false);
         setIsMobileMenuOpen(false);
         setShowAlert(false);
+
         navigate("/login");
     };
+
 
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
     };
 
+
+    // Avatar
     const renderAvatar = () => {
+
         if (user && user.data) {
-            if (user.data.profileImage && user.data.profileImage.trim() !== "") {
-                return <img src={user.data.profileImage} alt="Profile" />;
-            } else {
+
+            if (
+                user.data.profileImage &&
+                user.data.profileImage.trim() !== ""
+            ) {
                 return (
-                    <span>
-                        {user.data.firstName ? user.data.firstName.charAt(0).toUpperCase() : "U"}
-                    </span>
+                    <img
+                        src={user.data.profileImage}
+                        alt="Profile"
+                    />
                 );
             }
+
+            return (
+                <span>
+                    {user.data.firstName
+                        ? user.data.firstName.charAt(0).toUpperCase()
+                        : "U"}
+                </span>
+            );
         }
+
         return <div className="navbar-avatar-placeholder" />;
     };
 
 
+    // Search
     function handleSearch() {
-        if (!searchInput?.trim()) return null
-        navigate(`/?q=${encodeURIComponent(searchInput.trim())}&sort=relevance`);
+
+        if (!searchInput?.trim()) return;
+
+        navigate(
+            `/?q=${encodeURIComponent(searchInput.trim())}&sort=relevance`
+        );
+
+        setIsMobileSearchOpen(false);
     }
+
+
+    // Mobile navigation link
+    const closeMenuAndNavigate = () => {
+        closeMobileMenu();
+        setIsDropdownOpen(false);
+    };
+
 
     return (
         <header className="navbar">
 
+            {/* Logout Alert */}
             {showAlert && (
                 <Alert
                     title="Log Out"
@@ -157,7 +229,13 @@ function Navbar() {
                 />
             )}
 
-            <div className={`mobile-search-overlay ${isMobileSearchOpen ? "active" : ""}`}>
+
+            {/* Mobile Search */}
+            <div
+                className={`mobile-search-overlay ${isMobileSearchOpen ? "active" : ""
+                    }`}
+            >
+
                 <button
                     type="button"
                     className="search-close-btn"
@@ -168,18 +246,25 @@ function Navbar() {
                 </button>
 
                 <div className="mobile-search-input-wrapper">
-                    <i className="fa-solid fa-magnifying-glass search-inside-icon" onClick={handleSearch}></i>
+
+                    <i
+                        className="fa-solid fa-magnifying-glass search-inside-icon"
+                        onClick={handleSearch}
+                    ></i>
+
                     <input
                         type="text"
                         placeholder="Search..."
                         autoFocus={isMobileSearchOpen}
+                        value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                handleSearch()
+                                handleSearch();
                             }
                         }}
                     />
+
                 </div>
 
                 {token && (
@@ -187,9 +272,13 @@ function Navbar() {
                         {renderAvatar()}
                     </div>
                 )}
+
             </div>
 
+
+            {/* Navbar Left */}
             <div className="navbar-left">
+
                 <button
                     type="button"
                     className="hamburger-btn"
@@ -199,27 +288,40 @@ function Navbar() {
                     <i className="fa-solid fa-bars"></i>
                 </button>
 
-                <Logo/>
+                <Logo />
 
             </div>
 
+
+            {/* Desktop Search */}
             <div className="navbar-search">
-                <i className="fa-solid fa-magnifying-glass search-icon" onClick={handleSearch}></i>
+
+                <i
+                    className="fa-solid fa-magnifying-glass search-icon"
+                    onClick={handleSearch}
+                ></i>
+
                 <input
                     ref={inputRef}
                     type="text"
                     placeholder="Search developers, articles..."
+                    value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                            handleSearch()
+                            handleSearch();
                         }
                     }}
                 />
+
                 <span className="search-shortcut">⌘K</span>
+
             </div>
 
+
+            {/* Navbar Actions */}
             <div className="navbar-actions">
+
                 <button
                     type="button"
                     className="icon-btn mobile-search-trigger"
@@ -229,27 +331,38 @@ function Navbar() {
                     <i className="fa-solid fa-magnifying-glass"></i>
                 </button>
 
-                <ThemeToggle/>
+                <ThemeToggle />
+
 
                 {token ? (
                     <>
 
-                        <div className="notification-wrapper" ref={notificationRef}>
+                        {/* Notifications */}
+                        <div
+                            className="notification-wrapper"
+                            ref={notificationRef}
+                        >
+
                             <button
                                 type="button"
-                                className={`icon-btn notification-button ${isNotificationOpen ? "notification-button-active" : ""
+                                className={`icon-btn notification-button ${isNotificationOpen
+                                        ? "notification-button-active"
+                                        : ""
                                     }`}
                                 aria-label="Notifications"
                                 onClick={() => {
                                     setIsNotificationOpen((prev) => {
                                         const nextState = !prev;
+
                                         if (nextState) {
                                             setUnreadCount(0);
                                         }
+
                                         return nextState;
                                     });
                                 }}
                             >
+
                                 <i className="fa-solid fa-bell"></i>
 
                                 {unreadCount > 0 && (
@@ -257,6 +370,7 @@ function Navbar() {
                                         {unreadCount > 9 ? "9+" : unreadCount}
                                     </span>
                                 )}
+
                             </button>
 
                             {isNotificationOpen && (
@@ -264,9 +378,16 @@ function Navbar() {
                                     notifications={notifications}
                                 />
                             )}
+
                         </div>
 
-                        <div className="avatar-dropdown-wrapper" ref={dropdownRef}>
+
+                        {/* Desktop Profile Dropdown */}
+                        <div
+                            className="avatar-dropdown-wrapper"
+                            ref={dropdownRef}
+                        >
+
                             <button
                                 type="button"
                                 className="navbar-avatar-btn"
@@ -278,42 +399,65 @@ function Navbar() {
                                 </div>
                             </button>
 
+
                             {isDropdownOpen && (
                                 <div className="profile-dropdown-menu">
+
                                     <div className="dropdown-user-header">
                                         <strong>
-                                            {user?.data?.firstName} {user?.data?.lastName || ""}
+                                            {user?.data?.firstName}{" "}
+                                            {user?.data?.lastName || ""}
                                         </strong>
-                                        <span>@{user?.data?.username || "username"}</span>
+
+                                        <span>
+                                            @{user?.data?.username || "username"}
+                                        </span>
                                     </div>
 
                                     <div className="dropdown-divider"></div>
 
                                     <ul className="dropdown-links">
+
                                         <li>
-                                            <Link to="/profile" onClick={() => setIsDropdownOpen(false)}>
+                                            <Link
+                                                to="/profile"
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
                                                 <i className="fa-solid fa-user"></i>
                                                 <span>Profile</span>
                                             </Link>
                                         </li>
+
                                         <li>
-                                            <Link to="/drafts" onClick={() => setIsDropdownOpen(false)}>
+                                            <Link
+                                                to="/drafts"
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
                                                 <i className="fa-solid fa-file-lines"></i>
                                                 <span>My Drafts</span>
                                             </Link>
                                         </li>
+
                                         <li>
-                                            <Link to="/bookmarks" onClick={() => setIsDropdownOpen(false)}>
+                                            <Link
+                                                to="/bookmarks"
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
                                                 <i className="fa-solid fa-bookmark"></i>
                                                 <span>My Bookmarks</span>
                                             </Link>
                                         </li>
+
                                         <li>
-                                            <Link to="/settings" onClick={() => setIsDropdownOpen(false)}>
+                                            <Link
+                                                to="/settings"
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
                                                 <i className="fa-solid fa-gear"></i>
                                                 <span>Settings</span>
                                             </Link>
                                         </li>
+
                                     </ul>
 
                                     <div className="dropdown-divider"></div>
@@ -323,40 +467,65 @@ function Navbar() {
                                         className="dropdown-logout-btn"
                                         onClick={() => {
                                             setIsDropdownOpen(false);
-                                            setShowAlert(true); // Trigger Logout Alert
+                                            setShowAlert(true);
                                         }}
                                     >
                                         <i className="fa-solid fa-right-from-bracket"></i>
                                         <span>Log Out</span>
                                     </button>
+
                                 </div>
                             )}
+
                         </div>
+
                     </>
                 ) : (
+
                     <div className="auth-buttons desktop-only-auth">
+
                         <Link to="/login" className="btn-login">
                             Log In
                         </Link>
+
                         <Link to="/signup" className="btn-join">
                             Join Now
                         </Link>
+
                     </div>
+
                 )}
+
             </div>
 
+
+            {/* Mobile Drawer Overlay */}
             <div
-                className={`mobile-menu-overlay ${isMobileMenuOpen ? "active" : ""}`}
+                className={`mobile-menu-overlay ${isMobileMenuOpen ? "active" : ""
+                    }`}
                 onClick={closeMobileMenu}
             ></div>
 
-            <aside className={`mobile-menu-drawer ${isMobileMenuOpen ? "active" : ""}`}>
+
+            {/* Mobile Drawer */}
+            <aside
+                className={`mobile-menu-drawer ${isMobileMenuOpen ? "active" : ""
+                    }`}
+            >
+
+                {/* Drawer Header */}
                 <div className="mobile-menu-header">
-                    <Link to="/" className="loader-logo" onClick={closeMobileMenu}>
+
+                    <Link
+                        to="/"
+                        className="loader-logo"
+                        onClick={closeMobileMenu}
+                    >
                         <span className="logo-bracket">&lt;</span>
                         <span className="logo-name">DevSphere</span>
                         <span className="logo-bracket">/&gt;</span>
                     </Link>
+
                     <button
                         type="button"
                         className="mobile-menu-close"
@@ -365,75 +534,176 @@ function Navbar() {
                     >
                         <i className="fa-solid fa-xmark"></i>
                     </button>
+
                 </div>
 
+
                 <div className="mobile-menu-content">
+
+                    {/* User Information */}
                     {token && (
                         <div
                             className="mobile-user-profile"
-                            style={{ cursor: "pointer" }}
                             onClick={() => {
                                 closeMobileMenu();
                                 navigate("/profile");
                             }}
                         >
+
                             <div className="navbar-avatar">
                                 {renderAvatar()}
                             </div>
+
                             <div className="mobile-user-info">
+
                                 <strong>
-                                    {user?.data?.firstName} {user?.data?.lastName || ""}
+                                    {user?.data?.firstName}{" "}
+                                    {user?.data?.lastName || ""}
                                 </strong>
-                                <span>@{user?.data?.username || "username"}</span>
+
+                                <span>
+                                    @{user?.data?.username || "username"}
+                                </span>
+
                             </div>
+
                         </div>
                     )}
 
+
                     <nav className="mobile-nav-links">
-                        <span className="mobile-menu-label">Menu</span>
-                        <Link to="/" onClick={closeMobileMenu}>
+
+                        {/* MENU */}
+                        <span className="mobile-menu-label">
+                            Menu
+                        </span>
+
+                        <NavLink
+                            to="/"
+                            end
+                            onClick={closeMenuAndNavigate}
+                        >
                             <i className="fa-solid fa-house"></i>
                             <span>Home</span>
-                        </Link>
-                        <Link to="/articles" onClick={closeMobileMenu}>
-                            <i className="fa-solid fa-newspaper"></i>
-                            <span>Articles</span>
-                        </Link>
-                        <Link to="/community" onClick={closeMobileMenu}>
+                        </NavLink>
+
+                        <NavLink
+                            to="/explore"
+                            onClick={closeMenuAndNavigate}
+                        >
+                            <i className="fa-solid fa-compass"></i>
+                            <span>Explore</span>
+                        </NavLink>
+
+                        <NavLink
+                            to="/community"
+                            onClick={closeMenuAndNavigate}
+                        >
                             <i className="fa-solid fa-users"></i>
                             <span>Community</span>
-                        </Link>
+                        </NavLink>
 
                         {token && (
+                            <NavLink
+                                to="/dashboard"
+                                onClick={closeMenuAndNavigate}
+                            >
+                                <i className="fa-solid fa-chart-line"></i>
+                                <span>Dashboard</span>
+                            </NavLink>
+                        )}
+
+
+                        {/* CREATE */}
+                        {token && (
                             <>
-                                <span className="mobile-menu-label">Dashboard</span>
-                                <Link to="/profile" onClick={closeMobileMenu}>
-                                    <i className="fa-solid fa-user"></i>
-                                    <span>Profile</span>
-                                </Link>
-                                <Link to="/drafts" onClick={closeMobileMenu}>
-                                    <i className="fa-solid fa-file-lines"></i>
-                                    <span>My Drafts</span>
-                                </Link>
-                                <Link to="/settings" onClick={closeMobileMenu}>
-                                    <i className="fa-solid fa-gear"></i>
-                                    <span>Settings</span>
+                                <span className="mobile-menu-label">
+                                    Create
+                                </span>
+
+                                <Link
+                                    to="/article-editor"
+                                    onClick={closeMenuAndNavigate}
+                                >
+                                    <i className="fa-solid fa-plus"></i>
+                                    <span>Create Article</span>
                                 </Link>
                             </>
                         )}
+
+
+                        {/* ACCOUNT */}
+                        {token && (
+                            <>
+                                <span className="mobile-menu-label">
+                                    Account
+                                </span>
+
+                                <Link
+                                    to="/profile"
+                                    onClick={closeMenuAndNavigate}
+                                >
+                                    <i className="fa-solid fa-user"></i>
+                                    <span>Profile</span>
+                                </Link>
+
+                                <Link
+                                    to="/drafts"
+                                    onClick={closeMenuAndNavigate}
+                                >
+                                    <i className="fa-solid fa-file-lines"></i>
+                                    <span>My Drafts</span>
+                                </Link>
+
+                                <Link
+                                    to="/bookmarks"
+                                    onClick={closeMenuAndNavigate}
+                                >
+                                    <i className="fa-solid fa-bookmark"></i>
+                                    <span>My Bookmarks</span>
+                                </Link>
+
+                                <Link
+                                    to="/settings"
+                                    onClick={closeMenuAndNavigate}
+                                >
+                                    <i className="fa-solid fa-gear"></i>
+                                    <span>Settings</span>
+                                </Link>
+
+                            </>
+                        )}
+
                     </nav>
 
+
+                    {/* Drawer Footer */}
                     <div className="mobile-menu-footer">
+
                         {!token ? (
+
                             <div className="mobile-auth-actions">
-                                <Link to="/register" className="btn-join block-btn" onClick={closeMobileMenu}>
+
+                                <Link
+                                    to="/signup"
+                                    className="btn-join block-btn"
+                                    onClick={closeMobileMenu}
+                                >
                                     Join Now
                                 </Link>
-                                <Link to="/login" className="btn-login block-btn" onClick={closeMobileMenu}>
+
+                                <Link
+                                    to="/login"
+                                    className="btn-login block-btn"
+                                    onClick={closeMobileMenu}
+                                >
                                     Log In
                                 </Link>
+
                             </div>
+
                         ) : (
+
                             <button
                                 type="button"
                                 className="dropdown-logout-btn mobile-logout-btn"
@@ -445,10 +715,15 @@ function Navbar() {
                                 <i className="fa-solid fa-right-from-bracket"></i>
                                 <span>Log Out</span>
                             </button>
+
                         )}
+
                     </div>
+
                 </div>
+
             </aside>
+
         </header>
     );
 }

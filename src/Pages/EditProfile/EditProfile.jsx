@@ -5,8 +5,6 @@ import "./EditProfile.css";
 import useForm from "../../hooks/useInputHandler";
 import useLoginChecker from "../../hooks/useLoginChecker";
 import useCallApi from "../../hooks/useCallApi";
-import useFetch from "../../hooks/useFetch";
-import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import Alert from "../../Components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
@@ -23,11 +21,9 @@ function EditProfile() {
     const [profileImagePreview, setProfileImagePreview] = useState("");
     const [profileImageFile, setProfileImageFile] = useState("");
     const [coverImageFile, setCoverImageFile] = useState("")
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
+    const { isLoggedIn } = useLoginChecker();
     const userFollowers = user?.data?.followers;
     const userFollowings = user?.data?.followings;
-
-    const { loading: fetchLoading, error: fetchError, setError: setFetchError, data: fetchData } = useFetch(`${API_URL}/api/user/`, token);
 
     const { loading, error, setError, callApi } = useCallApi();
     const { inputData, inputHandler, setInputData } = useForm({
@@ -45,24 +41,24 @@ function EditProfile() {
 
     useEffect(() => {
 
-        if (fetchData) {
+        if (user) {
 
             setInputData({
-                firstName: fetchData.data.firstName || "",
-                lastName: fetchData.data.lastName || "",
-                headline: fetchData.data.headline || "",
-                bio: fetchData.data.bio || "",
-                location: fetchData.data.location || "",
-                website: fetchData.data.website || "",
-                github: fetchData.data.github || "",
-                linkedIn: fetchData.data.linkedIn || "",
-                twitter: fetchData.data.twitter || "",
-                role: fetchData.data.role || ""
+                firstName: user?.data.firstName || "",
+                lastName: user?.data.lastName || "",
+                headline: user?.data.headline || "",
+                bio: user?.data.bio || "",
+                location: user?.data.location || "",
+                website: user?.data.website || "",
+                github: user?.data.github || "",
+                linkedIn: user?.data.linkedIn || "",
+                twitter: user?.data.twitter || "",
+                role: user?.data.role || ""
             })
 
         }
 
-    }, [fetchData])
+    }, [user])
 
     async function handleProfileUpdate() {
 
@@ -81,10 +77,9 @@ function EditProfile() {
 
         if (profileImageFile) formData.append("profileImage", profileImageFile);
         if (coverImageFile) formData.append("coverImage", coverImageFile)
-
         const result = await callApi(`${API_URL}/api/user/me`, "PUT", formData, token);
-        if (result.status) {
 
+        if (result.status) {
             result.data.followers = userFollowers;
             result.data.followings = userFollowings;
             const userData = { data: result.data }
@@ -111,7 +106,7 @@ function EditProfile() {
     }
 
 
-    if (isLoggedIn) return <Alert
+    if (!isLoggedIn) return <Alert
 
         title="Login Required"
         message="Please login or create an account to view your profile."
@@ -121,20 +116,12 @@ function EditProfile() {
 
     />
 
-    if (fetchLoading || loading) return <SectionLoader/>
+    if (loading) return <SectionLoader />
+    if (error) return <ResponsePopup message={error} closePopup={() => setError()} />
 
     return (
 
         <div className="edit-profile-page">
-
-            {
-                error ? <ResponsePopup message={error} closePopup={() => setError(null)} />
-
-                    :
-
-                    fetchError ? <ResponsePopup message={fetchError} closePopup={() => setFetchError(null)} /> : ""
-            }
-
             <div className="edit-profile-header">
 
                 <div>
@@ -171,9 +158,9 @@ function EditProfile() {
 
                         <div className="cover-image-editor">
 
-                            {(coverImagePreview || fetchData?.data.coverImage) ?
+                            {(coverImagePreview || user?.data.coverImage) ?
                                 <img
-                                    src={coverImagePreview || fetchData.data.coverImage}
+                                    src={coverImagePreview || user.data.coverImage}
                                     alt="Cover preview"
                                     className="cover-preview-image"
                                 />
@@ -210,9 +197,9 @@ function EditProfile() {
         ========================= */}
                         <div className="profile-image-editor">
 
-                            {(profileImagePreview || fetchData?.data.profileImage) ? (
+                            {(profileImagePreview || user?.data.profileImage) ? (
                                 <img
-                                    src={profileImagePreview || fetchData?.data.profileImage}
+                                    src={profileImagePreview || user?.data.profileImage}
                                     alt="Profile preview"
                                     className="profile-preview-image"
                                 />

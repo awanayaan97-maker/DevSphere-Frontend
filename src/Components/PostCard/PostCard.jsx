@@ -19,7 +19,7 @@ function PostCard({ post, isBookmarkPage }) {
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
+    const { isLoggedIn } = useLoginChecker();
     const [showAlert, setShowAlert] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
@@ -43,7 +43,6 @@ function PostCard({ post, isBookmarkPage }) {
     })
 
     const menuRef = useRef(null);
-    const articleId = { articleId: post._id };
     const plainText = stripHTML(post.content);
     const preview = handlePostDescription(plainText, 200);
     const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?.data?._id);
@@ -53,19 +52,19 @@ function PostCard({ post, isBookmarkPage }) {
         return doc.body.textContent || "";
     }
 
-    async function handleAuthCheck(type) {
+    // async function handleAuthCheck(type) {
 
-        if (isLoggedIn) {
-            setShowAlert(true);
-            return;
-        }
+    //     if (!isLoggedIn) {
+    //         setShowAlert(true);
+    //         return;
+    //     }
 
-        if (type?.trim() === "like") {
-            setIsLiked(!currentStatus);
-        }
+    //     // if (type?.trim() === "like") {
+    //     //     setIsLiked(!currentStatus);
+    //     // }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     async function handleAddComment() {
 

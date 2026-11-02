@@ -2,15 +2,16 @@
 import { useState, useEffect } from "react";
 import useCallApi from "./useCallApi";
 import useLoginChecker from "./useLoginChecker";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useBookmarkToggle({ initialIsBookmarked, initialBookmarksCount = 0, url }) {
 
     const token = localStorage.getItem("token");
     const { callApi } = useCallApi();
     const { isLoggedIn } = useLoginChecker();
-
     const [isBookmarked, setIsBookmarked] = useState(null);
     const [showBookmarkAlert, setShowBookmarkAlert] = useState(false);
+    const queryClient = useQueryClient();
 
     const currentStatus = isBookmarked !== null ? isBookmarked : initialIsBookmarked;
     const baseCount = Number(initialBookmarksCount) || 0;
@@ -21,7 +22,7 @@ export function useBookmarkToggle({ initialIsBookmarked, initialBookmarksCount =
 
     const toggleBookmark = () => {
 
-        if (isLoggedIn) {
+        if (!isLoggedIn) {
             setShowBookmarkAlert(true);
             return;
         }
@@ -31,12 +32,18 @@ export function useBookmarkToggle({ initialIsBookmarked, initialBookmarksCount =
     };
 
     useEffect(() => {
+
         if (isBookmarked === null) return;
 
         const timer = setTimeout(async () => {
+
             try {
                 await callApi(url, "POST", {}, token);
-            } catch (error) {
+                queryClient.invalidateQueries({
+                    predicate: (query) => query.queryKey[0]?.includes('/api/discover/bookmark')
+                })
+            }
+            catch (error) {
                 console.error("Failed to update bookmark status:", error);
             }
         }, 500);
