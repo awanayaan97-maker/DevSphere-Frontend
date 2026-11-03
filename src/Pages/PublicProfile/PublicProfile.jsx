@@ -1,45 +1,33 @@
 
 import { useNavigate, useParams } from "react-router-dom";
-import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
-import useFetch from "../../hooks/useFetch";
 import "./PublicProfile.css";
 import useLoginChecker from "../../hooks/useLoginChecker";
 import Alert from "../../Components/Alert/Alert";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useCallApi from "../../hooks/useCallApi";
 import PostCard from "../../Components/PostCard/PostCard";
-import useInfiniteArticles from "../../hooks/useInfiniteArticles";
-import { AuthContext } from "../../Context/AuthContext";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
+import useApiQuery from "../../hooks/useApiQuery";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function PublicProfile() {
     const { id } = useParams();
-    const { user: contextUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
     const [isFollow, setIsFollow] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
+    const { isLoggedIn } = useLoginChecker();
     const { callApi } = useCallApi();
-
-    const API_URL = import.meta.env.VITE_API_URL;
-
-    const {
-        loading,
-        error,
-        setError,
-        data,
-    } = useFetch(`${API_URL}/api/user/public/${id}`, token);
-
-//     const {articles, loading: articleLoading} = useInfiniteArticles(`${API_URL}/api/user/public/${id}`, "GET", 
-//     [], 
-//     token
-// );
+    const { isLoading, error, setError, data } = useApiQuery({
+        url: `${API_URL}/api/user/public/${id}`,
+        type: "GET",
+        isAuthorized: false
+    })
 
     function handleAction() {
 
-        if (isLoggedIn) {
+        if (!isLoggedIn) {
             setShowAlert(true)
             return
         }
@@ -65,7 +53,7 @@ function PublicProfile() {
 
     }, [isFollow])
 
-    if (loading) {
+    if (isLoading) {
         return <SectionLoader />;
     }
 
@@ -84,9 +72,8 @@ function PublicProfile() {
         return null;
     }
 
-    const user = data?.data;
+    const user = data;
     const currentFollow = isFollow !== null ? isFollow : user?.isFollowingAuthor;
-
 
     if (showAlert) return <Alert
         title="Login Required"
@@ -96,7 +83,7 @@ function PublicProfile() {
         onClose={() => setShowAlert(false)}
     />
 
- 
+
     return (
         <main className="public-profile-page">
 
@@ -310,7 +297,7 @@ function PublicProfile() {
 
                     <div className="public-profile-article-list">
                         {user?.userArticleData?.map((article) => (
-                           
+
                             <PostCard key={article._id} post={article} />
                         ))}
                     </div>

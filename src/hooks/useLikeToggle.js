@@ -21,7 +21,7 @@ export function useLikeToggle({ initialIsLiked, initialLikesCount = 0, Url }) {
 
     const toggleLike = () => {
 
-        if (isLoggedIn) {
+        if (!isLoggedIn) {
             setShowLikeAlert(true)
             return
         }

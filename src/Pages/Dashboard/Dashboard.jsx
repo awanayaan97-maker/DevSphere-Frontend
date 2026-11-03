@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     AreaChart,
@@ -10,50 +10,15 @@ import {
     Tooltip,
     ResponsiveContainer
 } from "recharts";
-
 import { AuthContext } from "../../Context/AuthContext";
 import useCallApi from "../../hooks/useCallApi";
 import Loader from "../../components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import ManageContent from "../../Components/ManageContent/ManageContent";
-
+import { ROUTES, DELETE_URL, STAT_CARDS, PROFILE_ITEMS, COUNT_KEY } from "../../constants/dashboardConstant"
 import "./Dashboard.css";
 const API_URL = import.meta.env.VITE_API_URL;
 
-const ROUTES = {
-    createArticle: "/article-editor",
-    editProfile: "/edit-profile",            
-    article: (id) => `/article/${id}`,
-    profile: (id) => `/profile`
-};
-
-const DELETE_URL = {
-    publish: (id) => `${API_URL}/api/article/${id}`,        
-    draft: (id) => `${API_URL}/api/article/${id}`,   
-    posts: (id) => `${API_URL}/api/post/${id}`         
-};
-
-const COUNT_KEY = {
-    publish: "publishArticles",
-    draft: "draftArticles",
-    posts: "communityPosts"
-};
-
-const STAT_CARDS = [
-    { key: "publishArticles", label: "Published articles", sub: "Live on DevSphere", icon: "fa-newspaper" },
-    { key: "draftArticles", label: "Drafts", sub: "Still in progress", icon: "fa-file-pen" },
-    { key: "communityPosts", label: "Community posts", sub: "Shared with developers", icon: "fa-comments" },
-    { key: "followers", label: "Followers", sub: "People following you", icon: "fa-users" },
-    { key: "followings", label: "Following", sub: "People you follow", icon: "fa-user-plus" },
-    { key: "totalLikes", label: "Total likes", sub: "On articles and posts", icon: "fa-heart" }
-];
-
-const PROFILE_ITEMS = [
-    { label: "Profile image", done: (u) => Boolean(u?.profileImage) },
-    { label: "Cover image", done: (u) => Boolean(u?.coverImage) },
-    { label: "Headline", done: (u) => Boolean(u?.headline?.trim()) },
-    { label: "Role", done: (u) => Boolean(u?.role?.trim()) }
-];
 
 function formatChartDate(dateStr, withYear = false) {
     return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en", {
@@ -80,7 +45,6 @@ function ChartTooltip({ active, payload }) {
         </div>
     );
 }
-
 
 function ProfileCompletion({ user, onEdit, onView }) {
 
@@ -140,7 +104,6 @@ function ProfileCompletion({ user, onEdit, onView }) {
     );
 }
 
-
 function Dashboard() {
 
     const navigate = useNavigate();
@@ -164,11 +127,9 @@ function Dashboard() {
     const [failed, setFailed] = useState({});
     const [error, setError] = useState(null);
 
-
     useEffect(() => {
 
         let cancelled = false;
-        // callApi fail ho jaye to bhi baqi calls na toote
         const get = (path) =>
             callApi(`${API_URL}/api/dashboard/${path}`, "GET", [], token).catch(() => null);
 

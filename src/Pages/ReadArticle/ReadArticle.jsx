@@ -7,9 +7,6 @@ import DOMPurify from "dompurify";
 import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import CommentSection from "../../Components/CommentSection/CommentSection";
-
-
-import useFetch from "../../hooks/useFetch";
 import useCallApi from "../../hooks/useCallApi";
 
 import "./ReadArticle.css";
@@ -40,12 +37,9 @@ function ReadArticle() {
         type: "GET",
         isAuthorized: false
     })
-    // const { loading, error, setError, data } = useFetch(
-    //     `${API_URL}/api/article/publish/${id}`, token
-    // );
 
     const { callApi, loading: commentsLoading } = useCallApi();
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
+    const { isLoggedIn } = useLoginChecker();
 
     const [showAlert, setShowAlert] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -106,18 +100,9 @@ function ReadArticle() {
 
     async function handleAuthCheck(type) {
 
-        if (isLoggedIn) {
+        if (!isLoggedIn) {
             setShowAlert(true);
             return;
-        }
-
-        if (type === "like") {
-            return setIsLiked(!currentStatus)
-        }
-
-        if (type === "bookmark") {
-            setIsBookmarked(!currentBookmarkStatus);
-            return
         }
 
         if (type === 'ask-ai') {
@@ -257,8 +242,7 @@ function ReadArticle() {
         }}
     />
 
-
-    const article = data?.data;
+    const article = data;
     const author = article?.authorDetails;
 
     const cleanHTML = DOMPurify.sanitize(
@@ -308,26 +292,15 @@ function ReadArticle() {
         options
     );
 
-    // =================================================
-    // SHARE
-    // =================================================
-
     async function handleShare() {
 
         try {
-
             await navigator.clipboard.writeText(
                 window.location.href
             );
-
         } catch (error) {
-
-            console.log(
-                "Could not copy article link."
-            );
-
+            setError("Could not copy article link.")
         }
-
     }
 
     return (

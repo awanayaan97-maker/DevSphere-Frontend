@@ -21,7 +21,6 @@ function CreateArticle() {
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
     const { isLoggedIn } = useLoginChecker();
-    // const [error, setError] = useState(null);
     const { loading, callApi, error, setError } = useCallApi();
     const [tagInput, setTagInput] = useState("");
     const { inputData, setInputData, inputHandler } = useForm({
@@ -113,7 +112,7 @@ function CreateArticle() {
 
     }, [id])
 
-    if (isLoggedIn) return <Alert
+    if (!isLoggedIn) return <Alert
         title="Login Required"
         message="Please login or create an account to create article"
         actionText="Login Now"

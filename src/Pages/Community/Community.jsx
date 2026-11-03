@@ -28,7 +28,6 @@ function Community() {
     const [postToEdit, setPostToEdit] = useState(null);
     const [popularUsers, setPopularUser] = useState([])
     const [trendingTopics, setTrendingTopics] = useState(null)
-    const [followStates, setFollowStates] = useState({});
     const [isAIopen, setIsAIopen] = useState(false);
     const { user } = useContext(AuthContext);
     const [searchParam, setSearchParam] = useSearchParams();
@@ -140,41 +139,6 @@ function Community() {
             return newParam;
         });
     };
-
-    async function followCandidate(id) {
-
-        if (!token) {
-            setShowAlert(true)
-            return;
-        }
-
-        const isCurrentlyFollowing = !!followStates[id];
-        const nextIsFollow = !isCurrentlyFollowing;
-
-        setFollowStates((prev) => ({
-            ...prev,
-            [id]: nextIsFollow
-        }));
-
-        const followedUser = {
-            followedUser: id,
-            action: nextIsFollow ? "follow" : "unfollow"
-        };
-
-        const result = await callApi(
-            `${API_URL}/api/user/follow`,
-            "POST",
-            followedUser,
-            token
-        );
-
-        if (!result?.status) {
-            setFollowStates((prev) => ({
-                ...prev,
-                [id]: isCurrentlyFollowing
-            }));
-        }
-    }
 
     if (showAlert) return <Alert
         title="Login Required"
@@ -327,14 +291,7 @@ function Community() {
                         </div>
                     </div>
                 </section>
-
-                <DevelopersToFollow
-                    developers={popularUsers}
-                    variant="cards"
-                    onFollow={followCandidate}
-                    followStates={followStates}
-                />
-
+                <DevelopersToFollow developers={popularUsers} variant="cards" />
             </div>
 
             {/* Feed tabs: UI only */}
@@ -397,12 +354,7 @@ function Community() {
                         </div>
                     </section>
 
-                    <DevelopersToFollow
-                        developers={popularUsers}
-                        variant="list"
-                        onFollow={followCandidate}
-                        followStates={followStates}
-                    />
+                    <DevelopersToFollow developers={popularUsers} variant="list" />
 
                 </aside>
 
