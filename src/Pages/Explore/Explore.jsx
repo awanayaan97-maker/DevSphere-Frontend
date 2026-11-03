@@ -2,7 +2,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import PostCard from "../../Components/PostCard/PostCard";
 import "./Explore.css";
-import useLoginChecker from "../../hooks/useLoginChecker";
 import { useEffect, useState } from "react";
 import useCallApi from "../../hooks/useCallApi";
 import useInfiniteArticles from "../../hooks/useInfiniteArticles";
@@ -20,11 +19,9 @@ function Explore() {
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const { isLoggedIn } = useLoginChecker();
     const [trendingTopics, setTrendingTopics] = useState(null)
     const [popularUsers, setPopularUser] = useState([])
     const [articles, setArticles] = useState([]);
-    const [followStates, setFollowStates] = useState({});
     const [showAlert, setShowAlert] = useState(false)
     const [searchParams, setSearchParams] = useSearchParams();
     const tag = searchParams.get("tag") || null;
@@ -85,42 +82,6 @@ function Explore() {
 
     }, [fetchedArticles]);
 
-
-    async function followCandidate(id) {
-
-        if (!token) {
-            setShowAlert(true)
-            return
-        }
-
-        const isCurrentlyFollowing = !!followStates[id];
-
-        const nextIsFollow = !isCurrentlyFollowing;
-
-        setFollowStates((prev) => ({
-            ...prev,
-            [id]: nextIsFollow
-        }));
-
-        const followedUser = {
-            followedUser: id,
-            action: nextIsFollow ? "follow" : "unfollow"
-        };
-
-        const result = await callApi(
-            `${API_URL}/api/user/follow`,
-            "POST",
-            followedUser,
-            token
-        );
-
-        if (!result?.status) {
-            setFollowStates((prev) => ({
-                ...prev,
-                [id]: isCurrentlyFollowing
-            }));
-        }
-    }
 
     function handleSortChange(sortValue) {
         setSearchParams((prev) => {
@@ -203,7 +164,7 @@ function Explore() {
         CSS se desktop par hide hoga
     ========================================================= */}
 
-            <DevelopersToFollow developers={popularUsers} variant="cards" onFollow={followCandidate} followStates={followStates} />
+            <DevelopersToFollow developers={popularUsers} variant="cards" />
 
 
             <div className="explore-grid">
@@ -294,11 +255,7 @@ function Explore() {
 
                 </div>
 
-                {/* ---------- SIDEBAR — DESKTOP ONLY ---------- */}
-
                 <aside className="explore-sidebar">
-
-                    {/* Filter — DESKTOP ONLY, hamesha dikhega (CSS se mobile par chhupa rahega) */}
                     <div className="sidebar-filter-section">
                         <CategorySelect
                             selectedCategory={category}
@@ -308,53 +265,7 @@ function Explore() {
                         />
                     </div>
 
-                    <DevelopersToFollow developers={popularUsers} variant="list" onFollow={followCandidate} followStates={followStates} />
-
-                    {/* Developers widget — sirf tab dikhega jab data ho */}
-                    {/* {popularUsers && popularUsers.length > 0 && (
-                        <div className="sidebar-widget">
-                            <div className="sidebar-widget-header">
-                                <h3>Developers to Follow</h3>
-                                <span>Discover new people.</span>
-                            </div>
-
-                            <div className="developer-list">
-                                {popularUsers.map((dev) => (
-                                    <div className="developer-item" key={dev?._id}>
-                                        <div
-                                            className="developer-avatar"
-                                            onClick={() => navigate(`/user/${dev?._id}`)}
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            {dev?.profileImage ? (
-                                                <img src={dev.profileImage} alt={dev?.firstName} />
-                                            ) : (
-                                                <p>{`${dev?.firstName?.charAt(0) || ""}${dev?.lastName?.charAt(0) || ""}`}</p>
-                                            )}
-                                        </div>
-
-                                        <div className="developer-info">
-                                            <strong>{`${dev?.firstName} ${dev?.lastName}`}</strong>
-                                            <span>{dev.role}</span>
-                                            <span className="developer-followers">{`${dev?.followersCount} followers`}</span>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            className={
-                                                followStates[dev?._id]
-                                                    ? "follow-btn-following"
-                                                    : "follow-btn"
-                                            }
-                                            onClick={() => followCandidate(dev?._id)}
-                                        >
-                                            {followStates[dev?._id] ? "Following" : "Follow"}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )} */}
+                    <DevelopersToFollow developers={popularUsers} variant="list" />
 
                 </aside>
 

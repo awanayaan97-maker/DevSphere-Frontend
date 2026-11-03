@@ -2,56 +2,28 @@
 import { useNavigate, useParams } from "react-router-dom";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import "./PublicProfile.css";
-import useLoginChecker from "../../hooks/useLoginChecker";
 import Alert from "../../Components/Alert/Alert";
-import { useEffect, useState } from "react";
-import useCallApi from "../../hooks/useCallApi";
+import { useState } from "react";
 import PostCard from "../../Components/PostCard/PostCard";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import useApiQuery from "../../hooks/useApiQuery";
+import { useFollowToggle } from "../../hooks/useFollowToggle";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function PublicProfile() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
-    const [isFollow, setIsFollow] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
-    const { isLoggedIn } = useLoginChecker();
-    const { callApi } = useCallApi();
     const { isLoading, error, setError, data } = useApiQuery({
         url: `${API_URL}/api/user/public/${id}`,
         type: "GET",
         isAuthorized: false
     })
 
-    function handleAction() {
-
-        if (!isLoggedIn) {
-            setShowAlert(true)
-            return
-        }
-
-        setIsFollow(!currentFollow)
-    }
-
-    useEffect(() => {
-
-        if (isFollow === null) return;
-
-        const followedUser = { followedUser: id };
-        followedUser.action = isFollow ? "follow" : "unfollow"
-
-        const timer = setTimeout(async () => {
-            const result = await callApi(`${API_URL}/api/user/follow`, "POST", followedUser, token);
-        }, 700)
-
-
-        return () => {
-            clearTimeout(timer)
-        }
-
-    }, [isFollow])
+    const { isFollowing, toggleFollow, showFollowAlert, setShowFollowAlert } = useFollowToggle({
+        userId: id,
+        initialIsFollowing: data?.isFollowingAuthor
+    })
 
     if (isLoading) {
         return <SectionLoader />;
@@ -73,14 +45,22 @@ function PublicProfile() {
     }
 
     const user = data;
-    const currentFollow = isFollow !== null ? isFollow : user?.isFollowingAuthor;
+    const serverFollowers = user?.followers || 0;
+    const serverIsFollowing = user?.isFollowingAuthor || false;
+    let displayFollowers = serverFollowers;
+    if (isFollowing !== serverIsFollowing) {
+        displayFollowers = serverIsFollowing ? serverFollowers - 1 : serverFollowers + 1;
+    }
 
-    if (showAlert) return <Alert
+    if (showAlert || showFollowAlert) return <Alert
         title="Login Required"
         message="Please login or create an account to like or comment article"
         actionText="Login Now"
         onAction={() => navigate("/login")}
-        onClose={() => setShowAlert(false)}
+        onClose={() => {
+            setShowAlert(false)
+            setShowFollowAlert(false)
+        }}
     />
 
 
@@ -137,12 +117,12 @@ function PublicProfile() {
                             ) : null}
                         </div>
 
-                        {currentFollow ? (
+                        {isFollowing ? (
                             /* 1. BUTTON: Jab User Follow Kar Chuka Ho */
                             <button
                                 type="button"
                                 className="public-profile-btn btn-following"
-                                onClick={handleAction}
+                                onClick={toggleFollow}
                             >
                                 <i className="fa-solid fa-user-check"></i>
                                 <span>Following</span>
@@ -152,7 +132,7 @@ function PublicProfile() {
                             <button
                                 type="button"
                                 className="public-profile-btn btn-follow"
-                                onClick={handleAction}
+                                onClick={toggleFollow}
                             >
                                 <i className="fa-solid fa-user-plus"></i>
                                 <span>Follow</span>
@@ -251,7 +231,7 @@ function PublicProfile() {
 
                         <div className="public-profile-stat">
                             <strong>
-                                {isFollow ? user?.followers + 1 : user.followers}
+                                {displayFollowers}
                             </strong>
                             <span>Followers</span>
                         </div>

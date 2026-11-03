@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import useCallApi from "./useCallApi";
@@ -13,19 +12,27 @@ export function useFollowToggle({ userId, initialIsFollowing }) {
     const queryClient = useQueryClient();
     const [isFollowing, setIsFollowing] = useState(null);
     const [showFollowAlert, setShowFollowAlert] = useState(false);
-    const currentStatus = isFollowing !== null ? isFollowing : initialIsFollowing;
+
+    useEffect(() => {
+        setIsFollowing(null);
+    }, [userId]);
+
+    const currentStatus = isFollowing !== null ? isFollowing : (initialIsFollowing ?? false);
 
     const toggleFollow = () => {
         if (!isLoggedIn) {
             setShowFollowAlert(true);
             return;
         }
+
         const nextState = !currentStatus;
         setIsFollowing(nextState);
     };
 
     useEffect(() => {
+
         if (isFollowing === null) return;
+        if (isFollowing === initialIsFollowing) return;
 
         const timer = setTimeout(async () => {
             const actionType = isFollowing ? "follow" : "unfollow";
@@ -41,12 +48,13 @@ export function useFollowToggle({ userId, initialIsFollowing }) {
                 if (!result?.status) {
                     setIsFollowing(initialIsFollowing);
                 } else {
+                
                     queryClient.invalidateQueries({
                         predicate: (query) => query.queryKey[0]?.includes('/api/user')
                     });
+                    
                 }
             } 
-            
             catch (error) {
                 console.error("Failed to update follow status:", error);
                 setIsFollowing(initialIsFollowing);
