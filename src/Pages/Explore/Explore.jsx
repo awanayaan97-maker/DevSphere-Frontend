@@ -1,9 +1,7 @@
 
-import { useNavigate, useSearchParams } from "react-router-dom";
 import PostCard from "../../Components/PostCard/PostCard";
 import "./Explore.css";
 import { useEffect, useState } from "react";
-import useCallApi from "../../hooks/useCallApi";
 import useInfiniteArticles from "../../hooks/useInfiniteArticles";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
@@ -11,59 +9,26 @@ import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndM
 import NoResults from "../../Components/NoResults/NoResults";
 import CategorySelect from "../../Components/CategorySelect/CategorySelect";
 import DevelopersToFollow from "../../Components/DevelopersToFollow/DevelopersToFollow";
-import Alert from "../../Components/Alert/Alert";
+import useDiscoverData from "../../hooks/useDiscoverData";
+import useUrlFilters from "../../hooks/useUrlFilters";
 
 
 function Explore() {
 
-    const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const [trendingTopics, setTrendingTopics] = useState(null)
-    const [popularUsers, setPopularUser] = useState([])
     const [articles, setArticles] = useState([]);
-    const [showAlert, setShowAlert] = useState(false)
-    const [searchParams, setSearchParams] = useSearchParams();
-    const tag = searchParams.get("tag") || null;
-    const sort = searchParams.get("sort") || "latest";
-    const category = searchParams.get("category") || "All Categories";
-
-    let url = `${API_URL}/api/article/explore?sort=${sort}`;
-
-    if (tag) {
-        url += `&tag=${encodeURIComponent(tag)}`;
-    }
-
-    if (category && category !== "All Categories") {
-        url += `&category=${encodeURIComponent(category)}`;
-    }
-
-    const { callApi, loading: tagLoading } = useCallApi();
-
+    const { trendingTopics, popularUsers } = useDiscoverData("articles")
+    const { getParam, updateFilter, buildUrl } = useUrlFilters({
+        sort: "latest",
+        category: "All Categories"
+    });
+    const sort = getParam("sort", "latest");
+    const tag = getParam("tag");
+    const category = getParam("category", "All Categories");
+    const url = buildUrl(`${API_URL}/api/article/explore`);
     const { loading, error, setError, hasMore, articles: fetchedArticles } = useInfiniteArticles(url, "GET", [], token)
 
-
-    useEffect(() => {
-
-        const getTags = async () => {
-
-            const [topicsData, discoverFollower] = await Promise.all([
-                callApi(`${API_URL}/api/discover/tags?source=articles`, "GET"),
-                callApi(`${API_URL}/api/discover/discover-developers`, "GET", [], token)
-            ])
-
-            if (topicsData?.status) {
-                setTrendingTopics(topicsData.data)
-            }
-
-            if (discoverFollower?.status) {
-                setPopularUser(discoverFollower.data)
-            }
-        }
-
-        getTags()
-
-    }, [])
 
     useEffect(() => {
         setArticles([]);
@@ -83,51 +48,12 @@ function Explore() {
     }, [fetchedArticles]);
 
 
-    function handleSortChange(sortValue) {
-        setSearchParams((prev) => {
-            const newParams = new URLSearchParams(prev);
-            newParams.set("sort", sortValue);
-            return newParams;
-        });
-    }
-
-    function handleTagChange(tagValue) {
-        setSearchParams((prev) => {
-            const newParams = new URLSearchParams(prev);
-            newParams.delete("category");
-            newParams.set("tag", tagValue);
-            return newParams;
-        });
-    }
-
-    function handleCategoryChange(e) {
-
-        const categoryValue = e.target.value
-
-        if (!categoryValue) {
-            setSearchParams((prev) => {
-                const newParams = new URLSearchParams(prev);
-                newParams.delete("category");
-                return newParams;
-            });
-            return
-        }
-
-        setSearchParams((prev) => {
-            const newParams = new URLSearchParams(prev);
-            newParams.delete("tag");
-            newParams.set("category", categoryValue);
-            return newParams;
-        });
-    }
-
-    if (showAlert) return <Alert
-        title="Login Required"
-        message="Please log in or create an account to continue."
-        actionText="Login Now"
-        onAction={() => navigate("/login")}
-        onClose={() => setShowAlert(false)}
-    />
+    const handleSortChange = (sortValue) => updateFilter("sort", sortValue);
+    const handleTagChange = (tagValue) => updateFilter("tag", tagValue, "category");
+    const handleCategoryChange = (e) => {
+        const catVal = e.target.value;
+        updateFilter("category", catVal === "All Categories" ? "" : catVal, "tag");
+    };
 
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
 

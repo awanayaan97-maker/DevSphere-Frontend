@@ -6,7 +6,6 @@ import "./Community.css";
 import CommunityComposer from "../../Components/CommunityComposer/CommunityComposer";
 import { AuthContext } from "../../Context/AuthContext";
 import SortDropdown from "../../Components/SortDropdown/SortDropdown";
-import { useSearchParams } from "react-router-dom";
 import useInfiniteArticles from "../../hooks/useInfiniteArticles";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
@@ -14,11 +13,11 @@ import useCallApi from "../../hooks/useCallApi";
 import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndMessage";
 import NoResults from "../../Components/NoResults/NoResults";
 import DevelopersToFollow from "../../Components/DevelopersToFollow/DevelopersToFollow";
-import AskAiButton from "../../Components/AskAiButton/AskAiButton";
 import CommunityAI from "../../Components/CommunityAI/CommunityAI";
 import Alert from "../../Components/Alert/Alert";
-import useLoginChecker from "../../hooks/useLoginChecker";
 import useCheckLogin from "../../hooks/useCheckLogin";
+import useDiscoverData from "../../hooks/useDiscoverData";
+import useUrlFilters from "../../hooks/useUrlFilters";
 
 function Community() {
 
@@ -26,52 +25,25 @@ function Community() {
     const token = localStorage.getItem("token");
     const [showComposer, setShowComposer] = useState(false);
     const [postToEdit, setPostToEdit] = useState(null);
-    const [popularUsers, setPopularUser] = useState([])
-    const [trendingTopics, setTrendingTopics] = useState(null)
     const [isAIopen, setIsAIopen] = useState(false);
     const { user } = useContext(AuthContext);
-    const [searchParam, setSearchParam] = useSearchParams();
     const [post, setPost] = useState(null)
     const { callApi } = useCallApi();
+    const { trendingTopics, popularUsers } = useDiscoverData("posts")
     const { showAlert, setShowAlert, check } = useCheckLogin();
-    const sort = searchParam.get("sort") || "latest";
-    const feed = searchParam.get("feed") || "All Posts"
-    const topic = searchParam.get("topic")
-    let url = `${API_URL}/api/post?sort=${sort}`
+    const { getParam, updateFilter, buildUrl } = useUrlFilters({
+        sort: "latest",
+        feed: "All Posts"
+    })
 
-    if (topic) {
-        url += `&topic=${topic}`
-    }
-
-    if (feed) {
-        url += `&feed=${feed}`
-    }
+    const sort = getParam("sort", "latest");
+    const feed = getParam("feed", "All Posts");
+    const topic = getParam("topic");
+    const url = buildUrl(`${API_URL}/api/post`);
 
     const { articles: postsData, loading, error, setError, hasMore } = useInfiniteArticles(url, "GET", [], token)
 
     const showEmpty = !loading && !error && postsData.length === 0;
-
-    useEffect(() => {
-
-        const getDevelopers = async () => {
-
-            const [topicsData, discoverFollower] = await Promise.all([
-                callApi(`${API_URL}/api/discover/tags?source=posts`, "GET"),
-                callApi(`${API_URL}/api/discover/discover-developers`, "GET", [], token)
-            ])
-
-            if (topicsData?.status) {
-                setTrendingTopics(topicsData.data)
-            }
-
-            if (discoverFollower?.status) {
-                setPopularUser(discoverFollower.data)
-            }
-        }
-
-        getDevelopers()
-
-    }, [])
 
     useEffect(() => {
         setPost(postsData || []);
@@ -113,32 +85,9 @@ function Community() {
         }
     }
 
-    const handleSort = (e) => {
-        const sortValue = e.target.value.trim();
-        setSearchParam((prev) => {
-            const newParam = new URLSearchParams(prev);
-            newParam.set("sort", sortValue);
-            return newParam;
-        });
-    };
-
-    const handleFeed = (value) => {
-        setSearchParam((prev) => {
-            const newParam = new URLSearchParams(prev);
-            newParam.set("feed", value);
-            newParam.delete("topic")
-            return newParam;
-        });
-    };
-
-    const handleTopic = (value) => {
-        setSearchParam((prev) => {
-            const newParam = new URLSearchParams(prev);
-            newParam.set("topic", value);
-            newParam.delete("feed")
-            return newParam;
-        });
-    };
+    const handleSort = (e) => updateFilter("sort", e.target.value.trim());
+    const handleFeed = (value) => updateFilter("feed", value, "topic");
+    const handleTopic = (value) => updateFilter("topic", value, "feed");
 
     if (showAlert) return <Alert
         title="Login Required"
