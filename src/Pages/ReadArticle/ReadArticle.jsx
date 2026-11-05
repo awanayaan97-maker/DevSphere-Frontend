@@ -1,5 +1,5 @@
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import parse, { domToReact } from "html-react-parser";
 import DOMPurify from "dompurify";
@@ -7,12 +7,8 @@ import DOMPurify from "dompurify";
 import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import CommentSection from "../../Components/CommentSection/CommentSection";
-import useCallApi from "../../hooks/useCallApi";
-
 import "./ReadArticle.css";
 import { setupSidebarSticky } from "../../utils/setupSidebarSticky";
-import useLoginChecker from "../../hooks/useLoginChecker";
-import { AuthContext } from "../../Context/AuthContext";
 import { shortTimeAgo } from "../../utils/dateHelpers";
 import Alert from "../../Components/Alert/Alert";
 import UserAvatar from "../../Components/UserAvatar/UserAvatar";
@@ -22,69 +18,40 @@ import ArticleAIChat from "../../Components/ArticleAIChat/ArticleAIChat";
 import { useBookmarkToggle } from "../../hooks/useBookmarkToggle";
 import { useLikeToggle } from "../../hooks/useLikeToggle";
 import useApiQuery from "../../hooks/useApiQuery";
+import useCheckLogin from "../../hooks/useCheckLogin";
+import useComments from "../../hooks/useComments";
 
 
 function ReadArticle() {
 
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext)
     const API_URL = import.meta.env.VITE_API_URL;
-    const token = localStorage.getItem("token");
     const commentsRef = useRef(null);
-    const { isLoading, isError, error, setError, data } = useApiQuery({
+    const { isLoading, error, setError, data } = useApiQuery({
         url: `${API_URL}/api/article/publish/${id}`,
         type: "GET",
         isAuthorized: false
     })
 
-    const { callApi, loading: commentsLoading } = useCallApi();
-    const { isLoggedIn } = useLoginChecker();
-
-    const [showAlert, setShowAlert] = useState(false);
+    const { showAlert, setShowAlert, check } = useCheckLogin();
     const [messages, setMessages] = useState([]);
     const [isAiOpen, setIsAiOpen] = useState(false);
-    const [commentsOpen, setCommentsOpen] = useState(false);
-    const [comments, setComments] = useState(null);
-    const [commentText, setCommentText] = useState("");
-    const [editingCommentId, setEditingCommentId] = useState(null);
+    const { commentsOpen, setCommentsOpen, comments, setComments, commentsLoading, handleAddComment, commentText, setCommentText, setEditingCommentId, handleDeleteComment } = useComments(id);
 
     const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
         useLikeToggle({
-            initialIsLiked: data?.data?.isLiked,
-            initialLikesCount: data?.data?.likesCount,
+            initialIsLiked: data?.isLiked,
+            initialLikesCount: data?.likesCount,
             Url: `${API_URL}/api/article/like/${id}`
         })
 
     const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
-        initialIsBookmarked: data?.data?.isBookmark,
-        initialBookmarksCount: data?.data?.bookmarksCount,
+        initialIsBookmarked: data?.isBookmark,
+        initialBookmarksCount: data?.bookmarksCount,
         url: `${API_URL}/api/article/bookmark/${id}`
     })
 
-    useEffect(() => {
-
-        if (!commentsOpen) return;
-
-        if (comments !== null) return;
-
-        async function fetchComments() {
-
-            const result = await callApi(
-                `${API_URL}/api/article/comment/${id}`,
-                "GET",
-                [],
-                token
-            );
-
-            if (result?.status) {
-                setComments(result.data || []);
-            }
-        }
-
-        fetchComments();
-
-    }, [commentsOpen, id]);
 
     useEffect(() => {
         setCommentsOpen(false);
@@ -97,19 +64,6 @@ function ReadArticle() {
         return setupSidebarSticky();
     }, [data]);
 
-
-    async function handleAuthCheck(type) {
-
-        if (!isLoggedIn) {
-            setShowAlert(true);
-            return;
-        }
-
-        if (type === 'ask-ai') {
-            setIsAiOpen(true);
-        }
-
-    }
 
     function scrollToComments() {
 
@@ -144,74 +98,9 @@ function ReadArticle() {
     }
 
 
-    async function handleAddComment() {
-
-        if (!commentText?.trim()) return;
-
-        if (editingCommentId !== null) {
-
-            const oldText = comments.find(c => c._id === editingCommentId)?.text;
-
-            setComments((prev) =>
-                prev.map((c) => (c._id === editingCommentId ? { ...c, text: commentText } : c))
-            );
-
-            setCommentText("");
-            setEditingCommentId(null);
-
-            const result = await callApi(`${API_URL}/api/article/comment/${editingCommentId}`, "PATCH", { text: commentText }, token);
-
-            if (!result?.status) {
-                setComments((prev) =>
-                    prev.map((c) => (c._id === editingCommentId ? { ...c, text: oldText } : c))
-                );
-            }
-
-            return;
-        }
-
-        const tempId = `temp-${Date.now()}`;
-
-        const newCommentData = {
-            authorData: {
-                _id: user?.data?._id,
-                firstName: user?.data?.firstName,
-                lastName: user?.data?.lastName,
-                role: user?.data?.role,
-                profileImage: user?.data?.profileImage
-            },
-            _id: tempId,
-            articleId: id,
-            text: commentText,
-            hasLikeComment: false,
-            commentLikes: 0,
-            replies: []
-        };
-
-        setComments((prev) => (prev === null ? [newCommentData] : [...prev, newCommentData]));
-        setCommentText("");
-
-        const commentData = { text: commentText, articleId: id };
-        const result = await callApi(`${API_URL}/api/article/comment`, "POST", commentData, token);
-
-        if (result?.status && result?.data) {
-            setComments((prev) => prev.map((c) => (c._id === tempId ? result.data : c)));
-        } else {
-            setComments((prev) => prev.filter((c) => c._id !== tempId));
-        }
-    }
-
-
-    async function handleDeleteComment(commentId) {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
-        const result = await callApi(`${API_URL}/api/article/comment/${commentId}`, "DELETE", null, token);
-    }
-
-
     if (isLoading) {
         return <Loader />;
     }
-
 
     if (error) {
 
@@ -224,11 +113,9 @@ function ReadArticle() {
 
     }
 
-
     if (!data) {
         return null;
     }
-
 
     if (showAlert || showBookmarkAlert || showLikeAlert) return <Alert
         title="Login Required"
@@ -244,11 +131,7 @@ function ReadArticle() {
 
     const article = data;
     const author = article?.authorDetails;
-
-    const cleanHTML = DOMPurify.sanitize(
-        article?.content || ""
-    );
-
+    const cleanHTML = DOMPurify.sanitize(article?.content || "");
 
     const options = {
 
@@ -285,7 +168,6 @@ function ReadArticle() {
         }
 
     };
-
 
     const parsedContent = parse(
         cleanHTML,
@@ -356,7 +238,7 @@ function ReadArticle() {
                         <i className="fa-regular fa-comment"></i>
 
                         <span>
-                            {comments ? comments?.length : data?.data?.commentsCount}
+                            {data ? article?.commentsCount : 0}
                         </span>
 
                     </button>
@@ -409,7 +291,7 @@ function ReadArticle() {
 
                     {/* ASK AI */}
 
-                    <AskAiButton onClick={() => handleAuthCheck("ask-ai")} value={"Ask AI"} />
+                    <AskAiButton onClick={() => check(setIsAiOpen)} value={"Ask AI"} />
 
                 </aside>
 
@@ -603,7 +485,7 @@ function ReadArticle() {
                                     </div>
 
                                     <div className="comments-toggle-right">
-                                        <span className="comments-count">{comments ? comments?.length : data?.data?.commentsCount} comments</span>
+                                        <span className="comments-count">{data ? article?.commentsCount : 0} comments</span>
                                         <i className="fa-solid fa-chevron-down"></i>
                                     </div>
                                 </button>
@@ -620,7 +502,7 @@ function ReadArticle() {
                                     commentText={commentText}
                                     setCommentText={setCommentText}
                                     setEditingCommentId={setEditingCommentId}
-                                    onInput={handleAuthCheck}
+                                    onInput={check}
                                 />
                             )}
 

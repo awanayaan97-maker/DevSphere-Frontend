@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
-import useCallApi from "../hooks/useCallApi";
 import { io } from "socket.io-client";
+import useApiQuery from "../hooks/useApiQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const AuthContext = createContext();
 
@@ -8,65 +9,49 @@ export function AuthProvider({ children }) {
 
     const API_URL = import.meta.env.VITE_API_URL;
     const [token, setToken] = useState(() => localStorage.getItem("token"));
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [notifications, setNotifications] = useState(null);
+    const queryClient = useQueryClient();
     const [unreadCount, setUnreadCount] = useState(0);
     const [socket, setSocket] = useState(null);
-    const { callApi } = useCallApi();
+    const { isLoading: loading, data: user } = useApiQuery({
+        url: `${API_URL}/api/user/`,
+        type: "GET",
+        isAuthorized: true
+    })
+
+    const [notifications, setNotifications] = useState(user?.notifications || null);
 
     useEffect(() => {
-
-        if(user !== null || !token?.trim()) return
-         
-        async function fetchUser() {
-            setLoading(true)
-            const result = await callApi(`${API_URL}/api/user/`, "GET", [], token);
-
-            if (result?.status) {
-                setLoading(false)
-                setUser(result)
-                setNotifications(result?.data?.notifications)
+        if (!token) {
+            if (socket) {
+                socket.disconnect();
+                setSocket(null);
             }
+            return;
         }
 
-        fetchUser()
+        const connectSocket = io(API_URL, {
+            auth: { token: token },
+            transports: ["websocket"]
+        });
 
-    }, [token])
+        connectSocket.on("connect", () => {
+            console.log("Socket connected successfully:", connectSocket.id);
+        });
 
-
-    useEffect(() => {
-    if (!token) {
-        if (socket) {
-            socket.disconnect();
+        connectSocket.on("disconnect", (reason) => {
+            console.log("Socket disconnected:", reason);
             setSocket(null);
-        }
-        return;
-    }
+        });
 
-    const connectSocket = io(API_URL, {
-        auth: { token: token },
-        transports: ["websocket"]
-    });
+        setSocket(connectSocket);
 
-    connectSocket.on("connect", () => {
-        console.log("Socket connected successfully:", connectSocket.id);
-    });
+        return () => {
+            connectSocket.off("connect");
+            connectSocket.off("disconnect");
+            connectSocket.disconnect();
+        };
 
-    connectSocket.on("disconnect", (reason) => {
-        console.log("Socket disconnected:", reason);
-        setSocket(null);
-    });
-
-    setSocket(connectSocket);
-
-    return () => {
-        connectSocket.off("connect");
-        connectSocket.off("disconnect");
-        connectSocket.disconnect();
-    };
-
-}, [token]);
+    }, [token]);
 
 
     useEffect(() => {
@@ -102,12 +87,11 @@ export function AuthProvider({ children }) {
     const logout = () => {
         localStorage.removeItem("token")
         setToken(null)
-        setUser(null)
+        queryClient.clear()
     }
 
-
     return (
-        <AuthContext.Provider value={{ user, notifications, unreadCount, setUnreadCount,  socket, setUser, logout, login, loading }}>
+        <AuthContext.Provider value={{ user, notifications, unreadCount, setUnreadCount, socket, logout, login, loading }}>
             {children}
         </AuthContext.Provider>
     )

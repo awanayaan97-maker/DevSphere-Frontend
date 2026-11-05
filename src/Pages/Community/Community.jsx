@@ -77,8 +77,6 @@ function Community() {
         }
 
         catch (error) {
-            console.error("API fail:", error);
-
             if (deletedPost) {
                 setPost((prevPosts) => [deletedPost, ...prevPosts]);
             }
@@ -147,16 +145,16 @@ function Community() {
             >
                 <div className="community-create-top">
                     <div className="community-create-avatar">
-                        {user?.data?.profileImage ? (
+                        {user?.profileImage ? (
                             <img
-                                src={user.data.profileImage}
-                                alt={`${user?.data?.firstName || ""} ${user?.data?.lastName || ""}`}
+                                src={user?.profileImage}
+                                alt={`${user?.firstName || ""} ${user?.lastName || ""}`}
                                 className="community-avatar-img"
                             />
                         ) : (
                             <span className="community-avatar-initials">
-                                {user?.data?.firstName?.[0] || ""}
-                                {user?.data?.lastName?.[0] || ""}
+                                {user?.firstName?.[0] || ""}
+                                {user?.lastName?.[0] || ""}
                             </span>
                         )}
                     </div>

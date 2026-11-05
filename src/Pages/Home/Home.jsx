@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import "./Home.css";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import PostCard from "../../Components/PostCard/PostCard";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useInfiniteArticles from "../../hooks/useInfiniteArticles";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndMessage";
@@ -11,6 +11,7 @@ import NoResults from "../../Components/NoResults/NoResults";
 import { AuthContext } from "../../Context/AuthContext";
 import SortDropdown from "../../Components/SortDropdown/SortDropdown";
 import { SORT_LABELS } from "../../constants/appConstants";
+import useUrlFilters from "../../hooks/useUrlFilters";
 
 
 function Home() {
@@ -18,19 +19,16 @@ function Home() {
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const [searchParam, setSearchParam] = useSearchParams();
-    const searchQuery = searchParam.get("q") || null;
-    const sort = searchParam.get("sort") || "latest";
-    const feed = searchParam.get("feed") === "following" ? "following" : "all";
     const { socket } = useContext(AuthContext);
-
-    let url = `${API_URL}/api/article`;
-
-    if (searchQuery) {
-        url += `/search?q=${encodeURIComponent(searchQuery)}&sort=${sort}`;
-    } else {
-        url += `/publish?sort=${sort}&feed=${feed}`;
-    }
+    const { getParam, buildUrl, updateFilter, removeFilter } = useUrlFilters({
+        sort: "latest",
+        feed: "all"
+    })
+    const sort = getParam("sort", "latest");
+    const feed = getParam("feed", 'all');
+    const searchQuery = getParam("q", null)
+    const url = searchQuery ? buildUrl(`${API_URL}/api/article/search`)
+        : buildUrl(`${API_URL}/api/article/publish`)
 
     const { loading, articles: fetchedArticles, hasMore, error, setError } = useInfiniteArticles(url, "GET", [], token);
 
@@ -59,38 +57,18 @@ function Home() {
         };
     }, [socket]);
 
-
-    const handleSort = (e) => {
-        const sortValue = e.target.value.trim();
-        setSearchParam((prev) => {
-            const newParam = new URLSearchParams(prev);
-            newParam.set("sort", sortValue);
-            return newParam;
-        });
-    };
-
-    const handleFeed = (value) => {
-        setSearchParam((prev) => {
-            const newParam = new URLSearchParams(prev);
-            if (value === "all") {
-                newParam.delete("feed");   // URL saaf rahe
-            } else {
-                newParam.set("feed", value);
-            }
-            return newParam;
-        });
-    };
-
+    const handleSortChange = (e) => {
+        const sortValue = e.target.value;
+        updateFilter("sort", sortValue)
+    }
     const clearSearch = () => {
-        setSearchParam((prev) => {
-            const newParam = new URLSearchParams(prev);
-            newParam.delete("q");
-            newParam.delete("feed");
-            if (newParam.get("sort") === "relevance") newParam.delete("sort");
-            return newParam;
-        });
-    };
-
+        if (sort === "relevance") {
+            removeFilter(['q', 'feed', 'sort'])
+        } else {
+            removeFilter(['q', 'feed'])
+        }
+    }
+    const handleFeedChange = (value) => updateFilter('feed', value)
     const showEmpty = !loading && !error && articles.length === 0;
 
     return (
@@ -165,7 +143,7 @@ function Home() {
                         <button
                             type="button"
                             className={feed === "all" ? "article-feed-tab active" : "article-feed-tab"}
-                            onClick={() => handleFeed("all")}
+                            onClick={() => handleFeedChange("all")}
                         >
                             All
                         </button>
@@ -173,7 +151,7 @@ function Home() {
                         <button
                             type="button"
                             className={feed === "following" ? "article-feed-tab active" : "article-feed-tab"}
-                            onClick={() => handleFeed("following")}
+                            onClick={() => handleFeedChange("following")}
                         >
                             Following
                         </button>
@@ -189,7 +167,7 @@ function Home() {
 
                     <h2>{SORT_LABELS[sort] || "Articles"}</h2>
 
-                    <SortDropdown sort={sort} handleSort={handleSort} searchQuery={searchQuery} />
+                    <SortDropdown sort={sort} handleSort={handleSortChange} searchQuery={searchQuery} />
 
                 </div>
 

@@ -168,15 +168,15 @@ function Navbar() {
     // Avatar
     const renderAvatar = () => {
 
-        if (user && user.data) {
+        if (user) {
 
             if (
-                user.data.profileImage &&
-                user.data.profileImage.trim() !== ""
+                user.profileImage &&
+                user.profileImage.trim() !== ""
             ) {
                 return (
                     <img
-                        src={user.data.profileImage}
+                        src={user.profileImage}
                         alt="Profile"
                     />
                 );
@@ -184,8 +184,8 @@ function Navbar() {
 
             return (
                 <span>
-                    {user.data.firstName
-                        ? user.data.firstName.charAt(0).toUpperCase()
+                    {user.firstName
+                        ? user.firstName.charAt(0).toUpperCase()
                         : "U"}
                 </span>
             );
@@ -405,13 +405,13 @@ function Navbar() {
 
                                     <div className="dropdown-user-header">
                                         <strong>
-                                            {user?.data?.firstName}{" "}
-                                            {user?.data?.lastName || ""}
+                                            {user?.firstName}{" "}
+                                            {user?.lastName || ""}
                                         </strong>
 
-                                        <span>
-                                            @{user?.data?.username || "username"}
-                                        </span>
+                                        {/* <span>
+                                            @{user?.username || "username"}
+                                        </span> */}
                                     </div>
 
                                     <div className="dropdown-divider"></div>
@@ -557,12 +557,12 @@ function Navbar() {
                             <div className="mobile-user-info">
 
                                 <strong>
-                                    {user?.data?.firstName}{" "}
-                                    {user?.data?.lastName || ""}
+                                    {user?.firstName}{" "}
+                                    {user?.lastName || ""}
                                 </strong>
 
                                 <span>
-                                    @{user?.data?.username || "username"}
+                                    @{user?.username || "username"}
                                 </span>
 
                             </div>

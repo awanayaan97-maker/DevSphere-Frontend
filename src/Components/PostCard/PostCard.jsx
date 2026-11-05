@@ -2,16 +2,16 @@
 
 import "./PostCard.css";
 import { shortTimeAgo } from "../../utils/dateHelpers";
-import { data, useNavigate } from "react-router-dom";
-import useLoginChecker from "../../hooks/useLoginChecker";
+import { useNavigate } from "react-router-dom";
 import Alert from "../../Components/Alert/Alert";
 import useCallApi from "../../hooks/useCallApi";
 import { AuthContext } from "../../Context/AuthContext";
-import { useState, useEffect, useRef, useContext } from "react";
-import SectionLoader from "../SectionLoader/SectionLoader";
+import { useState, useEffect, useRef, useContext } from "react"
 import CommentSection from "../CommentSection/CommentSection";
 import { useLikeToggle } from "../../hooks/useLikeToggle";
 import { useBookmarkToggle } from "../../hooks/useBookmarkToggle";
+import useCheckLogin from "../../hooks/useCheckLogin";
+import useComments from "../../hooks/useComments";
 
 function PostCard({ post, isBookmarkPage }) {
 
@@ -19,15 +19,10 @@ function PostCard({ post, isBookmarkPage }) {
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
-    const { isLoggedIn } = useLoginChecker();
-    const [showAlert, setShowAlert] = useState(false);
+    const { showAlert, setShowAlert, check } = useCheckLogin();
     const [menuOpen, setMenuOpen] = useState(false);
-    const [commentsOpen, setCommentsOpen] = useState(false);
-    const [comments, setComments] = useState(null);
-    const [editingCommentId, setEditingCommentId] = useState(null);
-    const [commentText, setCommentText] = useState("");
-
     const { callApi, loading } = useCallApi();
+    const { commentsOpen, setCommentsOpen, comments, setComments, commentText, setCommentText, setEditingCommentId, handleAddComment, toggleComments, handleDeleteComment } = useComments(post?._id)
 
     const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
         useLikeToggle({
@@ -45,87 +40,11 @@ function PostCard({ post, isBookmarkPage }) {
     const menuRef = useRef(null);
     const plainText = stripHTML(post.content);
     const preview = handlePostDescription(plainText, 200);
-    const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?.data?._id);
+    const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?._id);
 
     function stripHTML(html) {
         const doc = new DOMParser().parseFromString(html, "text/html");
         return doc.body.textContent || "";
-    }
-
-    // async function handleAuthCheck(type) {
-
-    //     if (!isLoggedIn) {
-    //         setShowAlert(true);
-    //         return;
-    //     }
-
-    //     // if (type?.trim() === "like") {
-    //     //     setIsLiked(!currentStatus);
-    //     // }
-
-    //     return true;
-    // }
-
-    async function handleAddComment() {
-
-        if (!commentText?.trim()) return;
-
-        if (editingCommentId !== null) {
-
-            const oldText = comments.find(c => c._id === editingCommentId)?.text;
-
-            setComments((prev) =>
-                prev.map((c) => (c._id === editingCommentId ? { ...c, text: commentText } : c))
-            );
-
-            setCommentText("");
-            setEditingCommentId(null);
-
-            const result = await callApi(`${API_URL}/api/article/comment/${editingCommentId}`, "PATCH", { text: commentText }, token);
-
-            if (!result?.status) {
-                setComments((prev) =>
-                    prev.map((c) => (c._id === editingCommentId ? { ...c, text: oldText } : c))
-                );
-            }
-
-            return;
-        }
-
-        const tempId = `temp-${Date.now()}`;
-
-        const newCommentData = {
-            authorData: {
-                _id: user?.data?._id,
-                firstName: user?.data?.firstName,
-                lastName: user?.data?.lastName,
-                role: user?.data?.role,
-                profileImage: user?.data?.profileImage
-            },
-            _id: tempId,
-            articleId: post?._id,
-            text: commentText,
-            hasLikeComment: false,
-            commentLikes: 0,
-            replies: []
-        };
-
-        setComments((prev) => (prev === null ? [newCommentData] : [...prev, newCommentData]));
-        setCommentText("");
-
-        const commentData = { text: commentText, articleId: post?._id };
-        const result = await callApi(`${API_URL}/api/article/comment`, "POST", commentData, token);
-
-        if (result?.status && result?.data) {
-            setComments((prev) => prev.map((c) => (c._id === tempId ? result.data : c)));
-        } else {
-            setComments((prev) => prev.filter((c) => c._id !== tempId));
-        }
-    }
-
-    async function handleDeleteComment(commentId) {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
-        const result = await callApi(`${API_URL}/api/article/comment/${commentId}`, "DELETE", null, token);
     }
 
     function handlePostDescription(text, maxLength = 200) {
@@ -155,7 +74,6 @@ function PostCard({ post, isBookmarkPage }) {
         deleteDraft();
     };
 
-
     useEffect(() => {
         if (!socket) return;
 
@@ -177,31 +95,6 @@ function PostCard({ post, isBookmarkPage }) {
     }, [socket]);
 
     useEffect(() => {
-
-        if (!commentsOpen) return;
-
-        if (comments !== null) return;
-
-        async function fetchComments() {
-
-            const result = await callApi(
-                `${API_URL}/api/article/comment/${post._id}`,
-                "GET",
-                [],
-                token
-            );
-
-            if (result?.status) {
-                setComments(result.data || []);
-            }
-        }
-
-        fetchComments();
-
-    }, [commentsOpen]);
-
-
-    useEffect(() => {
         function handleClickOutside(e) {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
                 setMenuOpen(false);
@@ -211,7 +104,6 @@ function PostCard({ post, isBookmarkPage }) {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
-
 
     if (showAlert || showLikeAlert || showBookmarkAlert) return <Alert
         title="Login Required"
@@ -339,7 +231,7 @@ function PostCard({ post, isBookmarkPage }) {
 
                     <span
                         className={`comment-btn ${commentsOpen ? "comment-btn-active" : ""}`}
-                        onClick={() => setCommentsOpen(prev => !prev)}
+                        onClick={toggleComments}
                     >
                         <i className="fa-regular fa-comment"></i>
                         <span className="stat-count">{!comments ? post.commentsCount : comments?.length}</span>
@@ -388,7 +280,7 @@ function PostCard({ post, isBookmarkPage }) {
                     commentText={commentText}
                     setCommentText={setCommentText}
                     setEditingCommentId={setEditingCommentId}
-                    onInput={handleAuthCheck}
+                    onInput={check}
                 />
             )}
 

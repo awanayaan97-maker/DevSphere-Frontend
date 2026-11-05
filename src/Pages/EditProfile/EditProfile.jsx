@@ -22,8 +22,8 @@ function EditProfile() {
     const [profileImageFile, setProfileImageFile] = useState("");
     const [coverImageFile, setCoverImageFile] = useState("")
     const { isLoggedIn } = useLoginChecker();
-    const userFollowers = user?.data?.followers;
-    const userFollowings = user?.data?.followings;
+    const userFollowers = user?.followers;
+    const userFollowings = user?.followings;
 
     const { loading, error, setError, callApi } = useCallApi();
     const { inputData, inputHandler, setInputData } = useForm({
@@ -44,16 +44,16 @@ function EditProfile() {
         if (user) {
 
             setInputData({
-                firstName: user?.data.firstName || "",
-                lastName: user?.data.lastName || "",
-                headline: user?.data.headline || "",
-                bio: user?.data.bio || "",
-                location: user?.data.location || "",
-                website: user?.data.website || "",
-                github: user?.data.github || "",
-                linkedIn: user?.data.linkedIn || "",
-                twitter: user?.data.twitter || "",
-                role: user?.data.role || ""
+                firstName: user?.firstName || "",
+                lastName: user?.lastName || "",
+                headline: user?.headline || "",
+                bio: user?.bio || "",
+                location: user?.location || "",
+                website: user?.website || "",
+                github: user?.github || "",
+                linkedIn: user?.linkedIn || "",
+                twitter: user?.twitter || "",
+                role: user?.role || ""
             })
 
         }
@@ -63,7 +63,6 @@ function EditProfile() {
     async function handleProfileUpdate() {
 
         const formData = new FormData();
-
         formData.append("firstName", inputData.firstName);
         formData.append("lastName", inputData.lastName);
         formData.append("headline", inputData.headline);
@@ -83,7 +82,6 @@ function EditProfile() {
             result.data.followers = userFollowers;
             result.data.followings = userFollowings;
             const userData = { data: result.data }
-            console.log(userData, 'user complete data');
             setUser(userData)
             navigate('/profile')
         }
@@ -158,9 +156,9 @@ function EditProfile() {
 
                         <div className="cover-image-editor">
 
-                            {(coverImagePreview || user?.data.coverImage) ?
+                            {(coverImagePreview || user?.coverImage) ?
                                 <img
-                                    src={coverImagePreview || user.data.coverImage}
+                                    src={coverImagePreview || user?.coverImage}
                                     alt="Cover preview"
                                     className="cover-preview-image"
                                 />
@@ -197,9 +195,9 @@ function EditProfile() {
         ========================= */}
                         <div className="profile-image-editor">
 
-                            {(profileImagePreview || user?.data.profileImage) ? (
+                            {(profileImagePreview || user?.profileImage) ? (
                                 <img
-                                    src={profileImagePreview || user?.data.profileImage}
+                                    src={profileImagePreview || user?.profileImage}
                                     alt="Profile preview"
                                     className="profile-preview-image"
                                 />

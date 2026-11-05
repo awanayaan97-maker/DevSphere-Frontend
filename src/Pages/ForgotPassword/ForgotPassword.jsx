@@ -1,6 +1,4 @@
 import "./ForgotPassword.css"
-
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useInputHandler";
 import useCallApi from "../../hooks/useCallApi";

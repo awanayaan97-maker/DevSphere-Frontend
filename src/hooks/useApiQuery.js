@@ -1,7 +1,6 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import useCallApi from "./useCallApi"
 import { useQuery } from '@tanstack/react-query';
-import { AuthContext } from "../Context/AuthContext";
 
 function useApiQuery({
     url,
@@ -14,9 +13,7 @@ function useApiQuery({
 
     const token = localStorage.getItem("token");
     const { callApi } = useCallApi();
-    const { user, loading } = useContext(AuthContext);
     const [error, setError] = useState()
-    let userId = ""
 
     const getData = async () => {
         const result = await callApi(url, type, data, token);
@@ -29,21 +26,17 @@ function useApiQuery({
         return result.data
     }
 
-    if (isAuthorized) {
-        userId = user?.data?._id
-    }
-
-    const isEnabled = isAuthorized ? (Boolean(token) && Boolean(userId)) : true;
+    const isEnabled = isAuthorized ? Boolean(token) : true;
 
     const queryResult = useQuery({
-        queryKey: [url, userId],
+        queryKey: [url],
         queryFn: getData,
         enabled: isEnabled,
         staleTime,
         gcTime,
     });
 
-    const isReallyLoading = (isAuthorized && loading) || queryResult.isLoading;
+    const isReallyLoading = (isAuthorized) || queryResult.isLoading;
 
     return {
         ...queryResult,

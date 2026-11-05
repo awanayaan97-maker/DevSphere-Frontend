@@ -22,6 +22,20 @@ function useUrlFilters(defaultValues = {}) {
         });
     };
 
+    const removeFilter = (keysToRemove) => {
+
+        setSearchParams((prev) => {
+            const newParams = new URLSearchParams(prev);
+            const keysArray = Array.isArray(keysToRemove) ? keysToRemove : [keysToRemove];
+
+            keysArray.forEach((k) => {
+                newParams.delete(k);
+            });
+
+            return newParams;
+        });
+    }
+
     const buildUrl = (baseUrl) => {
         const paramsString = searchParams.toString();
         return paramsString ? `${baseUrl}?${paramsString}` : baseUrl;
@@ -32,6 +46,7 @@ function useUrlFilters(defaultValues = {}) {
         updateFilter,
         buildUrl,
         getParam: (key, fallback = "") => searchParams.get(key) || fallback,
+        removeFilter
     };
 }
 export default useUrlFilters
