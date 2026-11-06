@@ -6,7 +6,7 @@ import "./Community.css";
 import CommunityComposer from "../../Components/CommunityComposer/CommunityComposer";
 import { AuthContext } from "../../Context/AuthContext";
 import SortDropdown from "../../Components/SortDropdown/SortDropdown";
-import useInfiniteArticles from "../../hooks/useInfiniteArticles";
+import usePaginationQuery from "../../hooks/usePaginationQuery";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import useCallApi from "../../hooks/useCallApi";
@@ -18,6 +18,7 @@ import Alert from "../../Components/Alert/Alert";
 import useCheckLogin from "../../hooks/useCheckLogin";
 import useDiscoverData from "../../hooks/useDiscoverData";
 import useUrlFilters from "../../hooks/useUrlFilters";
+import { useQueryClient } from "@tanstack/react-query";
 
 function Community() {
 
@@ -27,7 +28,7 @@ function Community() {
     const [postToEdit, setPostToEdit] = useState(null);
     const [isAIopen, setIsAIopen] = useState(false);
     const { user } = useContext(AuthContext);
-    const [post, setPost] = useState(null)
+    const queryClient = useQueryClient();
     const { callApi } = useCallApi();
     const { trendingTopics, popularUsers } = useDiscoverData("posts")
     const { showAlert, setShowAlert, check } = useCheckLogin();
@@ -41,44 +42,46 @@ function Community() {
     const topic = getParam("topic");
     const url = buildUrl(`${API_URL}/api/post`);
 
-    const { articles: postsData, loading, error, setError, hasMore } = useInfiniteArticles(url, "GET", [], token)
-
-    const showEmpty = !loading && !error && postsData.length === 0;
-
-    useEffect(() => {
-        setPost(postsData || []);
-    }, [postsData]);
+    const { fetchData, loading, error, setError, hasMore } = usePaginationQuery(url, "GET", [], token)
+    const showEmpty = !loading && !error && fetchData.length === 0;
 
     function handleEditPost(postId) {
-        const selectedPost = post.find(
-            (post) => post._id === postId
-        );
-
+        const selectedPost = fetchData.find((post) => post._id === postId);
         if (!selectedPost) {
             console.error("Post not found");
             return;
         }
-
         setPostToEdit(selectedPost);
         setShowComposer(true);
     }
 
     async function handleDeletePost(postId) {
-        let deletedPost = null;
 
-        setPost((prevPosts) => {
-            deletedPost = prevPosts.find((p) => p._id === postId);
-            return prevPosts.filter((post) => post._id !== postId);
+        const targetQueryKey = ["feed", user?._id, url];
+        const previousFeedData = queryClient.getQueryData(targetQueryKey);
+        queryClient.setQueryData(targetQueryKey, (old) => {
+            if (!old) return old;
+            return {
+                ...old,
+                pages: old.pages.map((page) =>
+                    page.filter((post) => post._id !== postId)
+                )
+            };
         });
 
         try {
-            const url = `${API_URL}/api/post/${postId}`;
-            await callApi(url, "DELETE", null, token);
+            const apiUrl = `${API_URL}/api/post/${postId}`;
+            const result = await callApi(apiUrl, "DELETE", null, token);
+
+            if (!result?.status) {
+                throw new Error("Delete failed");
+            }
         }
 
         catch (error) {
-            if (deletedPost) {
-                setPost((prevPosts) => [deletedPost, ...prevPosts]);
+            console.error("Failed to delete post, rolling back:", error);
+            if (previousFeedData) {
+                queryClient.setQueryData(targetQueryKey, previousFeedData);
             }
         }
     }
@@ -212,7 +215,6 @@ function Community() {
                                 setPostToEdit(null);
                             }}
                             postToEdit={postToEdit}
-                            setPost={setPost}
                         />
                     </div>
                 </div>
@@ -314,7 +316,7 @@ function Community() {
                         <SortDropdown sort={sort} handleSort={handleSort} />
                     </div>
 
-                    {post?.map((post) => (
+                    {fetchData?.map((post) => (
                         <CommunityPostCard
                             key={post._id}
                             post={post}
@@ -340,7 +342,7 @@ function Community() {
                         />
                     )}
 
-                    {!hasMore && !loading && post.length > 0 && (
+                    {!hasMore && !loading && fetchData.length > 0 && (
                         <ArticlesEndMessage />
                     )}
 

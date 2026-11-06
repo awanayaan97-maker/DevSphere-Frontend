@@ -3,17 +3,15 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../Context/AuthContext";
 import ImageAttachment from "./ImageAttachment";
-import VideoAttachment from "./VideoAttachment";
 import CodeSnippetEditor from "./CodeSnippetEditor";
-
 import "./CommunityComposer.css";
 import useCallApi from "../../hooks/useCallApi";
 import ButtonLoader from "../ButtonLoader/ButtonLoader";
 import ResponsePopup from "../ResponsePopup/ResponsePopup";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-// const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
 const ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
@@ -21,16 +19,9 @@ const ALLOWED_IMAGE_TYPES = [
     "image/webp",
 ];
 
-// const ALLOWED_VIDEO_TYPES = [
-//   "video/mp4",
-//   "video/webm",
-//   "video/quicktime",
-// ];
-
-function CommunityComposer({ onClose, postToEdit = null, setPost }) {
+function CommunityComposer({ onClose, postToEdit = null }) {
     const imageInputRef = useRef(null);
     const previewUrlsRef = useRef(new Set());
-
     const [postText, setPostText] = useState("");
     const [postType, setPostType] = useState("Discussion");
     const [attachments, setAttachments] = useState([]);
@@ -48,6 +39,7 @@ function CommunityComposer({ onClose, postToEdit = null, setPost }) {
     const { user } = useContext(AuthContext);
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
+    const queryClient = useQueryClient();
     const [isPublishing, setIsPublishing] = useState(false);
     const { loading, callApi, error, setError } = useCallApi()
 
@@ -210,14 +202,13 @@ function CommunityComposer({ onClose, postToEdit = null, setPost }) {
     };
 
     const handlePublish = async (event) => {
-        event.preventDefault();
 
+        event.preventDefault();
         if (Object.keys(attachmentErrors).length > 0) {
             return;
         }
 
         const formData = new FormData();
-
         if (postToEdit?._id) {
             formData.append("postId", postToEdit._id);
         }
@@ -266,40 +257,48 @@ function CommunityComposer({ onClose, postToEdit = null, setPost }) {
         setIsPublishing(true);
 
         try {
-
             const postResult = await callApi(`${API_URL}/api/post/`, "POST", formData, token);
 
             if (postResult?.status) {
                 const updatedPost = postResult.data;
-                console.log(updatedPost);
-                
-                if (postToEdit?._id) {
-                    setPost((previousPosts) =>
-                        previousPosts.map((post) =>
-                            post._id === postToEdit._id
-                                ? { ...post, ...updatedPost }
-                                : post
-                        )
-                    );
-                } else {
-                    setPost((previousPosts) => [
-                        updatedPost,
-                        ...previousPosts,
-                    ]);
-                }
+                const targetQueryKey = ["feed", user?._id, url];
+                queryClient.setQueryData(targetQueryKey, (old) => {
+
+                    if (!old) return old;
+                    if (postToEdit?._id) {
+                        return {
+                            ...old,
+                            pages: old.pages.map((page) =>
+                                page.map((post) =>
+                                    post._id === postToEdit._id
+                                        ? { ...post, ...updatedPost }
+                                        : post
+                                )
+                            ),
+                        };
+                    } else {
+
+                        const newPages = [...old.pages];
+                        if (newPages.length > 0) {
+                            newPages[0] = [updatedPost, ...newPages[0]];
+                        } else {
+                            newPages[0] = [updatedPost];
+                        }
+
+                        return {
+                            ...old,
+                            pages: newPages,
+                        };
+                    }
+                });
 
                 onClose();
             }
-        }
-
-        catch (error) {
-            setError(error || "something went wrong")
-        }
-
-        finally {
+        } catch (error) {
+            setError(error?.message || error || "something went wrong");
+        } finally {
             setIsPublishing(false);
         }
-
     };
 
     const canPublish =
@@ -309,8 +308,6 @@ function CommunityComposer({ onClose, postToEdit = null, setPost }) {
 
     if (error) return <ResponsePopup message={error} closePopup={() => setError(error)} />
 
-    console.log(tags, "tags");
-
     return (
         <section className="community-composer">
             <form onSubmit={handlePublish}>
@@ -319,24 +316,24 @@ function CommunityComposer({ onClose, postToEdit = null, setPost }) {
                     <div className="composer-user">
                         <div className="composer-user-container">
                             <div className="composer-user-avatar">
-                                {user?.data?.profileImage ? (
+                                {user?.profileImage ? (
                                     <img
-                                        src={user.data.profileImage}
-                                        alt={`${user?.data?.firstName || ""} ${user?.data?.lastName || ""
+                                        src={user.profileImage}
+                                        alt={`${user.firstName || ""} ${user.lastName || ""
                                             }`}
                                         className="composer-avatar-img"
                                     />
                                 ) : (
                                     <span className="composer-avatar-initials">
-                                        {user?.data?.firstName?.[0] || ""}
-                                        {user?.data?.lastName?.[0] || ""}
+                                        {user?.firstName?.[0] || ""}
+                                        {user?.lastName?.[0] || ""}
                                     </span>
                                 )}
                             </div>
 
                             <div className="composer-user-info">
                                 <h2>
-                                    {user?.data?.firstName} {user?.data?.lastName}
+                                    {user?.firstName} {user?.lastName}
                                 </h2>
                                 <p>Share with the DevSphere community</p>
                             </div>

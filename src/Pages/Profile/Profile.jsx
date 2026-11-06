@@ -1,88 +1,70 @@
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import Alert from "../../Components/Alert/Alert";
-import useFetch from "../../hooks/useFetch";
-import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import useLoginChecker from "../../hooks/useLoginChecker";
 import PostCard from "../../Components/PostCard/PostCard";
 import { AuthContext } from "../../Context/AuthContext";
-import useInfiniteArticles from "../../hooks/useInfiniteArticles";
+import usePaginationQuery from "../../hooks/usePaginationQuery";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndMessage";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 function Profile() {
 
+    const queryClient = useQueryClient()
     const { user, socket } = useContext(AuthContext)
     const token = localStorage.getItem("token");
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
-    const { loading, error, articles: fetchedArticles, hasMore, setError } = useInfiniteArticles(`${API_URL}/api/user/articles`, "GET", [], token);
-
-    const [articles, setArticles] = useState([]);
-
-    useEffect(() => {
-        if (!fetchedArticles) return;
-
-        setArticles((prev) => {
-            if (prev.length === 0) {
-                return fetchedArticles;
-            } else {
-                return [...prev, ...fetchedArticles];
-            }
-        });
-
-    }, [fetchedArticles]);
+    const { isLoggedIn } = useLoginChecker();
+    const { loading, error, fetchData, hasMore, setError } = usePaginationQuery(`${API_URL}/api/user/articles`, "GET", [], token);
 
 
     useEffect(() => {
-        if (!socket) return;
+    if (!socket) return;
+    const onLike = (data) => {
+        queryClient.setQueriesData({ queryKey: ["feed"] }, (old) => {
+            if (!old) return old;
 
-        socket.on("like_notification", (data) => {
-            console.log(data);
-
-            setArticles((prevArticles) => {
-
-                return prevArticles.map((article) => {
-
-                    if (article._id === data.articleId) {
-                        return {
-                            ...article,
-                            likesCount: data.likesCount
-                        };
-                    }
-                    return article;
-                });
-            });
+            return {
+                ...old,
+                pages: old.pages.map((page) =>
+                    page.map((article) =>
+                        article._id === data.articleId
+                            ? { ...article, likesCount: data.likesCount }
+                            : article
+                    )
+                ),
+            };
         });
+    };
 
-        return () => {
-            socket.off("like_notification");
-        };
-    }, [socket]);
+    socket.on("like_notification", onLike);
+    return () => {
+        socket.off("like_notification", onLike);
+    };
+}, [socket, queryClient]);
 
     const authorDetails = {
-        firstName: user?.data?.firstName,
-        lastName: user?.data?.lastName,
-        profileImage: user?.data?.profileImage,
-        role: user?.data?.role,
-        _id: user?.data?._id
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        profileImage: user?.profileImage,
+        role: user?.role,
+        _id: user?._id
     }
 
     function handleConnections(type) {
 
-        console.log(type);
-
         if (type === "followers") {
-            if (user?.data.followers === 0) return
+            if (user?.followers === 0) return
             else navigate('/connections/followers')
         }
 
         if (type === "followings") {
-            if (user?.data.followings === 0) return
+            if (user?.followings === 0) return
             else navigate('/connections/followings')
         }
 
@@ -123,9 +105,9 @@ function Profile() {
 
                 <div className="profile-cover">
 
-                    {user?.data?.coverImage ? (
+                    {user?.coverImage ? (
                         <img
-                            src={user?.data.coverImage}
+                            src={user?.coverImage}
                             alt="Cover"
                             className="profile-cover-image"
                         />
@@ -146,10 +128,10 @@ function Profile() {
 
                         <div className="profile-avatar-wrapper">
 
-                            {user?.data?.profileImage ?
+                            {user?.profileImage ?
 
                                 <img
-                                    src={user?.data.profileImage}
+                                    src={user?.profileImage}
                                     alt={"profileImage"}
                                     className="profile-avatar-image"
                                 />
@@ -187,7 +169,7 @@ function Profile() {
                         {/* NAME */}
 
                         <h1 className="profile-name">
-                            {`${user?.data?.firstName} ${user?.data?.lastName}`}
+                            {`${user?.firstName} ${user?.lastName}`}
                         </h1>
 
 
@@ -195,21 +177,21 @@ function Profile() {
                             ROLE (NEWLY ADDED FIELD)
                         ===================================== */}
 
-                        {user?.data?.role ? (
+                        {user?.role ? (
 
                             <p className="profile-role">
                                 <i className="fa-solid fa-user-tag"></i>
-                                <span>{user?.data.role}</span>
+                                <span>{user.role}</span>
                             </p>
 
                         ) : null}
 
                         {/* HEADLINE */}
 
-                        {user?.data?.headline ? (
+                        {user?.headline ? (
 
                             <p className="profile-headline">
-                                {user?.data.headline}
+                                {user?.headline}
                             </p>
 
                         ) : null}
@@ -220,19 +202,19 @@ function Profile() {
                             PROFILE META
                         ===================================== */}
 
-                        {(user?.data?.location || user?.data?.website) ? (
+                        {(user?.location || user?.website) ? (
 
                             <div className="profile-meta">
 
                                 {/* LOCATION */}
 
-                                {user?.data?.location ? (
+                                {user?.location ? (
 
                                     <span className="profile-meta-item">
 
                                         <i className="fa-solid fa-location-dot"></i>
 
-                                        {user?.data.location}
+                                        {user?.location}
 
                                     </span>
 
@@ -242,10 +224,10 @@ function Profile() {
 
                                 {/* WEBSITE */}
 
-                                {user?.data?.website ? (
+                                {user?.website ? (
 
                                     <a
-                                        href={user?.data.website}
+                                        href={user?.website}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="profile-meta-item profile-website"
@@ -253,7 +235,7 @@ function Profile() {
 
                                         <i className="fa-solid fa-link"></i>
 
-                                        {user?.data.website}
+                                        {user?.website}
 
                                     </a>
 
@@ -269,10 +251,10 @@ function Profile() {
                             BIO
                         ===================================== */}
 
-                        {user?.data?.bio ? (
+                        {user?.bio ? (
 
                             <p className="profile-bio">
-                                {user?.data.bio}
+                                {user?.bio}
                             </p>
 
                         ) : null}
@@ -283,18 +265,18 @@ function Profile() {
                             SOCIAL LINKS
                         ===================================== */}
 
-                        {(user?.data?.github ||
-                            user?.data?.linkedIn ||
-                            user?.data?.twitter) ? (
+                        {(user?.github ||
+                            user?.linkedIn ||
+                            user?.twitter) ? (
 
                             <div className="profile-social-links">
 
                                 {/* GITHUB */}
 
-                                {user?.data?.github ? (
+                                {user?.github ? (
 
                                     <a
-                                        href={user?.data.github}
+                                        href={user?.github}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="profile-social-link"
@@ -312,10 +294,10 @@ function Profile() {
 
                                 {/* LINKEDIN */}
 
-                                {user?.data?.linkedIn ? (
+                                {user?.linkedIn ? (
 
                                     <a
-                                        href={user?.data.linkedIn}
+                                        href={user?.linkedIn}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="profile-social-link"
@@ -333,10 +315,10 @@ function Profile() {
 
                                 {/* X / TWITTER */}
 
-                                {user?.data?.twitter ? (
+                                {user?.twitter ? (
 
                                     <a
-                                        href={user?.data.twitter}
+                                        href={user?.twitter}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="profile-social-link"
@@ -367,7 +349,7 @@ function Profile() {
                         <div className="profile-stat">
 
                             <strong>
-                                {articles?.length}
+                                {fetchData?.length}
                             </strong>
 
                             <span>
@@ -380,7 +362,7 @@ function Profile() {
                         <div className="profile-stat">
 
                             <strong onClick={() => handleConnections("followers")}>
-                                {user?.data?.followers}
+                                {user?.followers}
                             </strong>
 
                             <span>
@@ -393,7 +375,7 @@ function Profile() {
                         <div className="profile-stat">
 
                             <strong onClick={() => handleConnections("followings")}>
-                                {user?.data?.followings}
+                                {user?.followings}
                             </strong>
 
                             <span>
@@ -448,7 +430,7 @@ function Profile() {
 
 
 
-                    {articles?.length === 0 ? (
+                    {fetchData?.length === 0 ? (
 
                         <div className="empty-articles">
 
@@ -475,7 +457,7 @@ function Profile() {
 
                         <div className="profile-article-list">
 
-                            {articles?.map((article) => {
+                            {fetchData?.map((article) => {
 
                                 const articleWithAuthor = {
                                     ...article,
@@ -497,7 +479,7 @@ function Profile() {
 
 
 
-                            {!hasMore && articles?.length > 0 && (
+                            {!hasMore && fetchData?.length > 0 && (
                                 <ArticlesEndMessage />
                             )}
 
@@ -513,12 +495,12 @@ function Profile() {
             PROFILE DETAILS
         ===================================== */}
 
-                {(user?.data?.bio ||
-                    user?.data?.location ||
-                    user?.data?.website ||
-                    user?.data?.github ||
-                    user?.data?.linkedIn ||
-                    user?.data?.twitter) ? (
+                {(user?.bio ||
+                    user?.location ||
+                    user?.website ||
+                    user?.github ||
+                    user?.linkedIn ||
+                    user?.twitter) ? (
 
                     <aside className="profile-details">
 
@@ -527,7 +509,7 @@ function Profile() {
                     ABOUT
                 ================================= */}
 
-                        {user?.data?.bio ? (
+                        {user?.bio ? (
 
                             <div className="profile-detail-section">
 
@@ -542,7 +524,7 @@ function Profile() {
                                 </div>
 
                                 <p>
-                                    {user.data.bio}
+                                    {user?.bio}
                                 </p>
 
                             </div>
@@ -555,7 +537,7 @@ function Profile() {
                     LOCATION
                 ================================= */}
 
-                        {user?.data?.location ? (
+                        {user?.location ? (
 
                             <div className="profile-detail-section">
 
@@ -570,7 +552,7 @@ function Profile() {
                                 </div>
 
                                 <p>
-                                    {user?.data?.location}
+                                    {user?.location}
                                 </p>
 
                             </div>
@@ -583,7 +565,7 @@ function Profile() {
                     WEBSITE
                 ================================= */}
 
-                        {user?.data?.website ? (
+                        {user?.website ? (
 
                             <div className="profile-detail-section">
 
@@ -598,12 +580,12 @@ function Profile() {
                                 </div>
 
                                 <a
-                                    href={user?.data.website}
+                                    href={user?.website}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="profile-detail-link"
                                 >
-                                    {user?.data.website}
+                                    {user?.website}
                                 </a>
 
                             </div>
@@ -616,9 +598,9 @@ function Profile() {
                     SOCIAL LINKS
                 ================================= */}
 
-                        {(user?.data?.github ||
-                            user?.data?.linkedIn ||
-                            user?.data?.twitter) ? (
+                        {(user?.github ||
+                            user?.linkedIn ||
+                            user?.twitter) ? (
 
                             <div className="profile-detail-section">
 
@@ -636,10 +618,10 @@ function Profile() {
                                 <div className="profile-detail-socials">
 
 
-                                    {user?.data?.github ? (
+                                    {user?.github ? (
 
                                         <a
-                                            href={user.data.github}
+                                            href={user?.github}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -654,10 +636,10 @@ function Profile() {
 
 
 
-                                    {user?.data?.linkedIn ? (
+                                    {user?.linkedIn ? (
 
                                         <a
-                                            href={user?.data.linkedIn}
+                                            href={user?.linkedIn}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -672,10 +654,10 @@ function Profile() {
 
 
 
-                                    {user?.data?.twitter ? (
+                                    {user?.twitter ? (
 
                                         <a
-                                            href={user.data.twitter}
+                                            href={user?.twitter}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >

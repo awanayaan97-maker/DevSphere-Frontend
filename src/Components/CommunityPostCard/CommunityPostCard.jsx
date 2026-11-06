@@ -112,7 +112,7 @@ function CommunityPostCard({
     const code = post?.code || "";
     const language = (post?.codeLanguage || "javascript").toLowerCase();
     const languageExtension = codeLanguages[language] || javascript;
-    const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?.data?._id);
+    const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?._id);
 
 
     useEffect(() => {
@@ -255,7 +255,7 @@ function CommunityPostCard({
 
     const AuthCheck = async () => {
 
-        if (isLoggedIn) {
+        if (!isLoggedIn) {
             setShowAlert(true);
             return;
         }

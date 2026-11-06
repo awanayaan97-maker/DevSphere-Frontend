@@ -4,7 +4,6 @@ import "./Home.css";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import PostCard from "../../Components/PostCard/PostCard";
 import { useNavigate } from "react-router-dom";
-import useInfiniteArticles from "../../hooks/useInfiniteArticles";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndMessage";
 import NoResults from "../../Components/NoResults/NoResults";
@@ -12,6 +11,8 @@ import { AuthContext } from "../../Context/AuthContext";
 import SortDropdown from "../../Components/SortDropdown/SortDropdown";
 import { SORT_LABELS } from "../../constants/appConstants";
 import useUrlFilters from "../../hooks/useUrlFilters";
+import usePaginationQuery from "../../hooks/usePaginationQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 function Home() {
@@ -19,6 +20,7 @@ function Home() {
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
+    const queryClient = useQueryClient();
     const { socket } = useContext(AuthContext);
     const { getParam, buildUrl, updateFilter, removeFilter } = useUrlFilters({
         sort: "latest",
@@ -30,32 +32,32 @@ function Home() {
     const url = searchQuery ? buildUrl(`${API_URL}/api/article/search`)
         : buildUrl(`${API_URL}/api/article/publish`)
 
-    const { loading, articles: fetchedArticles, hasMore, error, setError } = useInfiniteArticles(url, "GET", [], token);
-
-    const [articles, setArticles] = useState([]);
+    const { loading, fetchData, hasMore, error, setError } = usePaginationQuery(url, "GET", [], token);
 
     useEffect(() => {
-        setArticles(fetchedArticles || []);
-    }, [fetchedArticles]);
 
-
-    useEffect(() => {
         if (!socket) return;
+        const onLike = (data) => {
+            queryClient.setQueriesData({ queryKey: ["feed"] }, (old) => {
+                if (!old) return old;
 
-        socket.on("like_notification", (data) => {
-            setArticles((prevArticles) =>
-                prevArticles.map((article) =>
-                    article._id === data.articleId
-                        ? { ...article, likesCount: data.likesCount }
-                        : article
-                )
-            );
-        });
-
-        return () => {
-            socket.off("like_notification");
+                return {
+                    ...old,
+                    pages: old.pages.map((page) =>
+                        page.map((article) =>
+                            article._id === data.articleId
+                                ? { ...article, likesCount: data.likesCount }
+                                : article
+                        )
+                    )
+                };
+            });
         };
-    }, [socket]);
+
+        socket.on("like_notification", onLike);
+        return () => socket.off("like_notification", onLike);
+
+    }, [socket, queryClient]);
 
     const handleSortChange = (e) => {
         const sortValue = e.target.value;
@@ -69,7 +71,7 @@ function Home() {
         }
     }
     const handleFeedChange = (value) => updateFilter('feed', value)
-    const showEmpty = !loading && !error && articles.length === 0;
+    const showEmpty = !loading && !error && fetchData.length === 0;
 
     return (
         <main className="home-page">
@@ -174,7 +176,7 @@ function Home() {
 
                 <div className="posts-list">
 
-                    {articles.map((post) => (
+                    {fetchData.map((post) => (
                         <PostCard key={post._id} post={post} />
                     ))}
 
@@ -215,7 +217,7 @@ function Home() {
                         />
                     )}
 
-                    {!hasMore && articles.length > 0 && (
+                    {!hasMore && fetchData.length > 0 && (
                         <ArticlesEndMessage />
                     )}
 

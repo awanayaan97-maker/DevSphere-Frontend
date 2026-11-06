@@ -1,8 +1,6 @@
 
 import PostCard from "../../Components/PostCard/PostCard";
 import "./Explore.css";
-import { useEffect, useState } from "react";
-import useInfiniteArticles from "../../hooks/useInfiniteArticles";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import ArticlesEndMessage from "../../Components/ArticlesEndMessage/ArticlesEndMessage";
@@ -11,13 +9,13 @@ import CategorySelect from "../../Components/CategorySelect/CategorySelect";
 import DevelopersToFollow from "../../Components/DevelopersToFollow/DevelopersToFollow";
 import useDiscoverData from "../../hooks/useDiscoverData";
 import useUrlFilters from "../../hooks/useUrlFilters";
+import usePaginationQuery from "../../hooks/usePaginationQuery";
 
 
 function Explore() {
 
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const [articles, setArticles] = useState([]);
     const { trendingTopics, popularUsers } = useDiscoverData("articles")
     const { getParam, updateFilter, buildUrl } = useUrlFilters({
         sort: "latest",
@@ -27,25 +25,7 @@ function Explore() {
     const tag = getParam("tag");
     const category = getParam("category", "All Categories");
     const url = buildUrl(`${API_URL}/api/article/explore`);
-    const { loading, error, setError, hasMore, articles: fetchedArticles } = useInfiniteArticles(url, "GET", [], token)
-
-
-    useEffect(() => {
-        setArticles([]);
-    }, [tag, sort, category]);
-
-    useEffect(() => {
-        if (!fetchedArticles) return;
-
-        setArticles((prev) => {
-            if (prev.length === 0) {
-                return fetchedArticles;
-            } else {
-                return [...prev, ...fetchedArticles];
-            }
-        });
-
-    }, [fetchedArticles]);
+    const { loading, error, setError, hasMore, fetchData} = usePaginationQuery(url, "GET", [], token)
 
 
     const handleSortChange = (sortValue) => updateFilter("sort", sortValue);
@@ -144,28 +124,28 @@ function Explore() {
                         )}
 
                         {/* 2. Initial Loader (Jab bilkul pehli dafa data fetch ho raha ho aur articles khali hon) */}
-                        {loading && (!articles || articles.length === 0) && (
+                        {loading && (!fetchData || fetchData.length === 0) && (
                             <div className="loader">
                                 <SectionLoader />
                             </div>
                         )}
 
                         {/* 3. Articles List Mapping (Safely rendered with optional chaining) */}
-                        {!error && articles && articles.length > 0 && (
-                            articles.map((post) => (
+                        {!error && fetchData && fetchData.length > 0 && (
+                            fetchData.map((post) => (
                                 <PostCard key={post?._id} post={post} />
                             ))
                         )}
 
                         {/* 4. Pagination / Infinite Scroll Loader */}
-                        {loading && articles && articles.length > 0 && (
+                        {loading && fetchData && fetchData.length > 0 && (
                             <div className="loader">
                                 <SectionLoader />
                             </div>
                         )}
 
                         {/* 5. No Results State */}
-                        {!loading && !error && (!articles || articles.length === 0) && (
+                        {!loading && !error && (!fetchData || fetchData.length === 0) && (
                             <NoResults
                                 title="No articles found"
                                 message={`No articles are currently available under the topic ${tag || category || sort}.`}
@@ -173,7 +153,7 @@ function Explore() {
                         )}
 
                         {/* 6. End of Feed Message */}
-                        {!hasMore && articles && articles.length > 0 && (
+                        {!hasMore && fetchData && fetchData.length > 0 && (
                             <ArticlesEndMessage />
                         )}
 

@@ -10,6 +10,7 @@ import Alert from "../../Components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
+import { useQueryClient } from "@tanstack/react-query";
 
 function EditProfile() {
 
@@ -22,6 +23,7 @@ function EditProfile() {
     const [profileImageFile, setProfileImageFile] = useState("");
     const [coverImageFile, setCoverImageFile] = useState("")
     const { isLoggedIn } = useLoginChecker();
+    const queryClient = useQueryClient();
     const userFollowers = user?.followers;
     const userFollowings = user?.followings;
 
@@ -76,14 +78,15 @@ function EditProfile() {
 
         if (profileImageFile) formData.append("profileImage", profileImageFile);
         if (coverImageFile) formData.append("coverImage", coverImageFile)
-        const result = await callApi(`${API_URL}/api/user/me`, "PUT", formData, token);
+        const result = await callApi(`${API_URL}/api/user/`, "PUT", formData, token);
 
         if (result.status) {
             result.data.followers = userFollowers;
             result.data.followings = userFollowings;
-            const userData = { data: result.data }
-            setUser(userData)
             navigate('/profile')
+            queryClient.invalidateQueries({
+                queryKey: [`${API_URL}/api/user/`]
+            })
         }
     }
 

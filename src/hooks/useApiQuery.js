@@ -22,7 +22,7 @@ function useApiQuery({
             setError(errMsg);
             throw new Error(errMsg);
         }
-
+        
         return result.data
     }
 
