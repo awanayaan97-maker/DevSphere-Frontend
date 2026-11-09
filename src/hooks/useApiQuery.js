@@ -7,6 +7,7 @@ function useApiQuery({
     type,
     data = [],
     isAuthorized = false,
+    enabled = true,
     staleTime = 1000 * 60 * 5,
     gcTime = 1000 * 60 * 30
 }) {
@@ -22,21 +23,24 @@ function useApiQuery({
             setError(errMsg);
             throw new Error(errMsg);
         }
+
+        console.log(result, "hook resulet");
         
+
         return result.data
     }
 
-    const isEnabled = isAuthorized ? Boolean(token) : true;
+    const isEnabled = Boolean(url) && (isAuthorized ? Boolean(token) : true) && enabled;
 
     const queryResult = useQuery({
-        queryKey: [url],
+        queryKey: [url, token ? token.slice(-10) : "guest"],
         queryFn: getData,
         enabled: isEnabled,
         staleTime,
         gcTime,
     });
 
-    const isReallyLoading = (isAuthorized) || queryResult.isLoading;
+    const isReallyLoading = queryResult.isLoading;
 
     return {
         ...queryResult,

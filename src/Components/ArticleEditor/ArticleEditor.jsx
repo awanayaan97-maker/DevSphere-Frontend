@@ -9,6 +9,7 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import "./ArticleEditor.css";
 import useCallApi from "../../hooks/useCallApi";
+import { useEffect } from "react";
 
 function ArticleEditor({ setInputData, inputData, token, ApiUrl }) {
 
@@ -45,18 +46,23 @@ function ArticleEditor({ setInputData, inputData, token, ApiUrl }) {
         }
     });
 
+    useEffect(() => {
+
+        if (!editor) return;
+        if (inputData.content !== editor.getHTML()) {
+            editor.commands.setContent(inputData.content || "");
+        }
+
+    }, [inputData.content, editor]);
+
     if (!editor) {
         return null;
     }
 
-    console.log(inputData);
-
     async function handleImageUpload(e) {
 
         const file = e.target.files[0];
-
         if (!file) return null
-
         const formData = new FormData();
         formData.append("articleImage", file)
 

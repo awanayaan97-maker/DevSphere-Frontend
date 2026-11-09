@@ -5,13 +5,15 @@ import ArticleEditor from "../../Components/ArticleEditor/ArticleEditor";
 import "./CreateArticle.css";
 import useForm from "../../hooks/useInputHandler";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
-import useCallApi from "../../hooks/useCallApi";
 import Loader from "../../Components/Loader/Loader";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import useLoginChecker from "../../hooks/useLoginChecker";
 import Alert from "../../Components/Alert/Alert";
 import CategorySelect from "../../Components/CategorySelect/CategorySelect";
+import useApiQuery from "../../hooks/useApiQuery";
+import { useQueryClient } from "@tanstack/react-query";
+import useCallApi from "../../hooks/useCallApi";
 
 
 function CreateArticle() {
@@ -20,8 +22,9 @@ function CreateArticle() {
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
+    const queryClient = useQueryClient()
     const { isLoggedIn } = useLoginChecker();
-    const { loading, callApi, error, setError } = useCallApi();
+    const { callApi } = useCallApi()
     const [tagInput, setTagInput] = useState("");
     const { inputData, setInputData, inputHandler } = useForm({
         title: "",
@@ -30,17 +33,23 @@ function CreateArticle() {
         content: "",
         tags: []
     })
+    const { isLoading, error, setError, data } = useApiQuery({
+        url: `${API_URL}/api/article/${id}`,
+        type: "GET",
+        isAuthorized: true,
+        enabled: Boolean(id)
+    })
 
 
     async function handleSaveDraft() {
 
         if (!inputData.title.trim()) return setError("Please add a title for your article.");
-
         const data = { ...inputData, articleId: id }
-
         const result = await callApi(`${API_URL}/api/article/draft`, "POST", data, token)
-
-        if (result.status) navigate('/drafts');
+        if (result.status) {
+            queryClient.invalidateQueries({ queryKey: [`${API_URL}/api/article/${id}`] })
+            navigate('/drafts')
+        };
 
         if (!result.status) return setError(result.message)
 
@@ -50,13 +59,13 @@ function CreateArticle() {
 
         if (!inputData.title.trim()) return setError("Please add a title for your article.");
         if (!inputData.content.trim()) return setError("Please add some content before publishing.");
-
         const url = id ? `${API_URL}/api/article/publish/${id}` : `${API_URL}/api/article/publish`
-
         const result = await callApi(url, "POST", inputData, token)
 
-        if (result?.status) navigate('/');
-
+        if (result?.status){
+            queryClient.invalidateQueries({queryKey: [`${API_URL}/api/article/${id}`]})
+            navigate('/')
+        };
         if (!result?.status) return setError(result?.message)
     }
 
@@ -80,37 +89,21 @@ function CreateArticle() {
         }))
     }
 
-
     useEffect(() => {
 
-        if (!id) return
+        if (id && data && typeof data === "object" && !Array.isArray(data) && Object.keys(data).length > 0) {
 
-        async function getDraftData() {
-
-            let result = await callApi(`${API_URL}/api/article/${id}`, "GET", null, token);
-
-            if (result) {
-
-                const cleanContent = DOMPurify.sanitize(result.data.content);
-                result.data.content = cleanContent
-
-                setInputData({
-                    title: result.data.title || "",
-                    description: result.data.description || "",
-                    content: cleanContent || "",
-                    tags: result.data.tags || "",
-                    category: result.data.category || "",
-                })
-
-            }
-
-            if (!result.status) return setError(result.message);
-
+            const cleanContent = DOMPurify.sanitize(data?.content);
+            setInputData({
+                title: data?.title || "",
+                description: data?.description || "",
+                content: cleanContent || "",
+                tags: data?.tags || "",
+                category: data?.category || "",
+            });
         }
 
-        getDraftData()
-
-    }, [id])
+    }, [data, id])
 
     if (!isLoggedIn) return <Alert
         title="Login Required"
@@ -120,7 +113,7 @@ function CreateArticle() {
         onClose={() => navigate('/')}
     />
 
-    if (loading) return <Loader />
+    if (isLoading) return <Loader />
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
 
     return (

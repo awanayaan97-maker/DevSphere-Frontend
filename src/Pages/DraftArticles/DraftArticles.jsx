@@ -1,25 +1,31 @@
 import Alert from "../../Components/Alert/Alert";
 import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
-import useFetch from "../../hooks/useFetch";
 import useLoginChecker from "../../hooks/useLoginChecker";
 import "./DraftArticles.css";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useState, useEffect, useRef } from "react";
 import useCallApi from "../../hooks/useCallApi";
+import useApiQuery from "../../hooks/useApiQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 function DraftArticles() {
+
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const { isLoggedIn } = useLoginChecker();
-    const { loading, error, setError, data } = useFetch(`${API_URL}/api/article/draft`, token);
-    const { callApi } = useCallApi();
     const [activeDropdownId, setActiveDropdownId] = useState(null);
     const dropdownRef = useRef(null);
+    const { isLoggedIn } = useLoginChecker();
+    const { callApi } = useCallApi();
+    const { isLoading, error, setError, data } = useApiQuery({
+        url: `${API_URL}/api/article/draft`,
+        type: "GET",
+        isAuthorized: true
+    })
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -34,19 +40,18 @@ function DraftArticles() {
         setActiveDropdownId(null);
 
         const deleteDraft = async () => {
-
-            const result = await callApi(`${API_URL}/api/article/${draftId}`, "DELETE", [], token)
-
-            if (result?.status) return window.location.reload()
-
-             setError(result?.message)
-
+            const result = await callApi(`${API_URL}/api/article/draft/${draftId}`, "DELETE", [], token)
+            if (result?.status) {
+                queryClient.invalidateQueries({ queryKey: [`${API_URL}/api/article/draft`] })
+                return
+            }
+            setError(result?.message)
         }
 
         deleteDraft()
     };
 
-    if (isLoggedIn) return <Alert
+    if (!isLoggedIn) return <Alert
         title="Login Required"
         message="Please login or create an account to view your profile."
         actionText="Login Now"
@@ -54,16 +59,11 @@ function DraftArticles() {
         onClose={() => navigate("/")}
     />;
 
-    if (loading) return <Loader />;
+    if (isLoading) return <Loader />;
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />;
-    if (!data) return null;
-
-    console.log(data);
 
     return (
         <main className="drafts-page">
-            {error ? <ResponsePopup message={error} closePopup={() => setError(null)} /> : ""}
-
             <section className="drafts-header">
                 <div className="drafts-header-content">
                     <span className="drafts-eyebrow">YOUR ARTICLES</span>
@@ -72,7 +72,7 @@ function DraftArticles() {
                 </div>
                 <div className="drafts-count">
                     <span>Drafts</span>
-                    <strong>{data?.data.length}</strong>
+                    <strong>{data?.length}</strong>
                 </div>
             </section>
 
@@ -86,7 +86,7 @@ function DraftArticles() {
                 </div>
 
                 <div className="drafts-list">
-                    {data?.data.map((draft) => (
+                    {data?.map((draft) => (
                         <article className="draft-card" key={draft._id}>
                             <div className="draft-card-icon">
                                 <i className="fa-regular fa-file-lines"></i>
