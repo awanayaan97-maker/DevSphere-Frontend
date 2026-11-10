@@ -12,10 +12,12 @@ import { useLikeToggle } from "../../hooks/useLikeToggle";
 import { useBookmarkToggle } from "../../hooks/useBookmarkToggle";
 import useCheckLogin from "../../hooks/useCheckLogin";
 import useComments from "../../hooks/useComments";
+import { useQueryClient } from "@tanstack/react-query"
 
-function PostCard({ post, isBookmarkPage }) {
+function PostCard({ post, isBookmarkPage, url }) {
 
     const { user, socket } = useContext(AuthContext);
+    const queryClient = useQueryClient();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
@@ -62,13 +64,14 @@ function PostCard({ post, isBookmarkPage }) {
 
     }
 
-    const handleDeleteDraft = (draftId) => {
+    const handleDeleteArticle = (id) => {
         setMenuOpen(false);
-
         const deleteDraft = async () => {
-            const result = await callApi(`${API_URL}/api/article/${draftId}`, "DELETE", [], token);
-            if (result?.status) return window.location.reload();
-            setError(result?.message);
+            const result = await callApi(`${API_URL}/api/article/${id}`, "DELETE", [], token);
+            if (result?.status) {
+                queryClient.invalidateQueries({ queryKey: ["feed", user?._id, url] })
+                return
+            };
         };
 
         deleteDraft();
@@ -117,6 +120,9 @@ function PostCard({ post, isBookmarkPage }) {
         }}
     />
 
+    console.log(url, "URL check kar raha ho");
+
+
     return (
         <article className="post-card">
 
@@ -145,7 +151,7 @@ function PostCard({ post, isBookmarkPage }) {
                             <button
                                 type="button"
                                 className="delete-option"
-                                onClick={() => handleDeleteDraft(post._id)}
+                                onClick={() => handleDeleteArticle(post._id)}
                             >
                                 <i className="fa-regular fa-trash-can"></i>
                                 Delete Article

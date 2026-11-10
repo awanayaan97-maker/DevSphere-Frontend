@@ -177,7 +177,7 @@ function Home() {
                 <div className="posts-list">
 
                     {fetchData.map((post) => (
-                        <PostCard key={post._id} post={post} />
+                        <PostCard key={post._id} post={post} url={url} />
                     ))}
 
                     {loading && (

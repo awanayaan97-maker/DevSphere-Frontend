@@ -44,15 +44,17 @@ function CreateArticle() {
     async function handleSaveDraft() {
 
         if (!inputData.title.trim()) return setError("Please add a title for your article.");
-        const data = { ...inputData, articleId: id }
-        const result = await callApi(`${API_URL}/api/article/draft`, "POST", data, token)
+        const data = { ...inputData, articleId: id };
+        const result = await callApi(`${API_URL}/api/article/draft`, "POST", data, token);
+
         if (result.status) {
-            queryClient.invalidateQueries({ queryKey: [`${API_URL}/api/article/${id}`] })
-            navigate('/drafts')
-        };
+            queryClient.invalidateQueries({
+                queryKey: [`${API_URL}/api/article/draft`, token.slice(-10)]
+            });
+            navigate('/drafts');
+        }
 
-        if (!result.status) return setError(result.message)
-
+        if (!result.status) return setError(result.message);
     }
 
     async function handlePublish() {
@@ -62,8 +64,8 @@ function CreateArticle() {
         const url = id ? `${API_URL}/api/article/publish/${id}` : `${API_URL}/api/article/publish`
         const result = await callApi(url, "POST", inputData, token)
 
-        if (result?.status){
-            queryClient.invalidateQueries({queryKey: [`${API_URL}/api/article/${id}`]})
+        if (result?.status) {
+            queryClient.invalidateQueries({ queryKey: [`${API_URL}/api/article/${id}`] })
             navigate('/')
         };
         if (!result?.status) return setError(result?.message)

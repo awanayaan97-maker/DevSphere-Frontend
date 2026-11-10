@@ -45,7 +45,7 @@ function Login() {
         const result = await callApi(`${API_URL}/api/auth/login`, "POST", inputData)
 
         if (result.status) {
-            login(result.token)
+            login(result.data.token)
             navigate("/")
         }
 

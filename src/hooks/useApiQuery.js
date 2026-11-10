@@ -24,9 +24,6 @@ function useApiQuery({
             throw new Error(errMsg);
         }
 
-        console.log(result, "hook resulet");
-        
-
         return result.data
     }
 
@@ -38,6 +35,7 @@ function useApiQuery({
         enabled: isEnabled,
         staleTime,
         gcTime,
+        retry: 1
     });
 
     const isReallyLoading = queryResult.isLoading;
