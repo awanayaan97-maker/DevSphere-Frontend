@@ -4,7 +4,6 @@ import SectionLoader from "../SectionLoader/SectionLoader";
 import CommentItem from "../CommentItem/CommentItem";
 import { useContext } from "react";
 import { AuthContext } from "../../Context/AuthContext";
-import { getInitials } from "../../utils/getInitials";
 
 
 function CommentSection({
@@ -16,7 +15,8 @@ function CommentSection({
     commentText,
     setCommentText,
     setEditingCommentId,
-    onInput
+    onInput,
+    commentsQueryKey
 }) {
 
     const { user } = useContext(AuthContext)
@@ -63,6 +63,7 @@ function CommentSection({
                             onDeleteComment={onDeleteComment}
                             setCommentText={setCommentText}
                             setEditingCommentId={setEditingCommentId}
+                            commentsQueryKey={commentsQueryKey}
                         />
                     ))}
 
@@ -81,14 +82,14 @@ function CommentSection({
             <div className="add-comment">
 
                 <div className="add-comment-avatar">
-                    {user?.data?.profileImage ? (
+                    {user?.profileImage ? (
                         <img
-                            src={user.data.profileImage}
-                            alt={user.data.firstName}
+                            src={user.profileImage}
+                            alt={user.firstName}
                         />
                     ) : (
                         <span>
-                            {getInitials(user?.data?.firstName, user?.data?.lastName)}
+                            {user.firstName.charAt(0)}
                         </span>
                     )}
                 </div>

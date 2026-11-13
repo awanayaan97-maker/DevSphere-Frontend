@@ -1,4 +1,4 @@
-import React from "react";
+
 import "./CategorySelect.css";
 
 const CategorySelect = ({ 
@@ -12,7 +12,7 @@ const CategorySelect = ({
     const selectClassName = currentSize === "sm" 
         ? "explore-filter-select explore-filter-select-sm" 
         : "explore-filter-select";
-
+        
     return (
         <div className="category-select-wrapper">
             {label && <label className="category-select-label">{label}</label>}
@@ -20,6 +20,7 @@ const CategorySelect = ({
                 className={selectClassName}
                 value={selectedCategory}
                 onChange={onChange}
+                name="category"
             >
                 <option value="">All Categories</option>
                 <option value="Web Development">Web Development</option>

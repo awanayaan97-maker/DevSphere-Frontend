@@ -768,3 +768,29 @@ body.dark .community-ai-message-row.user .community-ai-message-content {
         padding: 10px 12px;
     }
 }
+
+.community-table-wrap {
+    margin: 0 0 10px;
+    overflow-x: auto;
+}
+
+.community-ai-message-content table {
+    min-width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+}
+
+.community-ai-message-content th,
+.community-ai-message-content td {
+    padding: 8px 10px;
+
+    border: 1px solid var(--color-border);
+
+    text-align: left;
+    vertical-align: top;
+}
+
+.community-ai-message-content th {
+    background: var(--color-surface-hover);
+    font-weight: 700;
+}

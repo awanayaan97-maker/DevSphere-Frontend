@@ -8,13 +8,13 @@ import useCallApi from "../../hooks/useCallApi";
 import { AuthContext } from "../../Context/AuthContext";
 import { useState, useEffect, useRef, useContext } from "react"
 import CommentSection from "../CommentSection/CommentSection";
-import { useLikeToggle } from "../../hooks/useLikeToggle";
 import { useBookmarkToggle } from "../../hooks/useBookmarkToggle";
 import useCheckLogin from "../../hooks/useCheckLogin";
 import useComments from "../../hooks/useComments";
 import { useQueryClient } from "@tanstack/react-query"
+import { useLikeToggle } from "../../hooks/useLikeToggle";
 
-function PostCard({ post, isBookmarkPage, url }) {
+function PostCard({ post, isBookmarkPage, url, queryKey }) {
 
     const { user, socket } = useContext(AuthContext);
     const queryClient = useQueryClient();
@@ -23,15 +23,22 @@ function PostCard({ post, isBookmarkPage, url }) {
     const navigate = useNavigate();
     const { showAlert, setShowAlert, check } = useCheckLogin();
     const [menuOpen, setMenuOpen] = useState(false);
-    const { callApi, loading } = useCallApi();
-    const { commentsOpen, setCommentsOpen, comments, setComments, commentText, setCommentText, setEditingCommentId, handleAddComment, toggleComments, handleDeleteComment } = useComments(post?._id)
+    const { callApi } = useCallApi();
+    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
+    const {
+        commentsOpen,
+        setCommentsOpen,
+        comments,
+        commentsQueryKey,
+        commentText,
+        setCommentText,
+        setEditingCommentId,
+        handleAddComment,
+        toggleComments,
+        handleDeleteComment,
+        commentsLoading
+    } = useComments(post?._id, "article")
 
-    const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
-        useLikeToggle({
-            initialIsLiked: post?.isLiked,
-            initialLikesCount: post?.likesCount,
-            Url: `${API_URL}/api/article/like/${post._id}`
-        })
 
     const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
         initialIsBookmarked: post?.isBookmark,
@@ -77,25 +84,37 @@ function PostCard({ post, isBookmarkPage, url }) {
         deleteDraft();
     };
 
+    const handleLikeClick = () => {
+        toggleLikeMutation.mutate({
+            url: `${API_URL}/api/article/like/${post._id}`,
+            itemId: post._id,
+            queryKey,
+        });
+    };
+
     useEffect(() => {
+
         if (!socket) return;
-
         socket.on("new_comment", (commentData) => {
-            console.log("Live comment received on PostCard:", commentData);
+            console.log("Live comment received via Socket:", commentData);
 
-            setComments((prevComments) => {
-                if (!prevComments || !Array.isArray(prevComments)) {
+            queryClient.setQueryData(commentsQueryKey, (oldComments) => {
+                if (!oldComments || !Array.isArray(oldComments)) {
                     return [commentData];
                 }
 
-                return [...prevComments, commentData];
+                const exists = oldComments.some((c) => c._id === commentData._id);
+                if (exists) return oldComments;
+                return [...oldComments, commentData];
             });
         });
 
         return () => {
             socket.off("new_comment");
         };
-    }, [socket]);
+
+    }, [socket, commentsQueryKey]);
+
 
     useEffect(() => {
         function handleClickOutside(e) {
@@ -119,9 +138,6 @@ function PostCard({ post, isBookmarkPage, url }) {
             setShowBookmarkAlert(false)
         }}
     />
-
-    console.log(url, "URL check kar raha ho");
-
 
     return (
         <article className="post-card">
@@ -223,15 +239,15 @@ function PostCard({ post, isBookmarkPage, url }) {
             {/* Footer */}
             <div className="post-footer">
                 <div className="post-stats">
-                    <span onClick={toggleLike} className="like-btn">
-                        {isLiked ? (
+                    <span onClick={handleLikeClick} className="like-btn">
+                        {post?.isLiked ? (
                             <i className="fa-solid fa-heart" style={{ color: "#ef4444" }}></i>
                         ) : (
                             <i className="fa-regular fa-heart"></i>
                         )}
 
                         <span className="stat-count">
-                            {likesCount}
+                            {post?.likesCount}
                         </span>
                     </span>
 
@@ -240,7 +256,7 @@ function PostCard({ post, isBookmarkPage, url }) {
                         onClick={toggleComments}
                     >
                         <i className="fa-regular fa-comment"></i>
-                        <span className="stat-count">{!comments ? post.commentsCount : comments?.length}</span>
+                        <span className="stat-count">{comments?.length === 0 ? post.commentsCount : comments?.length}</span>
                     </span>
 
                     <span
@@ -279,7 +295,7 @@ function PostCard({ post, isBookmarkPage, url }) {
             {commentsOpen && (
                 <CommentSection
                     comments={comments}
-                    loading={loading}
+                    loading={commentsLoading}
                     onClose={() => setCommentsOpen(false)}
                     onAddComment={handleAddComment}
                     onDeleteComment={handleDeleteComment}
@@ -287,6 +303,7 @@ function PostCard({ post, isBookmarkPage, url }) {
                     setCommentText={setCommentText}
                     setEditingCommentId={setEditingCommentId}
                     onInput={check}
+                    commentsQueryKey={commentsQueryKey}
                 />
             )}
 

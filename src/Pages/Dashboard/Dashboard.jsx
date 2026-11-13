@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     AreaChart,
@@ -12,12 +12,13 @@ import {
 } from "recharts";
 import { AuthContext } from "../../Context/AuthContext";
 import useCallApi from "../../hooks/useCallApi";
-import Loader from "../../components/Loader/Loader";
+import Loader from "../../Components/Loader/Loader";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import ManageContent from "../../Components/ManageContent/ManageContent";
 import { ROUTES, DELETE_URL, STAT_CARDS, PROFILE_ITEMS, COUNT_KEY } from "../../constants/dashboardConstant"
 import "./Dashboard.css";
-const API_URL = import.meta.env.VITE_API_URL;
+import useApiQuery from "../../hooks/useApiQuery";
+import { useQueryClient } from "@tanstack/react-query"
 
 
 function formatChartDate(dateStr, withYear = false) {
@@ -106,133 +107,84 @@ function ProfileCompletion({ user, onEdit, onView }) {
 
 function Dashboard() {
 
+    const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { user } = useContext(AuthContext);
     const { callApi } = useCallApi();
-
     const token = localStorage.getItem("token");
-    const profile = user?.data;
-
-    const [loading, setLoading] = useState(true);
-    const [reloadKey, setReloadKey] = useState(0);
-
-    const [summary, setSummary] = useState(null);
-    const [topArticles, setTopArticles] = useState([]);
-    const [chartData, setChartData] = useState([]);
+    const profile = user;
 
     const [tab, setTab] = useState("publish");
-    const [items, setItems] = useState([]);
-    const [tabLoading, setTabLoading] = useState(false);
-
-    const [failed, setFailed] = useState({});
     const [error, setError] = useState(null);
 
-    useEffect(() => {
+    const { data: summary, isLoading: summaryLoading } = useApiQuery({
+        url: `${API_URL}/api/dashboard/summary`,
+        type: "GET",
+        isAuthorized: true
+    });
 
-        let cancelled = false;
-        const get = (path) =>
-            callApi(`${API_URL}/api/dashboard/${path}`, "GET", [], token).catch(() => null);
+    const { data: topArticles, isLoading: topLoading } = useApiQuery({
+        url: `${API_URL}/api/dashboard/top-articles`,
+        type: "GET",
+        isAuthorized: true
+    });
 
-        async function load() {
+    const { data: chartData, isLoading: chartLoading } = useApiQuery({
+        url: `${API_URL}/api/dashboard/followers-chart`,
+        type: "GET",
+        isAuthorized: true
+    });
 
-            setLoading(true);
+    const { data: items, isLoading: tabLoading } = useApiQuery({
+        url: `${API_URL}/api/dashboard/content?type=${tab}`,
+        type: "GET",
+        isAuthorized: true
+    });
 
-            const [s, t, f, c] = await Promise.all([
-                get("summary"),
-                get("top-articles"),
-                get("followers-chart"),
-                get("content?type=publish")
-            ]);
 
-            if (cancelled) return;
-
-            setSummary(s?.status ? s.data : null);
-            setTopArticles(t?.status ? t.data : []);
-            setChartData(f?.status ? f.data : []);
-            setItems(c?.status ? c.data : []);
-            setTab("publish");
-
-            setFailed({
-                summary: !s?.status,
-                top: !t?.status,
-                chart: !f?.status,
-                content: !c?.status
-            });
-
-            setLoading(false);
-        }
-
-        load();
-
-        return () => {
-            cancelled = true;
-        };
-
-    }, [reloadKey]);
-
-    async function handleTabChange(nextTab) {
-
+    function handleTabChange(nextTab) {
         if (nextTab === tab) return;
-
         setTab(nextTab);
-        setTabLoading(true);
-
-        const result = await callApi(
-            `${API_URL}/api/dashboard/content?type=${nextTab}`,
-            "GET",
-            [],
-            token
-        ).catch(() => null);
-
-        if (result?.status) {
-            setItems(result.data);
-        } else {
-            setItems([]);
-            setError(result?.message || "Couldn't load this list. Please try again.");
-        }
-
-        setTabLoading(false);
     }
 
 
-    async function handleDelete(currentTab, item) {
+   async function handleDelete(currentTab, item) {
 
-        const result = await callApi(
-            DELETE_URL[currentTab](item._id),
-            "DELETE",
-            [],
-            token
-        ).catch(() => null);
+    const result = await callApi(
+        DELETE_URL[currentTab](item._id),
+        "DELETE",
+        [],
+        token
+    ).catch(() => null);
 
-        if (!result?.status) {
-            setError(result?.message || "Couldn't delete. Please try again.");
-            return;
-        }
+    if (!result?.status) {
+        setError(result?.message || "Couldn't delete. Please try again.");
+        return;
+    }
 
-        // Server ne confirm kar diya: ab list aur numbers badlo
-        setItems((prev) => prev.filter((i) => i._id !== item._id));
+    const tokenSlice = token ? token.slice(-10) : "";
 
-        setSummary((prev) => {
-            if (!prev) return prev;
+    queryClient.invalidateQueries({
+        queryKey: [`${API_URL}/api/dashboard/content?type=${currentTab}`, tokenSlice]
+    });
 
-            const key = COUNT_KEY[currentTab];
+    queryClient.invalidateQueries({
+        queryKey: [`${API_URL}/api/dashboard/summary`, tokenSlice]
+    });
 
-            return {
-                ...prev,
-                [key]: Math.max(0, (prev[key] || 0) - 1),
-                totalLikes: Math.max(0, (prev.totalLikes || 0) - (item.likesCount || 0))
-            };
+    if (currentTab === "publish") {
+        queryClient.invalidateQueries({
+            queryKey: [`${API_URL}/api/dashboard/top-articles`, tokenSlice]
         });
+    }
+}
 
-        if (currentTab === "publish") {
-            setTopArticles((prev) => prev.filter((a) => a._id !== item._id));
-        }
+
+    if (summaryLoading || topLoading || chartLoading || tabLoading) {
+        return <Loader />;
     }
 
-
-    if (loading) return <Loader />;
-
-    const anyFailed = Object.values(failed).some(Boolean);
     const totalNewFollowers = chartData.reduce((sum, d) => sum + d.count, 0);
 
     return (
@@ -258,17 +210,6 @@ function Dashboard() {
                     Create article
                 </button>
             </header>
-
-            {/* Kuch section load na hua ho to */}
-            {anyFailed && (
-                <div className="dash-alert" role="alert">
-                    <span>Some sections couldn't be loaded.</span>
-
-                    <button type="button" className="dash-btn" onClick={() => setReloadKey((k) => k + 1)}>
-                        Retry
-                    </button>
-                </div>
-            )}
 
             {/* Profile completion */}
             <ProfileCompletion
@@ -302,12 +243,10 @@ function Dashboard() {
                         <p className="dash-card-sub">Last 30 days</p>
                     </div>
 
-                    {!failed.chart && <span className="dash-badge">+{totalNewFollowers}</span>}
+                    {<span className="dash-badge">+{totalNewFollowers}</span>}
                 </div>
 
-                {failed.chart ? (
-                    <p className="dash-muted">Couldn't load the chart.</p>
-                ) : totalNewFollowers === 0 ? (
+                {totalNewFollowers === 0 ? (
                     <p className="dash-muted">No new followers in the last 30 days. Share your articles to grow your audience.</p>
                 ) : (
                     <div className="dash-chart">
@@ -368,9 +307,7 @@ function Dashboard() {
                     </div>
                 </div>
 
-                {failed.top ? (
-                    <p className="dash-muted">Couldn't load your top articles.</p>
-                ) : topArticles.length === 0 ? (
+                {topArticles.length === 0 ? (
                     <p className="dash-muted">Publish an article to see your best performers here.</p>
                 ) : (
                     <ol className="dash-top-list">
@@ -404,13 +341,7 @@ function Dashboard() {
             </section>
 
 
-            {failed.content ? (
-                <section className="dash-card">
-                    <h2 className="dash-card-title">Manage content</h2>
-                    <p className="dash-muted">Couldn't load your content. Use Retry above.</p>
-                </section>
-            ) : (
-                <ManageContent
+             <ManageContent
                     tab={tab}
                     onTabChange={handleTabChange}
                     counts={{
@@ -422,8 +353,6 @@ function Dashboard() {
                     loading={tabLoading}
                     onDelete={handleDelete}
                 />
-            )}
-
         </main>
     );
 }

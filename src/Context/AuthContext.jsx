@@ -15,7 +15,8 @@ export function AuthProvider({ children }) {
     const { isLoading: loading, data: user } = useApiQuery({
         url: `${API_URL}/api/user/`,
         type: "GET",
-        isAuthorized: true
+        isAuthorized: true,
+        staleTime: 1000 * 60 * 30
     })
 
     const [notifications, setNotifications] = useState(user?.notifications || null);

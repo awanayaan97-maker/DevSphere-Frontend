@@ -16,7 +16,7 @@ function Bookmarks() {
     const API_URL = import.meta.env.VITE_API_URL;
     const [activeTab, setActiveTab] = useState("articles");
     const { isLoggedIn } = useLoginChecker();
-    const { data, isError, isLoading, error, setError } = useApiQuery({
+    const { data, isError, isLoading, error, setError, queryKey } = useApiQuery({
         url: `${API_URL}/api/discover/bookmark?source=${activeTab}`,
         type: "GET",
         isAuthorized: true
@@ -124,6 +124,7 @@ function Bookmarks() {
                                 key={article._id}
                                 post={article}
                                 isBookmarkPage={true}
+                                queryKey={queryKey}
                             />
                         ))}
 
@@ -159,6 +160,7 @@ function Bookmarks() {
                                 key={post._id}
                                 post={post}
                                 isBookmarkPage={true}
+                                queryKey={queryKey}
                             />
                         ))}
 

@@ -28,7 +28,7 @@ function ReadArticle() {
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
     const commentsRef = useRef(null);
-    const { isLoading, error, setError, data } = useApiQuery({
+    const { isLoading, error, setError, data, queryKey } = useApiQuery({
         url: `${API_URL}/api/article/publish/${id}`,
         type: "GET",
         isAuthorized: false
@@ -37,14 +37,9 @@ function ReadArticle() {
     const { showAlert, setShowAlert, check } = useCheckLogin();
     const [messages, setMessages] = useState([]);
     const [isAiOpen, setIsAiOpen] = useState(false);
-    const { commentsOpen, setCommentsOpen, comments, setComments, commentsLoading, handleAddComment, commentText, setCommentText, setEditingCommentId, handleDeleteComment } = useComments(id);
+    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
 
-    const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
-        useLikeToggle({
-            initialIsLiked: data?.isLiked,
-            initialLikesCount: data?.likesCount,
-            Url: `${API_URL}/api/article/like/${id}`
-        })
+    const { commentsOpen, setCommentsOpen, comments, commentsQueryKey, commentsLoading, handleAddComment, commentText, setCommentText, setEditingCommentId, handleDeleteComment } = useComments(id, "article");
 
     const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
         initialIsBookmarked: data?.isBookmark,
@@ -52,12 +47,6 @@ function ReadArticle() {
         url: `${API_URL}/api/article/bookmark/${id}`
     })
 
-
-    useEffect(() => {
-        setCommentsOpen(false);
-        setComments(null);
-        setMessages([])
-    }, [id]);
 
 
     useEffect(() => {
@@ -95,6 +84,14 @@ function ReadArticle() {
         }
 
         return "";
+    }
+
+    function handleLikeClick() {
+        toggleLikeMutation.mutate({
+            url: `${API_URL}/api/article/like/${id}`,
+            itemId: id,
+            queryKey
+        })
     }
 
 
@@ -203,23 +200,23 @@ function ReadArticle() {
 
                     <button
                         type="button"
-                        className={`article-rail-button ${isLiked
+                        className={`article-rail-button ${article?.isLiked
                             ? "article-rail-button-active"
                             : ""
                             }`}
-                        onClick={toggleLike}
+                        onClick={handleLikeClick}
                         aria-label="Like article"
                         title="Like article"
                     >
 
-                        {isLiked ? (
+                        {article?.isLiked ? (
                             <i className="fa-solid fa-heart" style={{ color: "#ef4444" }}></i>
                         ) : (
                             <i className="fa-regular fa-heart"></i>
                         )}
 
                         <span>
-                            {likesCount}
+                            {article?.likesCount}
                         </span>
 
                     </button>
@@ -503,6 +500,7 @@ function ReadArticle() {
                                     setCommentText={setCommentText}
                                     setEditingCommentId={setEditingCommentId}
                                     onInput={check}
+                                    commentsQueryKey={commentsQueryKey}
                                 />
                             )}
 

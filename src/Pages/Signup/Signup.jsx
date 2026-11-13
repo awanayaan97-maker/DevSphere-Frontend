@@ -56,7 +56,7 @@ function Signup() {
     async function handleValidation() {
 
         if (inputData.firstName === "" || inputData.lastName === "" || inputData.email === "" || inputData.password === "") return setError("All fields are required")
-
+            
         if (inputData.password.length < 8) return setError("Password must be at least 8 characters.")
 
         const result = await callApi(`${API_URL}/api/auth/signup`, "POST", inputData);

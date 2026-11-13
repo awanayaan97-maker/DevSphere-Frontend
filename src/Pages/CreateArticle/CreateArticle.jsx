@@ -33,6 +33,7 @@ function CreateArticle() {
         content: "",
         tags: []
     })
+    
     const { isLoading, error, setError, data } = useApiQuery({
         url: `${API_URL}/api/article/${id}`,
         type: "GET",

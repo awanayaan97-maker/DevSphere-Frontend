@@ -29,7 +29,7 @@ export default function ArticleAIChat({
     setMessages,
  }) {
     const { user } = useContext(AuthContext);
-    const userData = user?.data;
+    const userData = user;
     const userId = userData?._id || userData?.id;
 
     const { loading, error, setError, callApi } = useCallApi();

@@ -28,9 +28,10 @@ function useApiQuery({
     }
 
     const isEnabled = Boolean(url) && (isAuthorized ? Boolean(token) : true) && enabled;
+    const queryKey =  [url, token ? token.slice(-10) : "guest"]
 
     const queryResult = useQuery({
-        queryKey: [url, token ? token.slice(-10) : "guest"],
+        queryKey,
         queryFn: getData,
         enabled: isEnabled,
         staleTime,
@@ -45,7 +46,8 @@ function useApiQuery({
         isLoading: isReallyLoading,
         data: queryResult.data || [],
         error,
-        setError
+        setError,
+        queryKey
     };
 }
 

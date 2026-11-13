@@ -19,15 +19,16 @@ import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
 
 import "./CommunityPostCard.css";
-import useLoginChecker from "../../hooks/useLoginChecker";
 import Alert from "../Alert/Alert";
-import useCallApi from "../../hooks/useCallApi";
 import { AuthContext } from "../../Context/AuthContext";
 import { ThemeContext } from "../../Context/ThemeContext";
 import SharePostModal from "../SharePostModal/SharePostModal";
 import { shortTimeAgo } from "../../utils/dateHelpers";
 import { useLikeToggle } from "../../hooks/useLikeToggle";
 import { useBookmarkToggle } from "../../hooks/useBookmarkToggle";
+import useComments from "../../hooks/useComments";
+import useCheckLogin from "../../hooks/useCheckLogin";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const codeLanguages = {
     javascript,
@@ -45,9 +46,9 @@ const codeLanguages = {
 function CommunityPostCard({
     post,
     onEdit,
-    onShare,
     onDelete,
-    isBookmarkPage
+    isBookmarkPage,
+    queryKey
 }) {
 
     const { user } = useContext(AuthContext);
@@ -57,25 +58,23 @@ function CommunityPostCard({
     const [expanded, setExpanded] = useState(false);
     const [activeImage, setActiveImage] = useState(0);
     const [copied, setCopied] = useState(false);
-    const { isLoggedIn, setIsLoggedIn } = useLoginChecker();
-    const [showAlert, setShowAlert] = useState(false);
+    const { showAlert, setShowAlert, check } = useCheckLogin()
     const [menuOpen, setMenuOpen] = useState(false);
+    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle()
 
-    const [commentsOpen, setCommentsOpen] = useState(false);
-    const [comments, setComments] = useState(null);
-    const [editingCommentId, setEditingCommentId] = useState(null);
-    const [commentText, setCommentText] = useState("");
-
-    const API_URL = import.meta.env.VITE_API_URL;
-    const token = localStorage.getItem("token");
-    const { callApi, loading } = useCallApi();
-
-    const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
-        useLikeToggle({
-            initialIsLiked: post?.isLiked,
-            initialLikesCount: post?.likesCount,
-            Url: `${API_URL}/api/post/like/${post._id}`
-        })
+    const {
+        comments,
+        commentsQueryKey,
+        commentsOpen,
+        setCommentsOpen,
+        commentText,
+        setCommentText,
+        setEditingCommentId,
+        handleAddComment,
+        handleDeleteComment,
+        toggleComments,
+        commentsLoading
+    } = useComments(post?._id, "post")
 
     const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
         initialIsBookmarked: post?.isBookmark,
@@ -124,31 +123,6 @@ function CommunityPostCard({
         }
     }, [post?._id]);
 
-    useEffect(() => {
-
-        if (!commentsOpen) return;
-
-        if (comments !== null) return;
-
-        async function fetchComments() {
-
-            console.log('function chala hai');
-
-            const result = await callApi(
-                `${API_URL}/api/post/comment/${post._id}`,
-                "GET",
-                [],
-                token
-            );
-
-            if (result?.status) {
-                setComments(result.data || []);
-            }
-        }
-
-        fetchComments();
-
-    }, [commentsOpen]);
 
     useEffect(() => {
         function handleClickOutside(e) {
@@ -161,67 +135,6 @@ function CommunityPostCard({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    async function handleAddComment() {
-
-        if (!commentText?.trim()) return;
-
-        if (editingCommentId !== null) {
-
-            const oldText = comments.find(c => c._id === editingCommentId)?.text;
-
-            setComments((prev) =>
-                prev.map((c) => (c._id === editingCommentId ? { ...c, text: commentText } : c))
-            );
-
-            setCommentText("");
-            setEditingCommentId(null);
-
-            const result = await callApi(`${API_URL}/api/post/comment/${editingCommentId}`, "PATCH", { text: commentText }, token);
-
-            if (!result?.status) {
-                setComments((prev) =>
-                    prev.map((c) => (c._id === editingCommentId ? { ...c, text: oldText } : c))
-                );
-            }
-
-            return;
-        }
-
-        const tempId = `temp-${Date.now()}`;
-
-        const newCommentData = {
-            authorData: {
-                _id: user?.data?._id,
-                firstName: user?.data?.firstName,
-                lastName: user?.data?.lastName,
-                role: user?.data?.role,
-                profileImage: user?.data?.profileImage
-            },
-            _id: tempId,
-            articleId: post?._id,
-            text: commentText,
-            hasLikeComment: false,
-            commentLikes: 0,
-            replies: []
-        };
-
-        setComments((prev) => (prev === null ? [newCommentData] : [...prev, newCommentData]));
-        setCommentText("");
-
-        const commentData = { text: commentText };
-        const result = await callApi(`${API_URL}/api/posts/comment/${post._id}`, "POST", commentData, token);
-
-        if (result?.status && result?.data) {
-            setComments((prev) => prev.map((c) => (c._id === tempId ? result.data : c)));
-        } else {
-            setComments((prev) => prev.filter((c) => c._id !== tempId));
-        }
-    }
-
-    async function handleDeleteComment(commentId) {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
-        const result = await callApi(`${API_URL}/api/post/comment/${commentId}`, "DELETE", null, token);
-    }
 
     const scrollToImage = (index) => {
         const track = imageTrackRef.current;
@@ -253,17 +166,6 @@ function CommunityPostCard({
         );
     };
 
-    const AuthCheck = async () => {
-
-        if (!isLoggedIn) {
-            setShowAlert(true);
-            return;
-        }
-        setCommentsOpen(prev => !prev)
-
-        return true;
-    }
-
     const handleCopyCode = async () => {
         try {
             await navigator.clipboard.writeText(code);
@@ -274,6 +176,16 @@ function CommunityPostCard({
             setCopied(false);
         }
     };
+
+    const handleLikeClick = () => {
+
+        toggleLikeMutation.mutate({
+            url: `${API_URL}/api/post/like/${post._id}`,
+            itemId: post._id,
+            queryKey
+        })
+
+    }
 
     if (!post) return null;
 
@@ -484,12 +396,12 @@ function CommunityPostCard({
             {/* Engagement counts */}
             <div className="community-post-stats">
                 <span>
-                    {likesCount} Likes
+                    {post?.likesCount} Likes
                 </span>
 
                 <div>
                     <span>
-                        {!comments ? post.commentsCount : comments?.length} comments
+                        {comments?.length === 0 ? post.commentsCount : comments?.length} comments
                     </span>
 
                     <span>
@@ -505,9 +417,9 @@ function CommunityPostCard({
                 <button
                     type="button"
                     className={post.isLiked ? "is-liked" : ""}
-                    onClick={toggleLike}
+                    onClick={handleLikeClick}
                 >
-                    {isLiked ? (
+                    {post?.isLiked ? (
                         <i className="fa-solid fa-heart" style={{ color: "#ef4444" }}></i>
                     ) : (
                         <i className="fa-regular fa-heart"></i>
@@ -517,7 +429,7 @@ function CommunityPostCard({
 
                 <button
                     type="button"
-                    onClick={() => (AuthCheck())}
+                    onClick={toggleComments}
                 >
                     <i className="fa-regular fa-comment" />
                     <span>Comment</span>
@@ -544,14 +456,15 @@ function CommunityPostCard({
             {commentsOpen && (
                 <CommentSection
                     comments={comments}
-                    loading={loading}
+                    loading={commentsLoading}
                     onClose={() => setCommentsOpen(false)}
                     onAddComment={handleAddComment}
                     onDeleteComment={handleDeleteComment}
                     commentText={commentText}
                     setCommentText={setCommentText}
                     setEditingCommentId={setEditingCommentId}
-                    onInput={AuthCheck}
+                    onInput={check}
+                    commentsQueryKey={commentsQueryKey}
                 />
             )}
 

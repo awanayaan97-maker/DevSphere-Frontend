@@ -1,57 +1,91 @@
 
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useCallApi from "./useCallApi";
 import useLoginChecker from "./useLoginChecker";
+import { updateItemLike } from "../utils/updateLike";
 
-export function useLikeToggle({ initialIsLiked, initialLikesCount = 0, Url }) {
+export function useLikeToggle() {
 
-    const token = localStorage.getItem("token");
+    const queryClient = useQueryClient();
     const { callApi } = useCallApi();
-    const { isLoggedIn } = useLoginChecker()
-    const [isLiked, setIsLiked] = useState(null);
-    const [showLikeAlert, setShowLikeAlert] = useState(false)
+    const { isLoggedIn } = useLoginChecker();
+    const token = localStorage.getItem("token");
+    const [showLikeAlert, setShowLikeAlert] = useState(false);
 
-    const currentStatus = isLiked !== null ? isLiked : initialIsLiked;
-    const baseCount = Number(initialLikesCount) || 0;
+    const mutation = useMutation({
 
-    const likesCount = currentStatus === initialIsLiked
-        ? baseCount
-        : (currentStatus ? baseCount + 1 : Math.max(0, baseCount - 1));
+        mutationFn: async ({ url }) => {
+            const result = await callApi(url, "PATCH", {}, token);
+            if (!result?.status) throw new Error(result?.message || "Like failed");
+            return result.data;
+        },
 
-    const toggleLike = () => {
-
-        if (!isLoggedIn) {
-            setShowLikeAlert(true)
-            return
-        }
-
-        const nextState = !currentStatus;
-        setIsLiked(nextState);
-    };
-
-    useEffect(() => {
-        if (isLiked === null) return;
-
-        const timer = setTimeout(async () => {
-            try {
-                await callApi(Url, "PATCH", {}, token);
-            } catch (error) {
-                console.error("Failed to update like status:", error);
-
+        onMutate: async ({ queryKey, itemId }) => {
+            if (!isLoggedIn) {
+                setShowLikeAlert(true);
+                throw new Error("UNAUTHENTICATED");
             }
-        }, 600);
 
-        return () => {
-            clearTimeout(timer);
-        };
-    }, [isLiked]);
+            await queryClient.cancelQueries({ queryKey });
+            const previousData = queryClient.getQueryData(queryKey);
+
+            queryClient.setQueryData(queryKey, (oldData) => {
+
+                if (!oldData) return oldData;
+                if (oldData.pages) {
+                    return {
+                        ...oldData,
+                        pages: oldData.pages.map((page) =>
+                            page.map((item) => updateItemLike(item, itemId))
+                        ),
+                    };
+                }
+
+                if (Array.isArray(oldData)) {
+                    return oldData.map((item) => updateItemLike(item, itemId));
+                }
+
+                if (typeof oldData === "object") {
+
+                    if (oldData._id === itemId) {
+                        return updateItemLike(oldData, itemId);
+                    }
+
+                    if (oldData.data && oldData.data._id === itemId) {
+                        return {
+                            ...oldData,
+                            data: updateItemLike(oldData.data, itemId),
+                        };
+                    }
+                }
+
+                return oldData;
+            });
+
+            return { previousData, queryKey };
+        },
+
+        onError: (err, context) => {
+            if (err.message === "UNAUTHENTICATED") return;
+
+            if (context?.previousData && context?.queryKey) {
+                queryClient.setQueryData(context.queryKey, context.previousData);
+            }
+        },
+
+        onSettled: (context) => {
+            if (context?.queryKey) {
+                queryClient.invalidateQueries({ queryKey: context.queryKey });
+            }
+        },
+    });
 
     return {
-        isLiked: currentStatus,
-        likesCount,
-        toggleLike,
+        toggleLikeMutation: mutation,
         showLikeAlert,
-        setShowLikeAlert
+        setShowLikeAlert,
     };
 }
+

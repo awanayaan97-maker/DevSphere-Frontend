@@ -20,33 +20,33 @@ function Profile() {
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const { isLoggedIn } = useLoginChecker();
-    const { loading, error, fetchData, hasMore, setError } = usePaginationQuery(`${API_URL}/api/user/articles`, "GET", [], token);
+    const { loading, error, fetchData, hasMore, setError, queryKey } = usePaginationQuery(`${API_URL}/api/user/articles`, "GET", [], token);
 
 
     useEffect(() => {
-    if (!socket) return;
-    const onLike = (data) => {
-        queryClient.setQueriesData({ queryKey: ["feed"] }, (old) => {
-            if (!old) return old;
+        if (!socket) return;
+        const onLike = (data) => {
+            queryClient.setQueriesData({ queryKey: ["feed"] }, (old) => {
+                if (!old) return old;
 
-            return {
-                ...old,
-                pages: old.pages.map((page) =>
-                    page.map((article) =>
-                        article._id === data.articleId
-                            ? { ...article, likesCount: data.likesCount }
-                            : article
-                    )
-                ),
-            };
-        });
-    };
+                return {
+                    ...old,
+                    pages: old.pages.map((page) =>
+                        page.map((article) =>
+                            article._id === data.articleId
+                                ? { ...article, likesCount: data.likesCount }
+                                : article
+                        )
+                    ),
+                };
+            });
+        };
 
-    socket.on("like_notification", onLike);
-    return () => {
-        socket.off("like_notification", onLike);
-    };
-}, [socket, queryClient]);
+        socket.on("like_notification", onLike);
+        return () => {
+            socket.off("like_notification", onLike);
+        };
+    }, [socket, queryClient]);
 
     const authorDetails = {
         firstName: user?.firstName,
@@ -465,7 +465,11 @@ function Profile() {
                                 }
 
                                 return (
-                                    <PostCard key={articleWithAuthor?._id} post={articleWithAuthor} />
+                                    <PostCard
+                                        key={articleWithAuthor?._id}
+                                        post={articleWithAuthor}
+                                        queryKey={queryKey}
+                                    />
                                 )
 
                             })}

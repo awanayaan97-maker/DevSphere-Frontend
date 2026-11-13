@@ -42,7 +42,7 @@ function Community() {
     const topic = getParam("topic");
     const url = buildUrl(`${API_URL}/api/post`);
 
-    const { fetchData, loading, error, setError, hasMore } = usePaginationQuery(url, "GET", [], token)
+    const { fetchData, loading, error, setError, hasMore, queryKey } = usePaginationQuery(url, "GET", [], token)
     const showEmpty = !loading && !error && fetchData.length === 0;
 
     function handleEditPost(postId) {
@@ -322,6 +322,7 @@ function Community() {
                             post={post}
                             onEdit={handleEditPost}
                             onDelete={handleDeletePost}
+                            queryKey={queryKey}
                         />
                     ))}
 

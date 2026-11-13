@@ -6,15 +6,15 @@ import ReplyItem from "../ReplyItem/ReplyItem";
 import useCallApi from "../../hooks/useCallApi";
 import { AuthContext } from "../../Context/AuthContext";
 import { shortTimeAgo } from "../../utils/dateHelpers";
-import { useLikeToggle } from "../../hooks/useLikeToggle";
 import Alert from "../Alert/Alert";
+import { useLikeToggle } from "../../hooks/useLikeToggle";
 
-function CommentItem({ comment, onDeleteComment, setCommentText, setEditingCommentId }) {
+function CommentItem({ comment, onDeleteComment, setCommentText, setEditingCommentId, commentsQueryKey }) {
 
     const { callApi } = useCallApi();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const { user, socket } = useContext(AuthContext)
+    const { user } = useContext(AuthContext)
     const [repliesOpen, setRepliesOpen] = useState(false);
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
@@ -25,18 +25,19 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
 
     const pathname = window.location.pathname;
     const isCommunity = pathname.startsWith("/community");
-    const isOwnComment = comment?.authorData?._id === user?.data?._id;
+    const isOwnComment = comment?.authorData?._id === user?._id;
     const url = isCommunity
-        ? `${API_URL}/api/posts/like-postComment/${comment._id}`
+        ? `${API_URL}/api/post/like-postComment/${comment._id}`
         : `${API_URL}/api/article/like-articleComment/${comment._id}`;
 
-    const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
-        useLikeToggle({
-            initialIsLiked: comment?.hasLikeComment,
-            initialLikesCount: comment?.commentLikes,
-            Url: url
-        })
+    // const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
+    //     useLikeToggle({
+    //         initialIsLiked: comment?.hasLikeComment,
+    //         initialLikesCount: comment?.commentLikes,
+    //         Url: url
+    //     })
 
+    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle()
 
     useEffect(() => {
         function handleClickOutside(e) {
@@ -150,6 +151,15 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
         setEditingCommentId(comment._id)
     }
 
+    function handleLikeClick() {
+        toggleLikeMutation.mutate({
+            url: url,
+            itemId: comment._id,
+            queryKey: commentsQueryKey
+        })
+    }
+
+
     if (showLikeAlert) return <Alert
         title="Login Required"
         message="Please login or create an account to like articles comments"
@@ -159,7 +169,7 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
     />
 
     const author = comment?.authorData;
-    const initials = `${author?.firstName?.[0] || ""}${author?.lastName?.[0] || ""}`;
+    const initials = `${author?.firstName?.[0] || ""}`;
 
     return (
 
@@ -214,9 +224,9 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
                 <p className="comment-text">{comment?.text}</p>
 
                 <div className="comment-actions">
-                    <button type="button" onClick={toggleLike}>
-                        <i className={isLiked ? "fa-solid fa-heart comment-liked" : "fa-regular fa-heart"}></i>
-                        {likesCount}
+                    <button type="button" onClick={handleLikeClick}>
+                        <i className={comment?.isLiked ? "fa-solid fa-heart comment-liked" : "fa-regular fa-heart"}></i>
+                        {comment?.likesCount}
                     </button>
 
                     <button type="button" onClick={() => setReplying((prev) => !prev)}>

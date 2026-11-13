@@ -1,89 +1,69 @@
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import useCallApi from "./useCallApi";
+import useApiQuery from "./useApiQuery";
 import { AuthContext } from "../Context/AuthContext";
 
-function useComments(id) {
+function useComments(id, type) {
 
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
     const { user } = useContext(AuthContext);
     const { callApi } = useCallApi();
+    const queryClient = useQueryClient();
+    const url = `${API_URL}/api/${type}/comment/${id}`
+
     const [commentsOpen, setCommentsOpen] = useState(false);
-    const [comments, setComments] = useState(null);
     const [commentText, setCommentText] = useState("");
     const [editingCommentId, setEditingCommentId] = useState(null);
-    const [commentsLoading, setCommentsLoading] = useState(false)
+    const commentsQueryKey = [url, token ? token.slice(-10) : "guest"];
 
-    useEffect(() => {
-        if (!commentsOpen || comments !== null) return;
-
-        async function fetchComments() {
-            setCommentsLoading(true)
-
-            try {
-                const result = await callApi(
-                    `${API_URL}/api/article/comment/${id}`,
-                    "GET",
-                    [],
-                    token
-                );
-
-                if (result?.status) {
-                    setComments(result.data || []);
-                }
-            } 
-            
-            catch (error) {
-                console.error("Failed to fetch comments:", error);
-                setComments([]);
-            } 
-
-            finally{
-                setCommentsLoading(false)
-            }
-        }
-
-        fetchComments();
-    }, [commentsOpen, id]);
+    const { data: comments = [], isLoading: commentsLoading } = useApiQuery({
+        url,
+        type: "GET",
+        enabled: Boolean(commentsOpen && url)
+    });
 
     const handleAddComment = async () => {
 
         if (!commentText?.trim()) return;
 
+        // --- EDIT MODE ---
         if (editingCommentId !== null) {
-            const oldText = comments.find((c) => c._id === editingCommentId)?.text;
-            setComments((prev) =>
-                prev.map((c) => (c._id === editingCommentId ? { ...c, text: commentText } : c))
+            const currentEditingId = editingCommentId;
+            const currentText = commentText;
+            const previousComments = queryClient.getQueryData(commentsQueryKey);
+
+            queryClient.setQueryData(commentsQueryKey, (old = []) =>
+                old.map((c) => (c._id === currentEditingId ? { ...c, text: currentText } : c))
             );
 
             setCommentText("");
             setEditingCommentId(null);
 
             try {
+
                 const result = await callApi(
-                    `${API_URL}/api/article/comment/${editingCommentId}`,
+                    `${API_URL}/api/${type}/comment/${editingCommentId}`,
                     "PATCH",
-                    { text: commentText },
+                    { text: currentText },
                     token
                 );
 
                 if (!result?.status) {
-                    setComments((prev) =>
-                        prev.map((c) => (c._id === editingCommentId ? { ...c, text: oldText } : c))
-                    );
+                    queryClient.setQueryData(commentsQueryKey, previousComments);
                 }
-            } 
-            catch (error) {
+            } catch (error) {
                 console.error("Failed to update comment:", error);
-                setComments((prev) =>
-                    prev.map((c) => (c._id === editingCommentId ? { ...c, text: oldText } : c))
-                );
+                queryClient.setQueryData(commentsQueryKey, previousComments);
             }
             return;
         }
 
+        // --- ADD NEW COMMENT MODE ---
         const tempId = `temp-${Date.now()}`;
+        const textToSubmit = commentText;
         const newCommentData = {
             authorData: {
                 _id: user?._id,
@@ -94,58 +74,80 @@ function useComments(id) {
             },
             _id: tempId,
             articleId: id,
-            text: commentText,
+            text: textToSubmit,
             hasLikeComment: false,
             commentLikes: 0,
             replies: [],
         };
 
-        setComments((prev) => (prev === null ? [newCommentData] : [...prev, newCommentData]));
+        queryClient.setQueryData(commentsQueryKey, (old = []) => [...old, newCommentData]);
         setCommentText("");
 
         try {
-            const result = await callApi(
-                `${API_URL}/api/article/comment/${id}`,
-                "POST",
-                { text: commentText },
-                token
-            );
+
+            const result = await callApi(url, "POST", { text: textToSubmit }, token);
 
             if (result?.status && result?.data) {
-                setComments((prev) => prev.map((c) => (c._id === tempId ? result.data : c)));
-            } else {
-                setComments((prev) => prev.filter((c) => c._id !== tempId));
+                queryClient.setQueryData(commentsQueryKey, (old = []) =>
+                    old.map((c) => (c._id === tempId ? result.data : c))
+                );
             }
-        } 
+
+            else {
+                queryClient.setQueryData(commentsQueryKey, (old = []) =>
+                    old.filter((c) => c._id !== tempId)
+                );
+            }
+        }
+
         catch (error) {
             console.error("Failed to add comment:", error);
-            setComments((prev) => prev.filter((c) => c._id !== tempId));
+            queryClient.setQueryData(commentsQueryKey, (old = []) =>
+                old.filter((c) => c._id !== tempId)
+            );
         }
     };
 
     const handleDeleteComment = async (commentId) => {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
-        const result = await callApi(`${API_URL}/api/article/comment/${commentId}`, "DELETE", null, token);
-    }
 
-    const toggleComments = () => {
-        setCommentsOpen((prev) => !prev);
+        const previousComments = queryClient.getQueryData(commentsQueryKey);
+
+        queryClient.setQueryData(commentsQueryKey, (old = []) =>
+            old.filter((c) => c._id !== commentId)
+        );
+
+        try {
+            const result = await callApi(
+                `${API_URL}/api/${type}/comment/${commentId}`,
+                "DELETE",
+                null,
+                token
+            );
+            if (!result?.status) {
+                queryClient.setQueryData(commentsQueryKey, previousComments);
+            }
+        } catch (error) {
+            queryClient.setQueryData(commentsQueryKey, previousComments);
+        }
     };
+
+    const toggleComments = () => setCommentsOpen((prev) => !prev);
 
     return {
         commentsOpen,
         setCommentsOpen,
         toggleComments,
         comments,
-        setComments,
+        commentsQueryKey,
         commentsLoading,
         commentText,
         setCommentText,
         editingCommentId,
         setEditingCommentId,
         handleAddComment,
-        handleDeleteComment
+        handleDeleteComment,
+        commentsLoading
     };
 }
 
-export default useComments
+export default useComments;

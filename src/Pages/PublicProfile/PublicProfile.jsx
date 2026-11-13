@@ -14,7 +14,7 @@ function PublicProfile() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [showAlert, setShowAlert] = useState(false);
-    const { isLoading, error, setError, data } = useApiQuery({
+    const { isLoading, error, setError, data, queryKey } = useApiQuery({
         url: `${API_URL}/api/user/public/${id}`,
         type: "GET",
         isAuthorized: false
@@ -278,7 +278,7 @@ function PublicProfile() {
                     <div className="public-profile-article-list">
                         {user?.userArticleData?.map((article) => (
 
-                            <PostCard key={article._id} post={article} />
+                            <PostCard key={article._id} post={article} queryKey={queryKey} />
                         ))}
                     </div>
 

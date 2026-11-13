@@ -11,13 +11,14 @@ function usePaginationQuery(url, method = "GET", actions = [], token) {
     const userId = user?._id ?? "guest";
     const [customError, setCustomError] = useState(null);
     const [dismissed, setDismissed] = useState(false);
+    const queryKey = ["feed", userId, url]
 
     const {
         data, fetchNextPage, hasNextPage, isFetchingNextPage,
         isLoading, isError, error: queryError
     } = useInfiniteQuery({
 
-        queryKey: ["feed", userId, url],
+        queryKey: queryKey ,
         queryFn: async ({ pageParam = 1 }) => {
             const urlObj = new URL(url, window.location.origin);
             urlObj.searchParams.set("page", pageParam);
@@ -60,6 +61,7 @@ function usePaginationQuery(url, method = "GET", actions = [], token) {
         loading: isLoading || isFetchingNextPage,
         hasMore: Boolean(hasNextPage),
         error,
+        queryKey,
         setError: () => { setCustomError(null); setDismissed(true); }
     };
 }

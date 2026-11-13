@@ -32,7 +32,7 @@ function Home() {
     const url = searchQuery ? buildUrl(`${API_URL}/api/article/search`)
         : buildUrl(`${API_URL}/api/article/publish`)
 
-    const { loading, fetchData, hasMore, error, setError } = usePaginationQuery(url, "GET", [], token);
+    const { loading, fetchData, hasMore, error, setError, queryKey } = usePaginationQuery(url, "GET", [], token);
 
     useEffect(() => {
 
@@ -177,7 +177,7 @@ function Home() {
                 <div className="posts-list">
 
                     {fetchData.map((post) => (
-                        <PostCard key={post._id} post={post} url={url} />
+                        <PostCard key={post._id} post={post} url={url} queryKey={queryKey} />
                     ))}
 
                     {loading && (

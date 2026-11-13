@@ -1,4 +1,7 @@
 
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 const ROUTES = {
     createArticle: "/article-editor",
     editProfile: "/edit-profile",
@@ -8,7 +11,7 @@ const ROUTES = {
 
 const DELETE_URL = {
     publish: (id) => `${API_URL}/api/article/${id}`,
-    draft: (id) => `${API_URL}/api/article/${id}`,
+    draft: (id) => `${API_URL}/api/article/draft/${id}`,
     posts: (id) => `${API_URL}/api/post/${id}`
 };
 
