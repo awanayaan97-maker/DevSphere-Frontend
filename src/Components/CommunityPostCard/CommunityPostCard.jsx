@@ -60,7 +60,8 @@ function CommunityPostCard({
     const [copied, setCopied] = useState(false);
     const { showAlert, setShowAlert, check } = useCheckLogin()
     const [menuOpen, setMenuOpen] = useState(false);
-    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle()
+    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
+    const { bookmarkAlert, setBookmarkAlert, toggleBookmarkMutation } = useBookmarkToggle();
 
     const {
         comments,
@@ -76,11 +77,6 @@ function CommunityPostCard({
         commentsLoading
     } = useComments(post?._id, "post")
 
-    const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
-        initialIsBookmarked: post?.isBookmark,
-        initialBookmarksCount: post?.savesCount,
-        url: `${API_URL}/api/post/bookmark/${post._id}`,
-    })
 
     const imageTrackRef = useRef(null);
     const codeRef = useRef(null);
@@ -187,9 +183,17 @@ function CommunityPostCard({
 
     }
 
+    const handleBookmarkClick = () => {
+        toggleBookmarkMutation.mutate({
+            url: `${API_URL}/api/post/bookmark/${post._id}`,
+            itemId: post._id,
+            queryKey
+        })
+    }
+
     if (!post) return null;
 
-    if (showAlert || showLikeAlert || showBookmarkAlert) return <Alert
+    if (showAlert || showLikeAlert || bookmarkAlert) return <Alert
         title="Login Required"
         message="Please login or create an account to like or comment article"
         actionText="Login Now"
@@ -197,7 +201,7 @@ function CommunityPostCard({
         onClose={() => {
             setShowAlert(false)
             setShowLikeAlert(false)
-            setShowBookmarkAlert(false)
+            setBookmarkAlert(false)
         }}
     />
 
@@ -405,7 +409,7 @@ function CommunityPostCard({
                     </span>
 
                     <span>
-                        {bookmarksCount} saves
+                        {post.bookmarksCount} saves
                     </span>
                 </div>
             </div>
@@ -445,10 +449,10 @@ function CommunityPostCard({
 
                 <button
                     type="button"
-                    className={isBookmarked ? "is-bookmarked" : ""}
-                    onClick={toggleBookmark}
+                    className={post.isBookmark ? "is-bookmarked" : ""}
+                    onClick={handleBookmarkClick}
                 >
-                    <i className={isBookmarked ? "fa-solid fa-bookmark" : "fa-regular fa-bookmark"} />
+                    <i className={post.isBookmark ? "fa-solid fa-bookmark" : "fa-regular fa-bookmark"} />
                     <span>{post.isBookmark ? "Saved" : "Save"}</span>
                 </button>
             </div>

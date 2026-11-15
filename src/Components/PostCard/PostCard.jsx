@@ -25,7 +25,14 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const { callApi } = useCallApi();
     const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
-    const {
+    const { bookmarkAlert, setBookmarkAlert, toggleBookmarkMutation } = useBookmarkToggle();
+
+    const menuRef = useRef(null);
+    const plainText = stripHTML(post.content);
+    const preview = handlePostDescription(plainText, 200);
+    const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?._id);
+
+     const {
         commentsOpen,
         setCommentsOpen,
         comments,
@@ -38,18 +45,7 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
         handleDeleteComment,
         commentsLoading
     } = useComments(post?._id, "article")
-
-
-    const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
-        initialIsBookmarked: post?.isBookmark,
-        initialBookmarksCount: post?.bookmarkCounts,
-        url: `${API_URL}/api/article/bookmark/${post._id}`,
-    })
-
-    const menuRef = useRef(null);
-    const plainText = stripHTML(post.content);
-    const preview = handlePostDescription(plainText, 200);
-    const isOwnArticle = !isBookmarkPage && (post?.authorDetails?._id === user?._id);
+    
 
     function stripHTML(html) {
         const doc = new DOMParser().parseFromString(html, "text/html");
@@ -92,6 +88,14 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
         });
     };
 
+    const handleBookmarkClick = () => {
+        toggleBookmarkMutation.mutate({
+            url: `${API_URL}/api/article/bookmark/${post._id}`,
+            itemId: post?._id,
+            queryKey
+        })
+    }
+
     useEffect(() => {
 
         if (!socket) return;
@@ -127,7 +131,7 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    if (showAlert || showLikeAlert || showBookmarkAlert) return <Alert
+    if (showAlert || showLikeAlert || bookmarkAlert) return <Alert
         title="Login Required"
         message="Please log in or create an account to continue."
         actionText="Login Now"
@@ -135,7 +139,7 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
         onClose={() => {
             setShowAlert(false)
             setShowLikeAlert(false)
-            setShowBookmarkAlert(false)
+            setBookmarkAlert(false)
         }}
     />
 
@@ -260,7 +264,7 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
                     </span>
 
                     <span
-                        onClick={toggleBookmark}
+                        onClick={handleBookmarkClick}
                         style={{
                             display: "inline-flex",
                             alignItems: "center",
@@ -273,13 +277,13 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
                             boxShadow: "none"
                         }}
                     >
-                        {isBookmarked ? (
+                        {post.isBookmark ? (
                             <i className="fa-solid fa-bookmark" style={{ color: "var(--color-accent)" }}></i>
                         ) : (
                             <i className="fa-regular fa-bookmark"></i>
                         )}
                         <span className="stat-count" style={{ lineHeight: "1" }}>
-                            {bookmarksCount}
+                            {post.bookmarksCount}
                         </span>
                     </span>
 

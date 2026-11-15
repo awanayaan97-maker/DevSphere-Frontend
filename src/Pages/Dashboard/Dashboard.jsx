@@ -1,6 +1,6 @@
 
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import {
     AreaChart,
     Area,
@@ -118,80 +118,86 @@ function Dashboard() {
     const [tab, setTab] = useState("publish");
     const [error, setError] = useState(null);
 
-    const { data: summary, isLoading: summaryLoading } = useApiQuery({
+    const { data: summary, isLoading: summaryLoading, error: summaryError, setError: setSummaryError } = useApiQuery({
         url: `${API_URL}/api/dashboard/summary`,
         type: "GET",
         isAuthorized: true
     });
 
-    const { data: topArticles, isLoading: topLoading } = useApiQuery({
+    const { data: topArticles, isLoading: topLoading, error: articleError, setError: setArticleError } = useApiQuery({
         url: `${API_URL}/api/dashboard/top-articles`,
         type: "GET",
         isAuthorized: true
     });
 
-    const { data: chartData, isLoading: chartLoading } = useApiQuery({
+    const { data: chartData, isLoading: chartLoading, error: chartError, setError: setChartError } = useApiQuery({
         url: `${API_URL}/api/dashboard/followers-chart`,
         type: "GET",
         isAuthorized: true
     });
 
-    const { data: items, isLoading: tabLoading } = useApiQuery({
+    const { data: items, isLoading: tabLoading, error: itemsError, setError: setItemsError } = useApiQuery({
         url: `${API_URL}/api/dashboard/content?type=${tab}`,
         type: "GET",
         isAuthorized: true
     });
 
-
-    function handleTabChange(nextTab) {
+     function handleTabChange(nextTab) {
         if (nextTab === tab) return;
         setTab(nextTab);
     }
 
+    async function handleDelete(currentTab, item) {
 
-   async function handleDelete(currentTab, item) {
+        const result = await callApi(
+            DELETE_URL[currentTab](item._id),
+            "DELETE",
+            [],
+            token
+        ).catch(() => null);
 
-    const result = await callApi(
-        DELETE_URL[currentTab](item._id),
-        "DELETE",
-        [],
-        token
-    ).catch(() => null);
+        if (!result?.status) {
+            setError(result?.message || "Couldn't delete. Please try again.");
+            return;
+        }
 
-    if (!result?.status) {
-        setError(result?.message || "Couldn't delete. Please try again.");
-        return;
-    }
+        const tokenSlice = token ? token.slice(-10) : "";
 
-    const tokenSlice = token ? token.slice(-10) : "";
-
-    queryClient.invalidateQueries({
-        queryKey: [`${API_URL}/api/dashboard/content?type=${currentTab}`, tokenSlice]
-    });
-
-    queryClient.invalidateQueries({
-        queryKey: [`${API_URL}/api/dashboard/summary`, tokenSlice]
-    });
-
-    if (currentTab === "publish") {
         queryClient.invalidateQueries({
-            queryKey: [`${API_URL}/api/dashboard/top-articles`, tokenSlice]
+            queryKey: [`${API_URL}/api/dashboard/content?type=${currentTab}`, tokenSlice]
         });
-    }
-}
 
+        queryClient.invalidateQueries({
+            queryKey: [`${API_URL}/api/dashboard/summary`, tokenSlice]
+        });
 
-    if (summaryLoading || topLoading || chartLoading || tabLoading) {
-        return <Loader />;
+        if (currentTab === "publish") {
+            queryClient.invalidateQueries({
+                queryKey: [`${API_URL}/api/dashboard/top-articles`, tokenSlice]
+            });
+        }
     }
+
+    const handleClearErrors = () => {
+        setSummaryError(null);
+        setArticleError(null);
+        setChartError(null);
+        setItemsError(null);
+    };
+
+    
+    const currentError = summaryError || articleError || chartError || itemsError || error;
+    const currentLoading = summaryLoading || topLoading || chartLoading || tabLoading;
+    const currentData = summary.length === 0 && topArticles.length === 0 && chartData.length === 0 && items.length === 0
+
+    if (currentLoading) return <Loader />
+    if (currentError) return <ResponsePopup message={currentError} closePopup={error !== null ? () => setError(null) : handleClearErrors} />
+    if (currentData) return null
 
     const totalNewFollowers = chartData.reduce((sum, d) => sum + d.count, 0);
 
     return (
         <main className="dash-page">
-
-            {error && <ResponsePopup message={error} closePopup={() => setError(null)} />}
-
             {/* Header */}
             <header className="dash-header">
                 <div>
@@ -341,18 +347,18 @@ function Dashboard() {
             </section>
 
 
-             <ManageContent
-                    tab={tab}
-                    onTabChange={handleTabChange}
-                    counts={{
-                        articles: summary?.publishArticles ?? 0,
-                        drafts: summary?.draftArticles ?? 0,
-                        posts: summary?.communityPosts ?? 0
-                    }}
-                    items={items}
-                    loading={tabLoading}
-                    onDelete={handleDelete}
-                />
+            <ManageContent
+                tab={tab}
+                onTabChange={handleTabChange}
+                counts={{
+                    articles: summary?.publishArticles ?? 0,
+                    drafts: summary?.draftArticles ?? 0,
+                    posts: summary?.communityPosts ?? 0
+                }}
+                items={items}
+                loading={tabLoading}
+                onDelete={handleDelete}
+            />
         </main>
     );
 }

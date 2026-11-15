@@ -80,7 +80,7 @@ function Profile() {
 
     if (loading) return <SectionLoader />
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
-    if (!user) return null
+    if (user.length === 0) return null
 
     return (
 

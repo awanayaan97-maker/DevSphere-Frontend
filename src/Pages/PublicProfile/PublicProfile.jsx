@@ -25,24 +25,9 @@ function PublicProfile() {
         initialIsFollowing: data?.isFollowingAuthor
     })
 
-    if (isLoading) {
-        return <SectionLoader />;
-    }
-
-
-    if (error) {
-        return (
-            <ResponsePopup
-                message={error}
-                closePopup={() => setError(null)}
-            />
-        );
-    }
-
-
-    if (!data) {
-        return null;
-    }
+    if (isLoading) return <SectionLoader />;
+    if (error) return  <ResponsePopup message={error} closePopup={() => setError(null)} />;
+    if (data.length === 0) return null;
 
     const user = data;
     const serverFollowers = user?.followers || 0;

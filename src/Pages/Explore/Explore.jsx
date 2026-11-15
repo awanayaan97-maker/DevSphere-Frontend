@@ -25,7 +25,7 @@ function Explore() {
     const tag = getParam("tag");
     const category = getParam("category", "All Categories");
     const url = buildUrl(`${API_URL}/api/article/explore`);
-    const { loading, error, setError, hasMore, fetchData} = usePaginationQuery(url, "GET", [], token)
+    const { loading, error, setError, hasMore, fetchData } = usePaginationQuery(url, "GET", [], token)
 
 
     const handleSortChange = (sortValue) => updateFilter("sort", sortValue);
@@ -35,7 +35,9 @@ function Explore() {
         updateFilter("category", catVal === "All Categories" ? "" : catVal, "tag");
     };
 
+    if(loading) return <SectionLoader/>
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
+    if(fetchData.length === 0) return null
 
     return (
         <div className="explore-page">
@@ -154,7 +156,7 @@ function Explore() {
 
                         {/* 6. End of Feed Message */}
                         {!hasMore && fetchData && fetchData.length > 0 && (
-                            <ArticlesEndMessage />
+                            <ArticlesEndMessage message={"You've reached the end of the articles. Keep exploring and learning something new!"} />
                         )}
 
                     </div>

@@ -16,11 +16,15 @@ function Bookmarks() {
     const API_URL = import.meta.env.VITE_API_URL;
     const [activeTab, setActiveTab] = useState("articles");
     const { isLoggedIn } = useLoginChecker();
-    const { data, isError, isLoading, error, setError, queryKey } = useApiQuery({
+    const { data, isLoading, error, setError, queryKey } = useApiQuery({
         url: `${API_URL}/api/discover/bookmark?source=${activeTab}`,
         type: "GET",
         isAuthorized: true
     })
+
+    if (isLoading) return <SectionLoader />;
+    if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />;
+    if (data.length === 0) return null;
 
     if (!isLoggedIn) return <Alert
         title="Login Required"
@@ -29,19 +33,6 @@ function Bookmarks() {
         onAction={() => navigate("/login")}
         onClose={() => navigate('/')}
     />
-
-    if (isLoading) return <SectionLoader />
-
-    if (isError) {
-
-        return (
-            <ResponsePopup
-                message={error}
-                closePopup={() => setError(null)}
-            />
-        );
-
-    }
 
     return (
         <main className="bookmarks-page">

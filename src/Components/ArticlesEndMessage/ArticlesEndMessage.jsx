@@ -2,7 +2,7 @@
 
 import "./ArticlesEndMessage.css";
 
-function ArticlesEndMessage() {
+function ArticlesEndMessage({message}) {
     return (
         <div className="articles-end-message">
 
@@ -17,12 +17,10 @@ function ArticlesEndMessage() {
                 </strong>
 
                 <span>
-                    You’ve reached the end of the latest articles.
+                    {message}
                 </span>
 
             </div>
-
-            <i className="fa-solid fa-angles-down articles-end-arrow"></i>
 
         </div>
     );

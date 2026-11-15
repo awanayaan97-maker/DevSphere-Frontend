@@ -1,63 +1,93 @@
 
-import { useState, useEffect } from "react";
-import useCallApi from "./useCallApi";
-import useLoginChecker from "./useLoginChecker";
-import { useQueryClient } from "@tanstack/react-query";
 
-export function useBookmarkToggle({ initialIsBookmarked, initialBookmarksCount = 0, url }) {
+import useCallApi from "./useCallApi";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import useLoginChecker from "./useLoginChecker";
+import { useState } from "react";
+import { updateItemBookmark } from "../utils/updateBookmark";
+
+export function useBookmarkToggle() {
 
     const token = localStorage.getItem("token");
     const { callApi } = useCallApi();
-    const { isLoggedIn } = useLoginChecker();
-    const [isBookmarked, setIsBookmarked] = useState(null);
-    const [showBookmarkAlert, setShowBookmarkAlert] = useState(false);
     const queryClient = useQueryClient();
+    const { isLoggedIn } = useLoginChecker();
+    const [bookmarkAlert, setBookmarkAlert] = useState(false);
 
-    const currentStatus = isBookmarked !== null ? isBookmarked : initialIsBookmarked;
-    const baseCount = Number(initialBookmarksCount) || 0;
+    const mutation = useMutation({
 
-    const bookmarksCount = currentStatus === initialIsBookmarked
-        ? baseCount
-        : (currentStatus ? baseCount + 1 : Math.max(0, baseCount - 1));
+        mutationFn: async ({ url }) => {
+            const result = await callApi(url, "POST", [], token);
+            if (!result.status) throw new Error(result?.message || "bookmark failed")
+            return result.data
+        },
 
-    const toggleBookmark = () => {
+        onMutate: async ({ queryKey, itemId }) => {
 
-        if (!isLoggedIn) {
-            setShowBookmarkAlert(true);
-            return;
+            if (!isLoggedIn) {
+                setBookmarkAlert(true)
+                throw new Error("UNAUTHENTICATED")
+            }
+
+            await queryClient.cancelQueries({ queryKey });
+            const previousData = queryClient.getQueryData(queryKey);
+
+            queryClient.setQueryData(queryKey, (oldData) => {
+
+                if (!oldData) return oldData;
+
+                if (oldData.pages) {
+                    return {
+                        ...oldData,
+                        pages: oldData.pages.map((page) =>
+                            page.map((item) => updateItemBookmark(item, itemId))
+                        )
+                    }
+                };
+
+                if (Array.isArray(oldData)) {
+                    return oldData.map((item) => updateItemBookmark(item, itemId))
+                };
+
+                if (typeof oldData === "object") {
+
+                    if (oldData._id === itemId) {
+                        return updateItemBookmark(oldData, itemId);
+                    }
+
+                    if (oldData.data && oldData.data._id === itemId) {
+                        return {
+                            ...oldData,
+                            data: updateItemBookmark(oldData.data, itemId),
+                        }
+                    }
+
+                };
+
+                return oldData
+            })
+
+            return { previousData, queryKey }
+        },
+
+        onError: (err, context) => {
+            if (err.message === "UNAUTHENTICATED") return;
+            if (context?.previousData && context?.queryKey) {
+                queryClient.setQueryData(context.queryKey, context.previousData);
+            }
+        },
+
+        onSettled: (context) => {
+            if (context?.queryKey) {
+                queryClient.invalidateQueries({ queryKey: context.queryKey });
+            }
         }
 
-        const nextState = !currentStatus;
-        setIsBookmarked(nextState);
-    };
-
-    useEffect(() => {
-
-        if (isBookmarked === null) return;
-
-        const timer = setTimeout(async () => {
-
-            try {
-                await callApi(url, "POST", {}, token);
-                queryClient.invalidateQueries({
-                    predicate: (query) => query.queryKey[0]?.includes('/api/discover/bookmark')
-                })
-            }
-            catch (error) {
-                console.error("Failed to update bookmark status:", error);
-            }
-        }, 500);
-
-        return () => {
-            clearTimeout(timer);
-        };
-    }, [isBookmarked, url, token]);
+    });
 
     return {
-        isBookmarked: currentStatus,
-        bookmarksCount,
-        toggleBookmark,
-        showBookmarkAlert,
-        setShowBookmarkAlert,
-    };
+        toggleBookmarkMutation: mutation,
+        bookmarkAlert,
+        setBookmarkAlert
+    }
 }

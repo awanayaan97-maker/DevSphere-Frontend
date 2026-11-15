@@ -73,11 +73,12 @@ function Home() {
     const handleFeedChange = (value) => updateFilter('feed', value)
     const showEmpty = !loading && !error && fetchData.length === 0;
 
+    if(loading) return <SectionLoader/>
+    if(error) return <ResponsePopup message={error} closePopup={() => setError(null)}/>
+    if(fetchData.length === 0) return null
+
     return (
         <main className="home-page">
-
-            {error ? <ResponsePopup message={error} closePopup={() => setError(null)} /> : ''}
-
             <section className="home-header">
 
                 <div className="home-header-content">
@@ -218,7 +219,7 @@ function Home() {
                     )}
 
                     {!hasMore && fetchData.length > 0 && (
-                        <ArticlesEndMessage />
+                        <ArticlesEndMessage message={"You've reached the end of the articles. Keep exploring and learning something new!"}/>
                     )}
 
                 </div>

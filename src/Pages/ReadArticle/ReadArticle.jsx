@@ -38,16 +38,9 @@ function ReadArticle() {
     const [messages, setMessages] = useState([]);
     const [isAiOpen, setIsAiOpen] = useState(false);
     const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
+    const { bookmarkAlert, setBookmarkAlert, toggleBookmarkMutation } = useBookmarkToggle();
 
     const { commentsOpen, setCommentsOpen, comments, commentsQueryKey, commentsLoading, handleAddComment, commentText, setCommentText, setEditingCommentId, handleDeleteComment } = useComments(id, "article");
-
-    const { showBookmarkAlert, setShowBookmarkAlert, bookmarksCount, toggleBookmark, isBookmarked } = useBookmarkToggle({
-        initialIsBookmarked: data?.isBookmark,
-        initialBookmarksCount: data?.bookmarksCount,
-        url: `${API_URL}/api/article/bookmark/${id}`
-    })
-
-
 
     useEffect(() => {
         return setupSidebarSticky();
@@ -94,34 +87,27 @@ function ReadArticle() {
         })
     }
 
-
-    if (isLoading) {
-        return <Loader />;
+    function handleBookmarkClick() {
+        toggleBookmarkMutation.mutate({
+            url: `${API_URL}/api/article/bookmark/${id}`,
+            itemId: id,
+            queryKey
+        })
     }
 
-    if (error) {
 
-        return (
-            <ResponsePopup
-                message={error}
-                closePopup={() => setError(null)}
-            />
-        );
+    if (isLoading) return <Loader />;
+    if (error) return <ResponsePopup message={error}closePopup={() => setError(null)}/>;
+    if (data.length === 0) return null
 
-    }
-
-    if (!data) {
-        return null;
-    }
-
-    if (showAlert || showBookmarkAlert || showLikeAlert) return <Alert
+    if (showAlert || bookmarkAlert || showLikeAlert) return <Alert
         title="Login Required"
         message="Please log in or create an account to continue."
         actionText="Login Now"
         onAction={() => navigate("/login")}
         onClose={() => {
             setShowAlert(false)
-            setShowBookmarkAlert(false)
+            setBookmarkAlert(false)
             setShowLikeAlert(false)
         }}
     />
@@ -246,25 +232,25 @@ function ReadArticle() {
 
                     <button
                         type="button"
-                        className={`article-rail-button ${isBookmarked
+                        className={`article-rail-button ${article.isBookmark
                             ? "article-rail-button-active"
                             : ""
                             }`}
-                        onClick={toggleBookmark}
+                        onClick={handleBookmarkClick}
                         aria-label="Bookmark article"
                         title="Bookmark article"
                     >
 
                         <i
                             className={
-                                isBookmarked
+                                article.isBookmark
                                     ? "fa-solid fa-bookmark"
                                     : "fa-regular fa-bookmark"
                             }
                         ></i>
 
                         <span>
-                            {bookmarksCount}
+                            {article.bookmarksCount}
                         </span>
 
                     </button>
@@ -341,94 +327,7 @@ function ReadArticle() {
                             </p>
 
                         ) : null}
-
-
-
-                        {/* AUTHOR / META */}
-
-                        <div className="article-read-author">
-
-                            <UserAvatar userData={author} id={article?.author} />
-
-                            <div className="article-author-info">
-
-                                <strong>
-
-                                    {getInitials(author)}
-
-                                </strong>
-
-
-                                {author?.role ? (
-
-                                    <span>
-
-                                        {author.role}
-
-                                    </span>
-
-                                ) : null}
-
-                            </div>
-
-
-
-                            <span className="article-header-divider">
-                                •
-                            </span>
-
-                            <span className="article-meta">
-
-                                {shortTimeAgo(article?.createdAt)} - ago
-
-                            </span>
-
-                            {article?.readTime ? (
-
-                                <>
-
-                                    <span className="article-header-divider">
-                                        •
-                                    </span>
-
-                                    <span className="article-meta">
-
-                                        {article.readTime} min read
-
-                                    </span>
-
-                                </>
-
-                            ) : null}
-
-                        </div>
-
-
-
-                        {/* TAGS */}
-
-                        {article?.tags?.length > 0 ? (
-
-                            <div className="article-read-tags">
-
-                                {article.tags.map(
-                                    (tag) => (
-
-                                        <span
-                                            key={tag.tagId}
-                                        >
-
-                                            #{tag.tagValue}
-
-                                        </span>
-
-                                    )
-                                )}
-
-                            </div>
-
-                        ) : null}
-
+    
                     </header>
 
 
@@ -444,19 +343,6 @@ function ReadArticle() {
                             {parsedContent}
 
                         </div>
-
-
-                        {/* =================================================
-                            ARTICLE END
-                        ================================================= */}
-
-                        {/* <div className="article-end">
-
-                            <span>
-                                End of article
-                            </span>
-
-                        </div> */}
 
 
                         {/* =================================================

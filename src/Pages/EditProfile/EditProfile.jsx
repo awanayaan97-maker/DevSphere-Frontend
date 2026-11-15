@@ -16,7 +16,7 @@ function EditProfile() {
 
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
-    const { user, setUser } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const API_URL = import.meta.env.VITE_API_URL;
     const [coverImagePreview, setCoverImagePreview] = useState("");
     const [profileImagePreview, setProfileImagePreview] = useState("");
@@ -119,6 +119,7 @@ function EditProfile() {
 
     if (loading) return <SectionLoader />
     if (error) return <ResponsePopup message={error} closePopup={() => setError()} />
+    if(user.length === 0 ) return null
 
     return (
 

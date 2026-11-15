@@ -43,7 +43,6 @@ function Community() {
     const url = buildUrl(`${API_URL}/api/post`);
 
     const { fetchData, loading, error, setError, hasMore, queryKey } = usePaginationQuery(url, "GET", [], token)
-    const showEmpty = !loading && !error && fetchData.length === 0;
 
     function handleEditPost(postId) {
         const selectedPost = fetchData.find((post) => post._id === postId);
@@ -89,6 +88,10 @@ function Community() {
     const handleSort = (e) => updateFilter("sort", e.target.value.trim());
     const handleFeed = (value) => updateFilter("feed", value, "topic");
     const handleTopic = (value) => updateFilter("topic", value, "feed");
+    const showEmpty = !loading && !error && fetchData.length === 0;
+
+    if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
+    if (fetchData.length === 0) return null
 
     if (showAlert) return <Alert
         title="Login Required"
@@ -97,8 +100,6 @@ function Community() {
         onAction={() => navigate("/login")}
         onClose={() => setShowAlert(false)}
     />
-
-    if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
 
     return (
         <main className="community-page">
@@ -344,7 +345,7 @@ function Community() {
                     )}
 
                     {!hasMore && !loading && fetchData.length > 0 && (
-                        <ArticlesEndMessage />
+                        <ArticlesEndMessage message={"You've seen all the latest posts. Check back later for more community updates!"} />
                     )}
 
                 </section>

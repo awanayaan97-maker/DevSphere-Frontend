@@ -36,7 +36,9 @@ function useApiQuery({
         enabled: isEnabled,
         staleTime,
         gcTime,
-        retry: 1
+        retry: 1,
+        // refetchOnWindowFocus: false
+        retryOnMount: false
     });
 
     const isReallyLoading = queryResult.isLoading;
@@ -47,7 +49,7 @@ function useApiQuery({
         data: queryResult.data || [],
         error,
         setError,
-        queryKey
+        queryKey,
     };
 }
 

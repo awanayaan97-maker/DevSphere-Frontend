@@ -30,9 +30,30 @@ import Community from './Pages/Community/Community';
 import SinglePostPage from './Pages/SinglePostPage/SinglePostPage';
 import { CommunityAIProvider } from './Context/CommunityAIContext';
 import Dashboard from './Pages/Dashboard/Dashboard';
+import { NetworkBanner } from './Components/NetworkBanner/NetworkBanner';
 
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+  
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      networkMode: 'offlineFirst',
+      retry: (failureCount, error) => {
+        if (error?.status === 401 || error?.status === 404) {
+          return false;
+        }
+        return failureCount < 1;
+      },
+    },
+    mutations: {
+      networkMode: 'online',
+    },
+  },
+});
 
 
 const router = createBrowserRouter([
@@ -78,7 +99,7 @@ const router = createBrowserRouter([
 
       {
         path: '/dashboard',
-        element: <Dashboard/>
+        element: <Dashboard />
       }
 
 
@@ -115,12 +136,12 @@ const router = createBrowserRouter([
         element: <CreateArticle />
       },
 
-      { 
+      {
         path: "/settings",
         element: <Settings />
       },
 
-      
+
       {
         path: "/edit-profile",
         element: <EditProfile />
@@ -175,15 +196,15 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
 
-
-  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+ <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
     <QueryClientProvider client={queryClient}>
       <CommunityAIProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-      </ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <NetworkBanner />
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </ThemeProvider>
       </CommunityAIProvider>
     </QueryClientProvider>
   </GoogleOAuthProvider>
