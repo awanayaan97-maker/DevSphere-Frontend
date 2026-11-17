@@ -1,5 +1,5 @@
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import "./Home.css";
 import ResponsePopup from "../../Components/ResponsePopup/ResponsePopup";
 import PostCard from "../../Components/PostCard/PostCard";
@@ -71,22 +71,17 @@ function Home() {
         }
     }
     const handleFeedChange = (value) => updateFilter('feed', value)
-    const showEmpty = !loading && !error && fetchData.length === 0;
-
-    if(loading) return <SectionLoader/>
-    if(error) return <ResponsePopup message={error} closePopup={() => setError(null)}/>
-    if(fetchData.length === 0) return null
+    if (loading) return <SectionLoader />
+    if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
 
     return (
         <main className="home-page">
             <section className="home-header">
-
                 <div className="home-header-content">
-                    <span className="home-eyebrow">DEVELOPER COMMUNITY</span>
-                    <h1>Discover what developers are building.</h1>
+                    <span className="home-eyebrow">DEVSPHERE FEED</span>
+                    <h1>Where developers share and build together.</h1>
                     <p>
-                        Read ideas, share knowledge and connect with
-                        developers from around the world.
+                        Explore insightful articles, catch up with your network, and discover what engineers worldwide are talking about.
                     </p>
                 </div>
 
@@ -98,31 +93,20 @@ function Home() {
                     <i className="fa-solid fa-plus"></i>
                     Create Article
                 </button>
-
             </section>
 
-
-            {/* =========================
-                SEARCH MODE  ya  TABS
-            ========================= */}
-
             {searchQuery ? (
-
                 <section className="search-banner">
-
                     <div className="search-banner-info">
-
                         <div className="search-banner-icon">
                             <i className="fa-solid fa-magnifying-glass"></i>
                         </div>
-
                         <div className="search-banner-text">
                             <span className="search-banner-label">Search results for</span>
                             <strong className="search-banner-query" title={searchQuery}>
                                 {searchQuery}
                             </strong>
                         </div>
-
                     </div>
 
                     <button
@@ -134,15 +118,10 @@ function Home() {
                         <i className="fa-solid fa-xmark"></i>
                         <span>Clear</span>
                     </button>
-
                 </section>
-
             ) : (
-
-                // Guest ke liye Following ka koi matlab nahi, to tabs hide
                 token && (
                     <section className="article-feed-tabs">
-
                         <button
                             type="button"
                             className={feed === "all" ? "article-feed-tab active" : "article-feed-tab"}
@@ -158,74 +137,77 @@ function Home() {
                         >
                             Following
                         </button>
-
                     </section>
                 )
-
             )}
 
             <section className="latest-articles">
-
                 <div className="latest-articles-header">
-
                     <h2>{SORT_LABELS[sort] || "Articles"}</h2>
-
                     <SortDropdown sort={sort} handleSort={handleSortChange} searchQuery={searchQuery} />
-
                 </div>
-
 
                 <div className="posts-list">
 
-                    {fetchData.map((post) => (
-                        <PostCard key={post._id} post={post} url={url} queryKey={queryKey} />
-                    ))}
-
-                    {loading && (
-                        <div className="loader">
+                    {loading && fetchData.length === 0 ? (
+                        <div className="loader" style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
                             <SectionLoader />
                         </div>
-                    )}
+                    ) : fetchData.length > 0 ? (
 
-                    {showEmpty && searchQuery && (
-                        <NoResults
-                            title="No articles found"
-                            message={`We couldn't find any articles matching "${searchQuery}". Try searching with different keywords.`}
-                        />
-                    )}
-
-                    {showEmpty && !searchQuery && feed === "following" && (
                         <>
-                            <NoResults
-                                title="Nothing here yet"
-                                message="Follow developers to see their articles in this feed."
-                            />
-                            <button
-                                type="button"
-                                className="feed-empty-action"
-                                onClick={() => navigate("/explore")}
-                            >
-                                <i className="fa-solid fa-compass"></i>
-                                Find developers in Explore
-                            </button>
+                            {fetchData.map((post) => (
+                                <PostCard key={post._id} post={post} url={url} queryKey={queryKey} />
+                            ))}
+
+                            {loading && (
+                                <div className="loader" style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                                    <SectionLoader />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+
+                        <>
+                            {searchQuery && (
+                                <NoResults
+                                    title="No articles found"
+                                    message={`We couldn't find any articles matching "${searchQuery}". Try searching with different keywords.`}
+                                />
+                            )}
+
+                            {!searchQuery && feed === "following" && (
+                                <>
+                                    <NoResults
+                                        title="Nothing here yet"
+                                        message="Follow developers to see their articles in this feed."
+                                    />
+                                    <button
+                                        type="button"
+                                        className="feed-empty-action"
+                                        onClick={() => navigate("/explore")}
+                                    >
+                                        <i className="fa-solid fa-compass"></i>
+                                        Find developers in Explore
+                                    </button>
+                                </>
+                            )}
+
+                            {!searchQuery && feed === "all" && (
+                                <NoResults
+                                    title="No articles yet"
+                                    message="Be the first to share something with the community."
+                                />
+                            )}
                         </>
                     )}
 
-                    {showEmpty && !searchQuery && feed === "all" && (
-                        <NoResults
-                            title="No articles yet"
-                            message="Be the first to share something with the community."
-                        />
-                    )}
-
-                    {!hasMore && fetchData.length > 0 && (
-                        <ArticlesEndMessage message={"You've reached the end of the articles. Keep exploring and learning something new!"}/>
+                    {!hasMore && fetchData.length > 0 && !loading && (
+                        <ArticlesEndMessage message={"You've reached the end of the articles. Keep exploring and learning something new!"} />
                     )}
 
                 </div>
-
             </section>
-
         </main>
     );
 }

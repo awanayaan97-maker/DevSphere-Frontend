@@ -14,7 +14,7 @@ function ReplyItem({ reply, handleDeleteReply, setReplyId, setReplyText, setRepl
     const { user } = useContext(AuthContext)
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
-    const isOwnReply = reply?.authorData?._id === user?.data?._id;
+    const isOwnReply = reply?.authorData?._id === user?._id;
 
     useEffect(() => {
         function handleClickOutside(e) {
@@ -48,7 +48,6 @@ function ReplyItem({ reply, handleDeleteReply, setReplyId, setReplyText, setRepl
     }
 
     const author = reply?.authorData;
-
     const initials = `${author?.firstName?.[0] || ""}${author?.lastName?.[0] || ""}`;
 
 

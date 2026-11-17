@@ -19,7 +19,7 @@ const ALLOWED_IMAGE_TYPES = [
     "image/webp",
 ];
 
-function CommunityComposer({ onClose, postToEdit = null }) {
+function CommunityComposer({ onClose, postToEdit = null, queryKey}) {
     const imageInputRef = useRef(null);
     const previewUrlsRef = useRef(new Set());
     const [postText, setPostText] = useState("");
@@ -261,7 +261,7 @@ function CommunityComposer({ onClose, postToEdit = null }) {
 
             if (postResult?.status) {
                 const updatedPost = postResult.data;
-                const targetQueryKey = ["feed", user?._id, url];
+                const targetQueryKey = queryKey;
                 queryClient.setQueryData(targetQueryKey, (old) => {
 
                     if (!old) return old;

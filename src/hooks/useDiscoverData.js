@@ -22,6 +22,8 @@ function useDiscoverData(source = "posts") {
     return {
         trendingTopics: topicsData || [],
         popularUsers: developersData || [],
+        tagsLoading,
+        devsLoading
     };
 }
 

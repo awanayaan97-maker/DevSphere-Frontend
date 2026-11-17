@@ -14,7 +14,7 @@ function SinglePostPage() {
     const {isLoading, error, setError, data, queryKey} = useApiQuery({
         url: `${API_URL}/api/post/${id}`,
         type: "GET",
-        isAuthorized: false
+        isAuthorized: false,
     })
 
     if(isLoading) return <SectionLoader/>

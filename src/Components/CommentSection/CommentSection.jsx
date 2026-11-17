@@ -4,6 +4,7 @@ import SectionLoader from "../SectionLoader/SectionLoader";
 import CommentItem from "../CommentItem/CommentItem";
 import { useContext } from "react";
 import { AuthContext } from "../../Context/AuthContext";
+import { getInitials } from "../../utils/getInitials";
 
 
 function CommentSection({
@@ -89,7 +90,7 @@ function CommentSection({
                         />
                     ) : (
                         <span>
-                            {user.firstName.charAt(0)}
+                            {getInitials(user)}
                         </span>
                     )}
                 </div>

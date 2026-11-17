@@ -1,3 +1,5 @@
+
+
 import { useState } from "react";
 import useCallApi from "./useCallApi"
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +11,8 @@ function useApiQuery({
     isAuthorized = false,
     enabled = true,
     staleTime = 1000 * 60 * 5,
-    gcTime = 1000 * 60 * 30
+    gcTime = 1000 * 60 * 30,
+    queryKey: customQueryKey 
 }) {
 
     const token = localStorage.getItem("token");
@@ -28,7 +31,7 @@ function useApiQuery({
     }
 
     const isEnabled = Boolean(url) && (isAuthorized ? Boolean(token) : true) && enabled;
-    const queryKey =  [url, token ? token.slice(-10) : "guest"]
+    const queryKey = customQueryKey || [url, token ? token.slice(-10) : "guest"];
 
     const queryResult = useQuery({
         queryKey,
@@ -37,12 +40,10 @@ function useApiQuery({
         staleTime,
         gcTime,
         retry: 1,
-        // refetchOnWindowFocus: false
         retryOnMount: false
     });
 
     const isReallyLoading = queryResult.isLoading;
-
     return {
         ...queryResult,
         isLoading: isReallyLoading,

@@ -118,7 +118,6 @@ function CreateArticle() {
 
     if (isLoading) return <Loader />
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
-    if(data.length === 0) return null
 
     return (
         <main className="create-article-page">

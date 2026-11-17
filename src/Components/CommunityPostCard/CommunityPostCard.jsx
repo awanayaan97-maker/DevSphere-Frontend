@@ -62,6 +62,7 @@ function CommunityPostCard({
     const [menuOpen, setMenuOpen] = useState(false);
     const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
     const { bookmarkAlert, setBookmarkAlert, toggleBookmarkMutation } = useBookmarkToggle();
+    const query = ['post', post?._id]
 
     const {
         comments,
@@ -75,8 +76,7 @@ function CommunityPostCard({
         handleDeleteComment,
         toggleComments,
         commentsLoading
-    } = useComments(post?._id, "post")
-
+    } = useComments(post?._id, "post", query )
 
     const imageTrackRef = useRef(null);
     const codeRef = useRef(null);
@@ -174,13 +174,11 @@ function CommunityPostCard({
     };
 
     const handleLikeClick = () => {
-
         toggleLikeMutation.mutate({
             url: `${API_URL}/api/post/like/${post._id}`,
             itemId: post._id,
             queryKey
         })
-
     }
 
     const handleBookmarkClick = () => {

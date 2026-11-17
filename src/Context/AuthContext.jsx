@@ -67,18 +67,41 @@ export function AuthProvider({ children }) {
             setUnreadCount((prev) => prev + 1);
         };
 
-        socket.on("like_notification", handleNewNotification);
-        socket.on("comment_notification", handleNewNotification);
+        const handleCommentNotification = (data) => {
+            handleNewNotification(data);
+            const targetId = data?.post || data?.article || data?.postId || data?.articleId;
+            const targetType = data?.post || data?.postId ? "post" : "article";
+            if (targetId) {
+                queryClient.invalidateQueries({ queryKey: ["comments", targetType, targetId] });
+            }
+        };
+
+        const handleLikeNotification = (data) => {
+            handleNewNotification(data);
+            const receiverId = data?.receiver;
+            if (receiverId) queryClient.invalidateQueries({ queryKey: ["feed", receiverId] });
+        };
+
+        const handleCommentLikeNotification = (data) => {
+            handleNewNotification(data);
+            const targetId = data?.post || data?.article || data?.postId || data?.articleId;
+            const targetType = data?.post || data?.postId ? "post" : "article";
+            if (targetId) queryClient.invalidateQueries({ queryKey: ["comments", targetType, targetId] });
+        };
+
+        socket.on("like_notification", handleLikeNotification);
+        socket.on("comment_notification", handleCommentNotification);
         socket.on("follow_notification", handleNewNotification);
-        socket.on("comment_like_notification", handleNewNotification);
+        socket.on("comment_like_notification", handleCommentLikeNotification);
 
         return () => {
-            socket.off("like_notification", handleNewNotification);
-            socket.off("comment_notification", handleNewNotification);
+            socket.off("like_notification", handleLikeNotification);
+            socket.off("comment_notification", handleCommentNotification);
             socket.off("follow_notification", handleNewNotification);
-            socket.off("comment_like_notification", handleNewNotification);
+            socket.off("comment_like_notification", handleCommentLikeNotification);
         };
-    }, [socket]);
+    }, [socket, queryClient]);
+
 
     const login = (newToken) => {
         localStorage.setItem("token", newToken)

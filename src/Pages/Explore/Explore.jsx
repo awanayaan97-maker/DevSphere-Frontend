@@ -16,7 +16,7 @@ function Explore() {
 
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const { trendingTopics, popularUsers } = useDiscoverData("articles")
+    const { trendingTopics, popularUsers, tagsLoading, devsLoading } = useDiscoverData("articles")
     const { getParam, updateFilter, buildUrl } = useUrlFilters({
         sort: "latest",
         category: "All Categories"
@@ -35,19 +35,17 @@ function Explore() {
         updateFilter("category", catVal === "All Categories" ? "" : catVal, "tag");
     };
 
-    if(loading) return <SectionLoader/>
+    if (tagsLoading || devsLoading) return <SectionLoader />
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
-    if(fetchData.length === 0) return null
 
     return (
         <div className="explore-page">
 
             <div className="explore-header">
-                <span className="explore-eyebrow">Discover</span>
-                <h1>Explore the developer community.</h1>
-                <p>Discover trending topics, popular articles and developers worth following.</p>
+                <span className="explore-eyebrow">DISCOVER HUB</span>
+                <h1>Where developer ideas take off.</h1>
+                <p>Explore viral code breakdowns, hot discussions, and brilliant minds shaping the community.</p>
             </div>
-
 
             <div className="explore-trending">
                 <div className="explore-trending-list">
@@ -66,14 +64,7 @@ function Explore() {
                 </div>
             </div>
 
-
-            {/* =========================================================
-        DEVELOPERS TO FOLLOW — MOBILE ONLY (horizontal cards)
-        CSS se desktop par hide hoga
-    ========================================================= */}
-
             <DevelopersToFollow developers={popularUsers} variant="cards" />
-
 
             <div className="explore-grid">
 
@@ -118,44 +109,37 @@ function Explore() {
 
                     <div className="explore-article-list">
 
-                        {/* 1. Error State Handling */}
                         {error && (
                             <div className="error-message-box" style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
                                 <p>{error}</p>
                             </div>
                         )}
 
-                        {/* 2. Initial Loader (Jab bilkul pehli dafa data fetch ho raha ho aur articles khali hon) */}
-                        {loading && (!fetchData || fetchData.length === 0) && (
-                            <div className="loader">
+                        {loading && (!fetchData || fetchData.length === 0) ? (
+                            <div className="loader" style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
                                 <SectionLoader />
                             </div>
-                        )}
+                        ) : fetchData && fetchData.length > 0 ? (
+                            <>
+                                {fetchData.map((post) => (
+                                    <PostCard key={post?._id} post={post} />
+                                ))}
 
-                        {/* 3. Articles List Mapping (Safely rendered with optional chaining) */}
-                        {!error && fetchData && fetchData.length > 0 && (
-                            fetchData.map((post) => (
-                                <PostCard key={post?._id} post={post} />
-                            ))
-                        )}
+                                {loading && (
+                                    <div className="loader" style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                                        <SectionLoader />
+                                    </div>
+                                )}
+                            </>
+                        ) : (
 
-                        {/* 4. Pagination / Infinite Scroll Loader */}
-                        {loading && fetchData && fetchData.length > 0 && (
-                            <div className="loader">
-                                <SectionLoader />
-                            </div>
-                        )}
-
-                        {/* 5. No Results State */}
-                        {!loading && !error && (!fetchData || fetchData.length === 0) && (
                             <NoResults
                                 title="No articles found"
-                                message={`No articles are currently available under the topic ${tag || category || sort}.`}
+                                message={`No articles are currently available under ${tag ? `#${tag}` : category ? category : sort} right now. Explore other topics or check back later.`}
                             />
                         )}
 
-                        {/* 6. End of Feed Message */}
-                        {!hasMore && fetchData && fetchData.length > 0 && (
+                        {!hasMore && fetchData && fetchData.length > 0 && !loading && (
                             <ArticlesEndMessage message={"You've reached the end of the articles. Keep exploring and learning something new!"} />
                         )}
 

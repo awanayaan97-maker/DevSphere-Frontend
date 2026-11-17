@@ -8,20 +8,25 @@ import { AuthContext } from "../../Context/AuthContext";
 import { shortTimeAgo } from "../../utils/dateHelpers";
 import Alert from "../Alert/Alert";
 import { useLikeToggle } from "../../hooks/useLikeToggle";
+import { useQueryClient } from "@tanstack/react-query";
+
+const EMPTY_REPLIES = [];
 
 function CommentItem({ comment, onDeleteComment, setCommentText, setEditingCommentId, commentsQueryKey }) {
 
     const { callApi } = useCallApi();
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
-    const { user } = useContext(AuthContext)
+    const { user } = useContext(AuthContext);
+    const queryClient = useQueryClient();
+
     const [repliesOpen, setRepliesOpen] = useState(false);
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
-    const [replyData, setReplyData] = useState(comment?.replies);
-    const [replyId, setReplyId] = useState(null)
+    const [replyId, setReplyId] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
+    const replyData = comment?.replies ?? EMPTY_REPLIES;
 
     const pathname = window.location.pathname;
     const isCommunity = pathname.startsWith("/community");
@@ -30,14 +35,19 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
         ? `${API_URL}/api/post/like-postComment/${comment._id}`
         : `${API_URL}/api/article/like-articleComment/${comment._id}`;
 
-    // const { showLikeAlert, setShowLikeAlert, likesCount, toggleLike, isLiked } =
-    //     useLikeToggle({
-    //         initialIsLiked: comment?.hasLikeComment,
-    //         initialLikesCount: comment?.commentLikes,
-    //         Url: url
-    //     })
+    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle();
 
-    const { showLikeAlert, setShowLikeAlert, toggleLikeMutation } = useLikeToggle()
+    function patchReplies(updater) {
+        queryClient.setQueryData(commentsQueryKey, (old) =>
+            Array.isArray(old)
+                ? old.map((c) =>
+                    c._id === comment._id
+                        ? { ...c, replies: updater(c.replies ?? []) }
+                        : c
+                )
+                : old
+        );
+    }
 
     useEffect(() => {
         function handleClickOutside(e) {
@@ -45,110 +55,109 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
                 setMenuOpen(false);
             }
         }
-
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     async function handleReplySubmit() {
-
-        let url = ""
+        let url = "";
 
         if (replyId !== null) {
-
             const oldText = replyData.find(c => c._id === replyId)?.text;
 
-            setReplyData((prev) =>
+            patchReplies((prev) =>
                 prev.map((c) => (c._id === replyId ? { ...c, text: replyText } : c))
             );
 
+            const currentReplyId = replyId;
+            const currentReplyText = replyText;
             setReplyText("");
             setReplyId(null);
 
-            isCommunity ? url = `${API_URL}/api/posts/comment/${replyId}` : `${API_URL}/api/article/comment/${replyId}`
+            url = isCommunity
+                ? `${API_URL}/api/post/comment/${currentReplyId}`
+                : `${API_URL}/api/article/comment/${currentReplyId}`;
 
-            const result = await callApi(url, "PATCH", { text: replyText }, token);
+            const result = await callApi(url, "PATCH", { text: currentReplyText }, token);
 
             if (!result?.status) {
-                setReplyData((prev) =>
-                    prev.map((c) => (c._id === replyId ? { ...c, text: oldText } : c))
+    
+                patchReplies((prev) =>
+                    prev.map((c) => (c._id === currentReplyId ? { ...c, text: oldText } : c))
                 );
             }
-
             return;
         }
-
 
         if (!replyText.trim()) return;
 
         const tempId = `temp-${Date.now()}`;
+        const textToSubmit = replyText;
 
         const newCommentReply = {
             _id: tempId,
             articleId: comment.articleId,
-            user: comment.authorData._id,
-            text: replyText,
-            parentComment: null,
+            user: user?._id,
+            text: textToSubmit,
+            parentComment: comment._id,
             likes: [],
             authorData: {
-                _id: user.data._id,
-                firstName: user.data.firstName,
-                lastName: user.data.lastName,
-                role: user.data.role,
-                profileImage: user.data.profileImage
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role,
+                profileImage: user.profileImage
             }
-        }
+        };
 
-        if (!replyData || replyData?.length === 0) {
-            setReplyData([newCommentReply])
-        }
-
-        else {
-            setReplyData((prevData) => [...prevData, newCommentReply])
-        }
-
+        patchReplies((prev) => [...prev, newCommentReply]);
         setReplyText("");
         setReplying(false);
+        setRepliesOpen(true);
 
-        const data = {
-            text: replyText,
+        const payloadData = {
+            text: textToSubmit,
             parentComment: comment._id
-        }
+        };
 
-        isCommunity ? url = `${API_URL}/api/posts/comment/${comment._id}` : `${API_URL}/api/article/comment/${comment._id}`
+        url = isCommunity
+            ? `${API_URL}/api/post/comment/${comment.postId}`
+            : `${API_URL}/api/article/comment/${comment._id}`;
 
-        const result = await callApi(url, "POST", data, token);
+        const result = await callApi(url, "POST", payloadData, token);
 
         if (result?.status && result?.data) {
-
-            setReplyData((prev) =>
+            patchReplies((prev) =>
                 prev.map((c) => (c._id === tempId ? result.data : c))
             );
-
         } else {
-            setReplyData((prev) => prev.filter((c) => c._id !== tempId));
+            patchReplies((prev) => prev.filter((c) => c._id !== tempId));
         }
-
     }
 
     async function handleDeleteReply(id) {
+        const previousReplies = replyData;
+        patchReplies((prev) => prev.filter((c) => c._id !== id));
 
-        let url = ""
-        setReplyData((prevData) => prevData.filter((c) => c._id !== id));
+        const deleteUrl = isCommunity
+            ? `${API_URL}/api/post/comment/${id}`
+            : `${API_URL}/api/article/comment/${id}`;
 
-        isCommunity ? url = `${API_URL}/api/posts/comment/${id}` : `${API_URL}/api/article/comment/${id}`
-        const result = await callApi(url, "DELETE", null, token);
+        const result = await callApi(deleteUrl, "DELETE", null, token);
+        if (!result?.status) {
+            patchReplies(() => previousReplies);
+        }
     }
 
     function handleDeleteComment() {
         setMenuOpen(false);
-        onDeleteComment(comment._id)
+        onDeleteComment(comment._id);
     }
 
     function handleEditComment() {
         setMenuOpen(false);
-        setCommentText(comment?.text)
-        setEditingCommentId(comment._id)
+        setCommentText(comment?.text);
+        setEditingCommentId(comment._id);
     }
 
     function handleLikeClick() {
@@ -156,25 +165,24 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
             url: url,
             itemId: comment._id,
             queryKey: commentsQueryKey
-        })
+        });
     }
 
-
-    if (showLikeAlert) return <Alert
-        title="Login Required"
-        message="Please login or create an account to like articles comments"
-        actionText="Login Now"
-        onAction={() => navigate("/login")}
-        onClose={() => setShowLikeAlert(false)}
-    />
+    if (showLikeAlert) return (
+        <Alert
+            title="Login Required"
+            message="Please login or create an account to like articles comments"
+            actionText="Login Now"
+            onAction={() => navigate("/login")}
+            onClose={() => setShowLikeAlert(false)}
+        />
+    );
 
     const author = comment?.authorData;
     const initials = `${author?.firstName?.[0] || ""}`;
 
     return (
-
         <div className="comment-item">
-
             <div className="comment-avatar">
                 {author?.profileImage ? (
                     <img src={author.profileImage} alt={`${author?.firstName || ""} ${author?.lastName || ""}`} />
@@ -184,9 +192,7 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
             </div>
 
             <div className="comment-body">
-
                 <div className="comment-top">
-
                     <div className="comment-user-info">
                         <strong>{author?.firstName} {author?.lastName}</strong>
                         {author?.role && <span>{author.role}</span>}
@@ -218,7 +224,6 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
                             ) : null}
                         </div>
                     ) : null}
-
                 </div>
 
                 <p className="comment-text">{comment?.text}</p>
@@ -235,7 +240,7 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
                     </button>
                 </div>
 
-                {replyData?.length > 0 && (
+                {replyData.length > 0 && (
                     <button type="button" className="view-replies-button" onClick={() => setRepliesOpen((prev) => !prev)}>
                         <span className="view-replies-line"></span>
                         <span>
@@ -247,14 +252,13 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
 
                 {repliesOpen && (
                     <div className="comment-replies">
-                        {replyData?.map((reply) => (
+                        {replyData.map((reply) => (
                             <ReplyItem
                                 key={reply._id}
                                 reply={reply}
                                 handleDeleteReply={handleDeleteReply}
                                 setReplyId={setReplyId}
                                 setReplyText={setReplyText}
-                                // replyText={replyText}
                                 setReplying={setReplying}
                             />
                         ))}
@@ -274,11 +278,8 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
                         </button>
                     </div>
                 )}
-
             </div>
-
         </div>
-
     );
 }
 

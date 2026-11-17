@@ -1,6 +1,6 @@
 
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import CommunityPostCard from "../../Components/CommunityPostCard/CommunityPostCard";
 import "./Community.css";
 import CommunityComposer from "../../Components/CommunityComposer/CommunityComposer";
@@ -30,7 +30,7 @@ function Community() {
     const { user } = useContext(AuthContext);
     const queryClient = useQueryClient();
     const { callApi } = useCallApi();
-    const { trendingTopics, popularUsers } = useDiscoverData("posts")
+    const { trendingTopics, popularUsers, tagsLoading, devsLoading } = useDiscoverData("posts")
     const { showAlert, setShowAlert, check } = useCheckLogin();
     const { getParam, updateFilter, buildUrl } = useUrlFilters({
         sort: "latest",
@@ -90,8 +90,8 @@ function Community() {
     const handleTopic = (value) => updateFilter("topic", value, "feed");
     const showEmpty = !loading && !error && fetchData.length === 0;
 
+    if (tagsLoading || devsLoading) return <SectionLoader />
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />
-    if (fetchData.length === 0) return null
 
     if (showAlert) return <Alert
         title="Login Required"
@@ -103,38 +103,19 @@ function Community() {
 
     return (
         <main className="community-page">
-            {/* Page heading */}
             <header className="community-header">
                 <div className="community-heading">
-                    <h1>Community</h1>
+                    <h1>Community Hub</h1>
                     <p>
-                        Connect with developers, share ideas, and grow together.
+                        Engage with developer posts, explore trending topics, and collaborate with AI.
                     </p>
                 </div>
 
                 <button className="ai-assistant-btn" onClick={() => check(setIsAIopen)}>
-                    <svg
-                        className="ai-sparkle-icon"
-                        viewBox="0 0 48 48"
-                        fill="none"
-                        aria-hidden="true"
-                        style={{ width: "18px", height: "18px", flexShrink: 0 }}
-                    >
-                        <path
-                            d="M24 3.5C26.7 15.2 32.8 21.3 44.5 24C32.8 26.7 26.7 32.8 24 44.5C21.3 32.8 15.2 26.7 3.5 24C15.2 21.3 21.3 15.2 24 3.5Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M39 3.5C39.8 7 41.5 8.7 45 9.5C41.5 10.3 39.8 12 39 15.5C38.2 12 36.5 10.3 33 9.5C36.5 8.7 38.2 7 39 3.5Z"
-                            fill="currentColor"
-                        />
-                    </svg>
                     <span>AI Assistant</span>
                 </button>
-
             </header>
 
-            {/* Create post placeholder: baad mein composer yahan add hoga */}
             <section
                 className="community-create-card"
                 onClick={() => check(setShowComposer)}
@@ -216,6 +197,7 @@ function Community() {
                                 setPostToEdit(null);
                             }}
                             postToEdit={postToEdit}
+                            queryKey={queryKey}
                         />
                     </div>
                 </div>
@@ -317,31 +299,40 @@ function Community() {
                         <SortDropdown sort={sort} handleSort={handleSort} />
                     </div>
 
-                    {fetchData?.map((post) => (
-                        <CommunityPostCard
-                            key={post._id}
-                            post={post}
-                            onEdit={handleEditPost}
-                            onDelete={handleDeletePost}
-                            queryKey={queryKey}
-                        />
-                    ))}
-
-                    {loading && (
-                        <div className="loader">
+                    {loading && fetchData.length === 0 ? (
+                        <div className="loader" style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
                             <SectionLoader />
                         </div>
-                    )}
+                    ) : fetchData.length > 0 ? (
+                        <>
+                            {fetchData.map((post) => (
+                                <CommunityPostCard
+                                    key={post._id}
+                                    post={post}
+                                    onEdit={handleEditPost}
+                                    onDelete={handleDeletePost}
+                                    queryKey={queryKey}
+                                />
+                            ))}
 
-                    {showEmpty && (
-                        <NoResults
-                            title="No posts yet"
-                            message={
-                                feed
-                                    ? `No ${feed.toLowerCase()} posts have been shared yet.`
-                                    : "Be the first to share something with the community."
-                            }
-                        />
+                            {loading && (
+                                <div className="loader" style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                                    <SectionLoader />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '60px 20px', textAlign: 'center' }}>
+                            <NoResults
+                                title="No posts found"
+                                message={
+                                    feed
+                                        ? `There are no posts available in the ${feed.toLowerCase()} feed right now. Be the first one to share an update!`
+                                        : "No posts have been shared in this feed yet. Start the conversation by creating a new post!"
+                                }
+                            />
+                        </div>
                     )}
 
                     {!hasMore && !loading && fetchData.length > 0 && (

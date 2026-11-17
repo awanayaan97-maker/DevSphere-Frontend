@@ -17,12 +17,15 @@ function useComments(id, type) {
     const [commentsOpen, setCommentsOpen] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [editingCommentId, setEditingCommentId] = useState(null);
-    const commentsQueryKey = [url, token ? token.slice(-10) : "guest"];
+    const userKey = user?._id ?? "guest";
+    const commentsQueryKey = ["comments", type, id, userKey];
 
     const { data: comments = [], isLoading: commentsLoading } = useApiQuery({
         url,
         type: "GET",
-        enabled: Boolean(commentsOpen && url)
+        enabled: Boolean(commentsOpen && url),
+        staleTime: 1000 * 60 * 2,
+        queryKey: commentsQueryKey
     });
 
     const handleAddComment = async () => {
