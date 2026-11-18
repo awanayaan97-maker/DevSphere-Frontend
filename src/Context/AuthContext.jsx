@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const queryClient = useQueryClient();
     const [unreadCount, setUnreadCount] = useState(0);
+    const [notifications, setNotifications] = useState([]);
     const [socket, setSocket] = useState(null);
     const { isLoading: loading, data: user } = useApiQuery({
         url: `${API_URL}/api/user/`,
@@ -19,7 +20,14 @@ export function AuthProvider({ children }) {
         staleTime: 1000 * 60 * 30
     })
 
-    const [notifications, setNotifications] = useState(user?.notifications || null);
+    useEffect(() => {
+
+        if (user?.notifications) {
+            setNotifications(user?.notifications);
+            setUnreadCount(user?.totalNotifications);
+        }
+    }, [user]);
+
 
     useEffect(() => {
         if (!token) {
@@ -68,6 +76,8 @@ export function AuthProvider({ children }) {
         };
 
         const handleCommentNotification = (data) => {
+            console.log(data, "Comment ka data");
+
             handleNewNotification(data);
             const targetId = data?.post || data?.article || data?.postId || data?.articleId;
             const targetType = data?.post || data?.postId ? "post" : "article";

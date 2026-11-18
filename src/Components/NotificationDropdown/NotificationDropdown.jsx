@@ -10,8 +10,6 @@ function NotificationDropdown({ notifications = [] }) {
     const navigate = useNavigate();
     let location = ""
 
-    console.log(notifications, "notifications");
-
     return (
         <div className="notification-dropdown">
 

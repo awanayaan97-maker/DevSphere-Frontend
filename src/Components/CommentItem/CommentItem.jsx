@@ -60,8 +60,8 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
     }, []);
 
     async function handleReplySubmit() {
-        let url = "";
 
+        let url = "";
         if (replyId !== null) {
             const oldText = replyData.find(c => c._id === replyId)?.text;
 
@@ -81,7 +81,7 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
             const result = await callApi(url, "PATCH", { text: currentReplyText }, token);
 
             if (!result?.status) {
-    
+
                 patchReplies((prev) =>
                     prev.map((c) => (c._id === currentReplyId ? { ...c, text: oldText } : c))
                 );
@@ -122,7 +122,7 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
 
         url = isCommunity
             ? `${API_URL}/api/post/comment/${comment.postId}`
-            : `${API_URL}/api/article/comment/${comment._id}`;
+            : `${API_URL}/api/article/comment/${comment.articleId}`;
 
         const result = await callApi(url, "POST", payloadData, token);
 
