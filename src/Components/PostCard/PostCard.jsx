@@ -92,7 +92,7 @@ function PostCard({ post, isBookmarkPage, url, queryKey }) {
         toggleBookmarkMutation.mutate({
             url: `${API_URL}/api/article/bookmark/${post._id}`,
             itemId: post?._id,
-            queryKey
+            queryKey: ['articles', 'feed', user._id],
         })
     }
 

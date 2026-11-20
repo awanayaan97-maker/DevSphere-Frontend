@@ -41,10 +41,11 @@ function useCallApi() {
             }
 
             const response = await fetch(url, options);
+            // console.log(response, 'response');
 
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status} ${response.statusText}`);
-            }
+            // if (!response.ok) {
+            //     throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            // }
 
             const data = await response.json();
 

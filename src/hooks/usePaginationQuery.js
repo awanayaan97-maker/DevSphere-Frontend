@@ -4,14 +4,14 @@ import { useState, useEffect, useMemo, useContext } from "react";
 import { AuthContext } from "../Context/AuthContext";
 import useCallApi from "./useCallApi";
 
-function usePaginationQuery(url, method = "GET", actions = [], token) {
+function usePaginationQuery(url, method = "GET", actions = [], token, type = 'articles') {
 
     const { callApi } = useCallApi();
     const { user } = useContext(AuthContext);
     const userId = user?._id ?? "guest";
     const [customError, setCustomError] = useState(null);
     const [dismissed, setDismissed] = useState(false);
-    const queryKey = ["feed", userId, url]
+    const queryKey = [type, 'feed', userId, url]
 
     const {
         data, fetchNextPage, hasNextPage, isFetchingNextPage,

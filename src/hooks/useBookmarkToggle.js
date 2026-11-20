@@ -18,39 +18,36 @@ export function useBookmarkToggle() {
 
         mutationFn: async ({ url }) => {
             const result = await callApi(url, "POST", [], token);
-            if (!result.status) throw new Error(result?.message || "bookmark failed")
-            return result.data
+            if (!result.status) throw new Error(result?.message || "bookmark failed");
+            return result.data;
         },
 
         onMutate: async ({ queryKey, itemId }) => {
-
             if (!isLoggedIn) {
-                setBookmarkAlert(true)
-                throw new Error("UNAUTHENTICATED")
+                setBookmarkAlert(true);
+                throw new Error("UNAUTHENTICATED");
             }
 
             await queryClient.cancelQueries({ queryKey });
-            const previousData = queryClient.getQueryData(queryKey);
+            const previousQueries = queryClient.getQueriesData({ queryKey });
 
-            queryClient.setQueryData(queryKey, (oldData) => {
+            queryClient.setQueriesData({ queryKey }, (oldData) => {
 
                 if (!oldData) return oldData;
-
                 if (oldData.pages) {
                     return {
                         ...oldData,
                         pages: oldData.pages.map((page) =>
                             page.map((item) => updateItemBookmark(item, itemId))
                         )
-                    }
-                };
+                    };
+                }
 
                 if (Array.isArray(oldData)) {
-                    return oldData.map((item) => updateItemBookmark(item, itemId))
-                };
+                    return oldData.map((item) => updateItemBookmark(item, itemId));
+                }
 
                 if (typeof oldData === "object") {
-
                     if (oldData._id === itemId) {
                         return updateItemBookmark(oldData, itemId);
                     }
@@ -59,27 +56,29 @@ export function useBookmarkToggle() {
                         return {
                             ...oldData,
                             data: updateItemBookmark(oldData.data, itemId),
-                        }
+                        };
                     }
+                }
 
-                };
+                return oldData;
+            });
 
-                return oldData
-            })
-
-            return { previousData, queryKey }
+            return { previousQueries, queryKey };
         },
 
-        onError: (err, context) => {
+        onError: (err, _variables, context) => {
             if (err.message === "UNAUTHENTICATED") return;
-            if (context?.previousData && context?.queryKey) {
-                queryClient.setQueryData(context.queryKey, context.previousData);
+            if (context?.previousQueries) {
+                context.previousQueries.forEach(([exactKey, oldData]) => {
+                    queryClient.setQueryData(exactKey, oldData);
+                });
             }
         },
 
-        onSettled: (context) => {
-            if (context?.queryKey) {
-                queryClient.invalidateQueries({ queryKey: context.queryKey });
+        onSettled: (_data, _err, variables, context) => {
+            const keyToInvalidate = context?.queryKey || variables?.queryKey;
+            if (keyToInvalidate) {
+                queryClient.invalidateQueries({ queryKey: keyToInvalidate });
             }
         }
 
@@ -89,5 +88,5 @@ export function useBookmarkToggle() {
         toggleBookmarkMutation: mutation,
         bookmarkAlert,
         setBookmarkAlert
-    }
+    };
 }

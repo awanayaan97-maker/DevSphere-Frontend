@@ -30,7 +30,9 @@ export function AuthProvider({ children }) {
 
 
     useEffect(() => {
+
         if (!token) {
+
             if (socket) {
                 socket.disconnect();
                 setSocket(null);
@@ -44,7 +46,7 @@ export function AuthProvider({ children }) {
         });
 
         connectSocket.on("connect", () => {
-            console.log("Socket connected successfully:", connectSocket.id);
+            console.log("Socket connected successfully");
         });
 
         connectSocket.on("disconnect", (reason) => {

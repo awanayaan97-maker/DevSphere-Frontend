@@ -76,7 +76,7 @@ function CommunityPostCard({
         handleDeleteComment,
         toggleComments,
         commentsLoading
-    } = useComments(post?._id, "post", query )
+    } = useComments(post?._id, "post", query)
 
     const imageTrackRef = useRef(null);
     const codeRef = useRef(null);
@@ -185,7 +185,7 @@ function CommunityPostCard({
         toggleBookmarkMutation.mutate({
             url: `${API_URL}/api/post/bookmark/${post._id}`,
             itemId: post._id,
-            queryKey
+            queryKey: ['posts', 'feed', user._id]
         })
     }
 
@@ -398,16 +398,16 @@ function CommunityPostCard({
             {/* Engagement counts */}
             <div className="community-post-stats">
                 <span>
-                    {post?.likesCount} Likes
+                    {post?.likesCount || 0} Likes
                 </span>
 
                 <div>
                     <span>
-                        {comments?.length === 0 ? post.commentsCount : comments?.length} comments
+                        {(comments?.length === 0 ? post.commentsCount : comments?.length) || 0} comments
                     </span>
 
                     <span>
-                        {post.bookmarksCount} saves
+                        {post.bookmarksCount || 0} saves
                     </span>
                 </div>
             </div>

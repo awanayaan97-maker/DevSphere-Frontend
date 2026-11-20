@@ -101,7 +101,7 @@ function Settings() {
         clearMessage();
 
         const result = await callApi(
-            `${API_URL}/api/user/me`, "PUT", { email }, token
+            `${API_URL}/api/user/`, "PUT", { email }, token
         );
 
         if (result?.status) {
@@ -177,7 +177,7 @@ function Settings() {
         setPasswordError("");
         clearMessage();
 
-        const result = await callApi(`${API_URL}/api/user/me`, "PUT",
+        const result = await callApi(`${API_URL}/api/user/`, "PUT",
             { currentPassword, newPassword, }, token);
 
         if (result?.status) {
@@ -191,7 +191,9 @@ function Settings() {
                 type: "success",
                 text: "Your password has been changed successfully.",
             });
-        } else {
+        } 
+        
+        else {
             setPasswordError(
                 result?.message ||
                 "Unable to change password. Please try again."

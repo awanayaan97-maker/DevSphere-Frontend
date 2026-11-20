@@ -42,7 +42,7 @@ function Community() {
     const topic = getParam("topic");
     const url = buildUrl(`${API_URL}/api/post`);
 
-    const { fetchData, loading, error, setError, hasMore, queryKey } = usePaginationQuery(url, "GET", [], token)
+    const { fetchData, loading, error, setError, hasMore, queryKey } = usePaginationQuery(url, "GET", [], token, 'posts')
 
     function handleEditPost(postId) {
         const selectedPost = fetchData.find((post) => post._id === postId);

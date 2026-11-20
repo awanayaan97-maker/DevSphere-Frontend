@@ -26,6 +26,7 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
     const [replyId, setReplyId] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
+    const textareaRef = useRef(null);
     const replyData = comment?.replies ?? EMPTY_REPLIES;
 
     const pathname = window.location.pathname;
@@ -58,6 +59,12 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (replying) {
+            requestAnimationFrame(resizeTextarea);
+        }
+    }, [replying, replyText]);
 
     async function handleReplySubmit() {
 
@@ -168,6 +175,25 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
         });
     }
 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (replyText.trim()) {
+                handleReplySubmit();
+                if (textareaRef.current) {
+                    textareaRef.current.style.height = "auto";
+                }
+            }
+        }
+    };
+
+    const resizeTextarea = () => {
+        const el = textareaRef.current;
+        if (!el) return;
+        el.style.height = "0px";
+        el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+    };
+
     if (showLikeAlert) return (
         <Alert
             title="Login Required"
@@ -267,10 +293,15 @@ function CommentItem({ comment, onDeleteComment, setCommentText, setEditingComme
 
                 {replying && (
                     <div className="reply-input-wrapper">
-                        <input
-                            type="text"
+                        <textarea
+                            ref={textareaRef}
+                            rows={1}
                             value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
+                            onChange={(e) => {
+                                setReplyText(e.target.value);
+                                resizeTextarea();
+                            }}
+                            onKeyDown={handleKeyDown}
                             placeholder={`Reply to ${author?.firstName || "user"}...`}
                         />
                         <button type="button" disabled={!replyText.trim()} onClick={handleReplySubmit}>

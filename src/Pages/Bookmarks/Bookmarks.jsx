@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import PostCard from "../../Components/PostCard/PostCard";
 import "./Bookmarks.css";
 import SectionLoader from "../../Components/SectionLoader/SectionLoader";
@@ -9,6 +9,7 @@ import Alert from "../../Components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
 import CommunityPostCard from "../../Components/CommunityPostCard/CommunityPostCard";
 import useApiQuery from "../../hooks/useApiQuery";
+import { AuthContext } from "../../Context/AuthContext";
 
 function Bookmarks() {
 
@@ -16,15 +17,17 @@ function Bookmarks() {
     const API_URL = import.meta.env.VITE_API_URL;
     const [activeTab, setActiveTab] = useState("articles");
     const { isLoggedIn } = useLoginChecker();
+    const { user } = useContext(AuthContext);
     const { data, isLoading, error, setError, queryKey } = useApiQuery({
         url: `${API_URL}/api/discover/bookmark?source=${activeTab}`,
         type: "GET",
-        isAuthorized: true
+        isAuthorized: true,
+        staleTime: 1000 * 60 * 2,
+        queryKey: [activeTab, 'feed', user._id]
     })
 
     if (isLoading) return <SectionLoader />;
     if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />;
-    if (data.length === 0) return null;
 
     if (!isLoggedIn) return <Alert
         title="Login Required"
