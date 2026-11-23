@@ -346,8 +346,8 @@ function Navbar() {
                             <button
                                 type="button"
                                 className={`icon-btn notification-button ${isNotificationOpen
-                                        ? "notification-button-active"
-                                        : ""
+                                    ? "notification-button-active"
+                                    : ""
                                     }`}
                                 aria-label="Notifications"
                                 onClick={() => {
@@ -425,6 +425,16 @@ function Navbar() {
                                             >
                                                 <i className="fa-solid fa-user"></i>
                                                 <span>Profile</span>
+                                            </Link>
+                                        </li>
+
+                                        <li>
+                                            <Link
+                                                to="/connections/followers"
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
+                                                <i className="fa-solid fa-user-group"></i>
+                                                <span>Connections</span>
                                             </Link>
                                         </li>
 
@@ -645,6 +655,14 @@ function Navbar() {
                                 >
                                     <i className="fa-solid fa-user"></i>
                                     <span>Profile</span>
+                                </Link>
+
+                                <Link
+                                    to="/connections/followers"
+                                    onClick={closeMenuAndNavigate}
+                                >
+                                    <i className="fa-solid fa-users"></i>
+                                    <span>Connections</span>
                                 </Link>
 
                                 <Link

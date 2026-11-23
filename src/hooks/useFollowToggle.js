@@ -48,13 +48,9 @@ export function useFollowToggle({ userId, initialIsFollowing }) {
                 if (!result?.status) {
                     setIsFollowing(initialIsFollowing);
                 } else {
-                
-                    queryClient.invalidateQueries({
-                        predicate: (query) => query.queryKey[0]?.includes('/api/user')
-                    });
-                    
+                    queryClient.invalidateQueries({ queryKey: ["connections"] });
                 }
-            } 
+            }
             catch (error) {
                 console.error("Failed to update follow status:", error);
                 setIsFollowing(initialIsFollowing);

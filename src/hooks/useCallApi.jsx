@@ -16,6 +16,7 @@ function useCallApi() {
         }
 
         try {
+            
             const isFormData = body instanceof FormData;
             const headers = {};
 

@@ -36,7 +36,7 @@ import { NetworkBanner } from './Components/NetworkBanner/NetworkBanner';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-  
+
       staleTime: 1000 * 60 * 5,
       gcTime: 1000 * 60 * 30,
       refetchOnWindowFocus: false,
@@ -100,8 +100,12 @@ const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <Dashboard />
-      }
+      },
 
+      {
+        path: "/connections/:type",
+        element: <Connections />
+      },
 
     ]
   },
@@ -181,11 +185,6 @@ const router = createBrowserRouter([
   },
 
   {
-    path: "/connections/:type",
-    element: <Connections />
-  },
-
-  {
     path: "*",
     element: <NotFound />
   }
@@ -196,7 +195,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
 
- <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
     <QueryClientProvider client={queryClient}>
       <CommunityAIProvider>
         <ThemeProvider>
