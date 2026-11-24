@@ -20,7 +20,11 @@ function GoogleAuthButton({ onSuccess, setError }) {
             <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
-                logo_alignment="center"
+                size="large"
+                theme="outline"
+                shape="rectangular"
+                text="continue_with"
+                logo_alignment="left"
                 width="370"
             />
         </div>
