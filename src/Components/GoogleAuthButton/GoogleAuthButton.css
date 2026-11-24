@@ -1,12 +1,9 @@
+
+
+
 .google-auth-wrapper {
     width: 100%;
-    max-width: 400px;   /* ya jo bhi aap ke form ki width hai */
-}
-
-.google-auth-wrapper > div {
-    width: 100% !important;
-}
-
-.google-auth-wrapper iframe {
-    width: 100% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
