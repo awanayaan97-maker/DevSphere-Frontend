@@ -114,7 +114,7 @@ function CommentSection({
                         disabled={!commentText?.trim()}
                         onClick={onAddComment}
                     >
-                        <i className="fa-solid fa-paper-plane"></i>
+                       <i className="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
