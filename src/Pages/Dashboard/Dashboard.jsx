@@ -19,6 +19,8 @@ import { ROUTES, DELETE_URL, STAT_CARDS, PROFILE_ITEMS, COUNT_KEY } from "../../
 import "./Dashboard.css";
 import useApiQuery from "../../hooks/useApiQuery";
 import { useQueryClient } from "@tanstack/react-query"
+import useLoginChecker from "../../hooks/useLoginChecker";
+import Alert from "../../Components/Alert/Alert";
 
 
 function formatChartDate(dateStr, withYear = false) {
@@ -112,6 +114,7 @@ function Dashboard() {
     const queryClient = useQueryClient();
     const { user } = useContext(AuthContext);
     const { callApi } = useCallApi();
+    const { isLoggedIn } = useLoginChecker()
     const token = localStorage.getItem("token");
     const profile = user;
 
@@ -142,7 +145,7 @@ function Dashboard() {
         isAuthorized: true
     });
 
-     function handleTabChange(nextTab) {
+    function handleTabChange(nextTab) {
         if (nextTab === tab) return;
         setTab(nextTab);
     }
@@ -185,14 +188,22 @@ function Dashboard() {
         setItemsError(null);
     };
 
-    
+
     const currentError = summaryError || articleError || chartError || itemsError || error;
     const currentLoading = summaryLoading || topLoading || chartLoading || tabLoading;
     const currentData = summary.length === 0 && topArticles.length === 0 && chartData.length === 0 && items.length === 0
 
+    if (!isLoggedIn) return <Alert
+        title="Login Required"
+        message="Please login or create an account to view your Dashboard."
+        actionText="Login Now"
+        onAction={() => navigate("/login")}
+        onClose={() => navigate("/")}
+    />
+
     if (currentLoading) return <Loader />
     if (currentError) return <ResponsePopup message={currentError} closePopup={error !== null ? () => setError(null) : handleClearErrors} />
-    if (currentData) return null
+    // if (currentData) return null
 
     const totalNewFollowers = chartData.reduce((sum, d) => sum + d.count, 0);
 

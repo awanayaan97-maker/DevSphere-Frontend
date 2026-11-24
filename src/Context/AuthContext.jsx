@@ -32,26 +32,29 @@ export function AuthProvider({ children }) {
     useEffect(() => {
 
         if (!token) {
-
-            if (socket) {
-                socket.disconnect();
-                setSocket(null);
-            }
+            setSocket(null);
             return;
         }
 
         const connectSocket = io(API_URL, {
-            auth: { token: token },
-            transports: ["websocket"]
+            auth: { token },
+            transports: ["websocket"],
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000
         });
 
         connectSocket.on("connect", () => {
-            console.log("Socket connected successfully");
+            console.log("Socket connected:", connectSocket.id);
         });
 
         connectSocket.on("disconnect", (reason) => {
             console.log("Socket disconnected:", reason);
-            setSocket(null);
+        });
+
+        connectSocket.on("connect_error", (error) => {
+            console.log("Socket connection error:", error.message);
         });
 
         setSocket(connectSocket);
@@ -59,11 +62,11 @@ export function AuthProvider({ children }) {
         return () => {
             connectSocket.off("connect");
             connectSocket.off("disconnect");
+            connectSocket.off("connect_error");
             connectSocket.disconnect();
         };
 
     }, [token]);
-
 
     useEffect(() => {
 
