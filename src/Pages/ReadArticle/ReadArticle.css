@@ -1,3 +1,5 @@
+
+
 /* =========================================================
    READ ARTICLE PAGE
 ========================================================= */
@@ -14,7 +16,6 @@ html {
     overflow: visible;
 }
 
-
 /* =========================================================
    BACK BUTTON
 ========================================================= */
@@ -23,21 +24,15 @@ html {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-
     margin-bottom: 28px;
     padding: 0;
-
     border: none;
     background: transparent;
-
     color: var(--color-text-secondary);
-
     font-family: var(--font-primary);
     font-size: 13px;
     font-weight: 600;
-
     cursor: pointer;
-
     transition:
         color var(--transition-fast),
         transform var(--transition-fast);
@@ -52,7 +47,6 @@ html {
     transform: translateX(-2px);
 }
 
-
 /* =========================================================
    MAIN 3-COLUMN GRID
 
@@ -63,44 +57,32 @@ html {
 
 .read-article-grid {
     display: grid;
-
     grid-template-columns:
         48px minmax(0, 760px) 285px;
-
     justify-content: center;
     align-items: stretch;
-
     column-gap: 60px;
     row-gap: 0;
-
     position: relative;
 }
-
 
 /* =========================================================
    LEFT INTERACTION RAIL
 ========================================================= */
 
-
 .article-interaction-rail {
     position: sticky;
     top: 130px;
     align-self: start;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 30px;
-
     height: max-content;
     padding-right: 18px;
-
     box-sizing: border-box;
     /* border-right yahan se hata di */
 }
-
-
-
 
 /* =========================================================
    RAIL BUTTON
@@ -109,27 +91,18 @@ html {
 .article-rail-button {
     width: 44px;
     min-height: 48px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     gap: 4px;
-
     padding: 6px;
-
     border: 1px solid transparent;
     border-radius: 9px;
-
     background: transparent;
-
     color: var(--color-text-secondary);
-
     font-family: var(--font-primary);
-
     cursor: pointer;
-
     transition:
         background var(--transition-fast),
         color var(--transition-fast),
@@ -150,7 +123,6 @@ html {
     background: var(--color-surface-hover);
     border-color: var(--color-border);
     color: var(--color-text-primary);
-
     transform: translateY(-1px);
 }
 
@@ -166,25 +138,20 @@ html {
     color: var(--color-accent);
 }
 
-
 /* =========================================================
    CENTER ARTICLE
 ========================================================= */
 
 .article-main-content {
     min-width: 0;
-
     padding-left: 32px;
     /* naya */
     padding-right: 32px;
-
     border-left: 1px solid rgba(139, 148, 158, 0.18);
     /* naya */
     border-right: 1px solid rgba(139, 148, 158, 0.18);
-
     box-sizing: border-box;
 }
-
 
 /* =========================================================
    ARTICLE HEADER
@@ -194,25 +161,19 @@ html {
     margin-bottom: 40px;
 }
 
-
 /* =========================================================
    CATEGORY
 ========================================================= */
 
 .article-read-category {
     display: inline-flex;
-
     margin-bottom: 14px;
-
     color: var(--color-accent);
-
     font-size: 11px;
     font-weight: 800;
-
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
-
 
 /* =========================================================
    TITLE
@@ -220,18 +181,13 @@ html {
 
 .article-read-header h1 {
     margin: 0;
-
     color: var(--color-text-primary);
-
     font-family: var(--font-primary);
-
     font-size: clamp(36px, 4vw, 54px);
     font-weight: 800;
-
     line-height: 1.08;
     letter-spacing: -0.045em;
 }
-
 
 /* =========================================================
    DESCRIPTION
@@ -239,15 +195,11 @@ html {
 
 .article-read-description {
     max-width: 720px;
-
     margin: 20px 0 0;
-
     color: var(--color-text-secondary);
-
     font-size: 16px;
     line-height: 1.75;
 }
-
 
 /* =========================================================
    AUTHOR META
@@ -257,12 +209,9 @@ html {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-
     gap: 9px;
-
     margin-top: 25px;
 }
-
 
 /* =========================================================
    AUTHOR AVATAR
@@ -271,28 +220,19 @@ html {
 .article-author-avatar {
     width: 62px;
     height: 62px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 0;
-
     overflow: hidden;
-
     border: 1px solid var(--color-border);
     border-radius: 50%;
-
     background: var(--color-accent-soft);
     color: var(--color-accent);
-
     font-size: 12px;
     font-weight: 700;
-
     cursor: pointer;
-
     transition:
         border-color var(--transition-fast),
         transform var(--transition-fast);
@@ -306,12 +246,9 @@ html {
 .article-author-avatar img {
     width: 100%;
     height: 100%;
-
     display: block;
-
     object-fit: cover;
 }
-
 
 /* =========================================================
    AUTHOR INFO
@@ -320,23 +257,19 @@ html {
 .article-author-info {
     display: flex;
     flex-direction: column;
-
     gap: 2px;
 }
 
 .article-author-info strong {
     color: var(--color-text-primary);
-
     font-size: 17px;
     font-weight: 800;
 }
 
 .article-author-info span {
     color: var(--color-text-muted);
-
     font-size: 12px;
 }
-
 
 /* =========================================================
    META
@@ -349,11 +282,9 @@ html {
 
 .article-meta {
     color: var(--color-text-muted);
-
     font-size: 13px;
     font-weight: 700;
 }
-
 
 /* =========================================================
    TAGS
@@ -362,25 +293,18 @@ html {
 .article-read-tags {
     display: flex;
     flex-wrap: wrap;
-
     gap: 7px;
-
     margin-top: 20px;
 }
 
 .article-read-tags span {
     padding: 6px 10px;
-
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-
     background: var(--color-surface);
-
     color: var(--color-accent);
-
     font-size: 12px;
     font-weight: 700;
-
     transition:
         background var(--transition-fast),
         border-color var(--transition-fast);
@@ -391,14 +315,12 @@ html {
     border-color: var(--color-accent);
 }
 
-
 /* =========================================================
    ARTICLE BODY
 ========================================================= */
 
 .article-body {
     min-width: 0;
-
     color: var(--color-text-primary);
 }
 
@@ -406,20 +328,16 @@ html {
     min-width: 0;
 }
 
-
 /* =========================================================
    PARAGRAPHS
 ========================================================= */
 
 .article-body p {
     margin: 0 0 23px;
-
     color: var(--color-text-primary);
-
     font-size: 16px;
     line-height: 1.9;
 }
-
 
 /* =========================================================
    HEADINGS
@@ -427,31 +345,22 @@ html {
 
 .article-body h2 {
     margin: 48px 0 18px;
-
     color: var(--color-text-primary);
-
     font-size: 29px;
     font-weight: 800;
-
     line-height: 1.25;
     letter-spacing: -0.025em;
-
     scroll-margin-top: 30px;
 }
 
 .article-body h3 {
     margin: 38px 0 15px;
-
     color: var(--color-text-primary);
-
     font-size: 22px;
     font-weight: 750;
-
     line-height: 1.3;
-
     scroll-margin-top: 30px;
 }
-
 
 /* =========================================================
    LISTS
@@ -465,9 +374,7 @@ html {
 
 .article-body li {
     margin-bottom: 8px;
-
     color: var(--color-text-primary);
-
     font-size: 15px;
     line-height: 1.8;
 }
@@ -476,16 +383,13 @@ html {
     color: var(--color-accent);
 }
 
-
 /* =========================================================
    LINKS
 ========================================================= */
 
 .article-body a {
     color: var(--color-accent);
-
     font-weight: 600;
-
     text-decoration: underline;
     text-decoration-color: rgba(45, 164, 78, 0.35);
     text-underline-offset: 3px;
@@ -496,21 +400,16 @@ html {
     text-decoration-color: var(--color-accent);
 }
 
-
 /* =========================================================
    BLOCKQUOTE
 ========================================================= */
 
 .article-body blockquote {
     margin: 30px 0;
-
     padding: 18px 20px;
-
     border-left: 3px solid var(--color-accent);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
-
     background: var(--color-surface-hover);
-
     color: var(--color-text-secondary);
 }
 
@@ -519,31 +418,24 @@ html {
     color: var(--color-text-secondary);
 }
 
-
 /* =========================================================
    INLINE CODE
 ========================================================= */
 
 .article-body code {
     padding: 3px 6px;
-
     border: 1px solid var(--color-border);
     border-radius: 5px;
-
     background: var(--color-surface-hover);
-
     color: var(--color-accent);
-
     font-family:
         "SFMono-Regular",
         Consolas,
         "Liberation Mono",
         Menlo,
         monospace;
-
     font-size: 0.88em;
 }
-
 
 /* =========================================================
    CODE BLOCK
@@ -551,44 +443,32 @@ html {
 
 .article-body pre {
     width: 100%;
-
     box-sizing: border-box;
-
     margin: 30px 0;
     padding: 20px;
-
     overflow-x: auto;
-
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-
     background: #0d1117;
     color: #e6edf3;
-
     font-family:
         "SFMono-Regular",
         Consolas,
         "Liberation Mono",
         Menlo,
         monospace;
-
     font-size: 13px;
     line-height: 1.7;
-
     white-space: pre;
     tab-size: 4;
 }
 
 .article-body pre code {
     display: block;
-
     padding: 0;
-
     border: none;
-
     background: transparent;
     color: inherit;
-
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
@@ -607,7 +487,6 @@ html {
     background: #30363d;
 }
 
-
 /* =========================================================
    IMAGES
 ========================================================= */
@@ -616,18 +495,12 @@ html {
     width: auto;
     max-width: 100%;
     height: auto;
-
     display: block;
-
     margin: 30px auto;
-
     border-radius: var(--radius-lg);
-
     object-fit: contain;
-
     box-shadow: var(--shadow-sm);
 }
-
 
 /* =========================================================
    TABLE
@@ -635,32 +508,24 @@ html {
 
 .article-body table {
     width: 100%;
-
     margin: 30px 0;
-
     border-collapse: collapse;
-
     border: 1px solid var(--color-border);
-
     font-size: 13px;
 }
 
 .article-body th,
 .article-body td {
     padding: 12px 14px;
-
     border: 1px solid var(--color-border);
-
     text-align: left;
     vertical-align: top;
-
     line-height: 1.6;
 }
 
 .article-body th {
     background: var(--color-surface-hover);
     color: var(--color-text-primary);
-
     font-weight: 700;
 }
 
@@ -668,18 +533,15 @@ html {
     color: var(--color-text-secondary);
 }
 
-
 /* =========================================================
    HR
 ========================================================= */
 
 .article-body hr {
     margin: 40px 0;
-
     border: none;
     border-top: 1px solid var(--color-border);
 }
-
 
 /* =========================================================
    ARTICLE END
@@ -688,37 +550,27 @@ html {
 .article-end {
     display: flex;
     align-items: center;
-
     gap: 14px;
-
     margin-top: 55px;
-
     scroll-margin-top: 80px;
 }
 
 .article-end::before,
 .article-end::after {
     content: "";
-
     flex: 1;
-
     height: 1px;
-
     background: var(--color-border);
 }
 
 .article-end span {
     flex-shrink: 0;
-
     color: var(--color-text-muted);
-
     font-size: 9px;
     font-weight: 700;
-
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
-
 
 /* =========================================================
    COMMENTS
@@ -727,7 +579,6 @@ html {
 .article-comments-section {
     margin-top: 35px;
     padding-top: 5px;
-
     scroll-margin-top: 85px;
 }
 
@@ -735,45 +586,18 @@ html {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-
     gap: 20px;
-
     margin-bottom: 18px;
     padding-bottom: 14px;
-
     border-bottom: 1px solid var(--color-border);
-}
-
-.comments-eyebrow {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color: var(--color-accent);
-
-    font-size: 9px;
-    font-weight: 800;
-
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 
 .article-comments-heading h2 {
     margin: 0;
-
     color: var(--color-text-primary);
-
     font-size: 22px;
     font-weight: 800;
 }
-
-.comments-count {
-    color: var(--color-text-muted);
-
-    font-size: 10px;
-    font-weight: 600;
-}
-
 
 /* =========================================================
    RIGHT SIDEBAR
@@ -783,14 +607,11 @@ html {
     position: sticky;
     top: var(--sidebar-top, 85px);
     /* JS is value ko set karega */
-
     align-self: start;
     /* sticky ko kaam karne ke liye zaroori */
-
     display: flex;
     flex-direction: column;
     gap: 18px;
-
     min-width: 0;
 }
 
@@ -798,26 +619,19 @@ html {
     display: none;
 }
 
-
 /* =========================================================
    SIDEBAR CARD
 ========================================================= */
 
 .article-sidebar-card {
     flex-shrink: 0;
-
     padding: 18px;
-
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-
     background: var(--color-surface);
-
     box-shadow: var(--shadow-sm);
-
     box-sizing: border-box;
 }
-
 
 /* =========================================================
    AUTHOR CARD
@@ -825,12 +639,9 @@ html {
 
 .sidebar-card-label {
     margin-bottom: 14px;
-
     color: var(--color-text-muted);
-
     font-size: 12px;
     font-weight: 700;
-
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
@@ -838,60 +649,45 @@ html {
 .sidebar-author-content {
     display: flex;
     align-items: center;
-
     gap: 10px;
 }
 
 .sidebar-author-avatar {
     width: 52px;
     height: 52px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 0;
-
     overflow: hidden;
-
     border: 1px solid var(--color-border);
     border-radius: 50%;
-
     background: var(--color-accent-soft);
     color: var(--color-accent);
-
     font-size: 11px;
     font-weight: 700;
-
     cursor: pointer;
 }
 
 .sidebar-author-avatar img {
     width: 100%;
     height: 100%;
-
     display: block;
-
     object-fit: cover;
 }
 
 .sidebar-author-info {
     display: flex;
     flex-direction: column;
-
     gap: 3px;
-
     min-width: 0;
 }
 
 .sidebar-author-info strong {
     color: var(--color-text-primary);
-
     font-size: 15px;
     font-weight: 700;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -899,15 +695,12 @@ html {
 
 .sidebar-author-info span {
     color: var(--color-text-muted);
-
     font-size: 11px;
     font-weight: 700;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 
 /* =========================================================
    VIEW PROFILE
@@ -915,25 +708,16 @@ html {
 
 .sidebar-view-profile {
     width: 100%;
-
     margin-top: 15px;
-
     padding: 8px 12px;
-
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-
     background: transparent;
-
     color: var(--color-text-secondary);
-
     font-family: var(--font-primary);
-
     font-size: 11px;
     font-weight: 650;
-
     cursor: pointer;
-
     transition:
         background var(--transition-fast),
         border-color var(--transition-fast),
@@ -942,12 +726,9 @@ html {
 
 .sidebar-view-profile:hover {
     border-color: var(--color-accent);
-
     background: var(--color-accent-soft);
-
     color: var(--color-accent);
 }
-
 
 /* =========================================================
    SIDEBAR TITLE
@@ -957,23 +738,17 @@ html {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding-bottom: 12px;
-
     border-bottom: 1px solid var(--color-border);
-
     color: var(--color-text-primary);
-
     font-size: 12px;
     font-weight: 750;
 }
 
 .sidebar-card-title i {
     color: var(--color-text-muted);
-
     font-size: 12px;
 }
-
 
 /* =========================================================
    SIDEBAR DETAILS
@@ -982,34 +757,27 @@ html {
 .sidebar-detail {
     display: flex;
     flex-direction: column;
-
     gap: 4px;
-
     padding: 12px 0;
-
     border-bottom: 1px solid var(--color-border);
 }
 
 .sidebar-detail:last-child {
     border-bottom: none;
-
     padding-bottom: 0;
 }
 
 .sidebar-detail span {
     color: var(--color-text-primary);
-
     font-size: 13px;
     font-weight: 700;
 }
 
 .sidebar-detail strong {
-
     color: var(--color-text-muted);
     font-size: 11px;
     font-weight: 650;
 }
-
 
 /* =========================================================
    IN THIS ARTICLE
@@ -1022,16 +790,13 @@ html {
 .article-outline nav {
     display: flex;
     flex-direction: column;
-
     gap: 0;
-
     margin: 8px 0 0;
     padding: 0;
-
     /*
-       IMPORTANT:
-       Yahan scrollbar nahi hoga.
-       Poora right sidebar scroll karega.
+        IMPORTANT:
+        Yahan scrollbar nahi hoga.
+        Poora right sidebar scroll karega.
     */
     max-height: none;
     overflow: visible;
@@ -1039,24 +804,16 @@ html {
 
 .article-outline nav a {
     display: block;
-
     margin: 0;
     padding: 9px 0;
-
     border-bottom: 1px solid var(--color-border);
-
     color: var(--color-text-secondary);
-
     font-size: 12px;
     font-weight: 550;
-
     line-height: 1.5;
-
     text-decoration: none;
-
     min-width: 0;
     overflow-wrap: anywhere;
-
     transition:
         color var(--transition-fast),
         padding-left var(--transition-fast);
@@ -1068,17 +825,14 @@ html {
 
 .article-outline nav a:hover {
     padding-left: 4px;
-
     color: var(--color-accent);
 }
-
 
 /* =========================================================
    TABLET
 ========================================================= */
 
 @media (max-width: 1050px) {
-
     .read-article-page {
         width: calc(100% - 36px);
     }
@@ -1086,7 +840,6 @@ html {
     .read-article-grid {
         grid-template-columns:
             50px minmax(0, 1fr) 255px;
-
         gap: 24px;
     }
 
@@ -1099,17 +852,14 @@ html {
     }
 }
 
-
 /* =========================================================
    TABLET / SMALL DESKTOP
 ========================================================= */
 
 @media (max-width: 850px) {
-
     .read-article-grid {
         grid-template-columns:
             46px minmax(0, 1fr);
-
         gap: 22px;
     }
 
@@ -1127,57 +877,43 @@ html {
 
     .article-read-sidebar {
         grid-column: 2;
-
         position: static;
-
         display: grid;
-
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
-
         max-height: none;
-
         overflow: visible;
     }
 
     .article-outline {
         grid-column: span 2;
     }
-
 }
-
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
 @media (max-width: 600px) {
-
     .read-article-page {
         width: calc(100% - 20px);
-
         padding: 20px 0 100px;
     }
-
 
     /* BACK */
 
     .back-to-articles {
         margin-bottom: 24px;
-
         font-size: 12px;
     }
-
 
     /* GRID */
 
     .read-article-grid {
         display: flex;
         flex-direction: column;
-
         gap: 0;
     }
-
 
     /* =====================================================
        ARTICLE
@@ -1185,12 +921,9 @@ html {
 
     .article-main-content {
         width: 100%;
-
         padding-right: 0;
-
         border-right: none;
     }
-
 
     /* HEADER */
 
@@ -1200,31 +933,25 @@ html {
 
     .article-read-category {
         margin-bottom: 11px;
-
         font-size: 10px;
     }
 
     .article-read-header h1 {
         font-size: clamp(28px, 8vw, 37px);
-
         line-height: 1.12;
-
         letter-spacing: -0.035em;
     }
 
     .article-read-description {
         margin-top: 16px;
-
         font-size: 14px;
         line-height: 1.7;
     }
-
 
     /* AUTHOR */
 
     .article-read-author {
         gap: 7px;
-
         margin-top: 21px;
     }
 
@@ -1245,21 +972,17 @@ html {
         font-size: 9px;
     }
 
-
     /* TAGS */
 
     .article-read-tags {
         gap: 6px;
-
         margin-top: 18px;
     }
 
     .article-read-tags span {
         padding: 6px 8px;
-
         font-size: 9px;
     }
-
 
     /* =====================================================
        ARTICLE BODY
@@ -1267,29 +990,24 @@ html {
 
     .article-body p {
         margin-bottom: 20px;
-
         font-size: 14px;
         line-height: 1.85;
     }
 
     .article-body h2 {
         margin-top: 36px;
-
         font-size: 24px;
     }
 
     .article-body h3 {
         margin-top: 30px;
-
         font-size: 19px;
     }
 
     .article-body li {
         font-size: 14px;
-
         line-height: 1.75;
     }
-
 
     /* =====================================================
        IMAGES
@@ -1298,12 +1016,9 @@ html {
     .article-body img {
         width: 100%;
         max-width: 100%;
-
         margin: 24px auto;
-
         border-radius: var(--radius-md);
     }
-
 
     /* =====================================================
        CODE
@@ -1311,30 +1026,11 @@ html {
 
     .article-body pre {
         margin: 24px 0;
-
         padding: 14px;
-
         border-radius: var(--radius-md);
-
         font-size: 11px;
         line-height: 1.65;
     }
-
-
-    /* =====================================================
-       TABLE
-    ===================================================== */
-
-    .article-body table {
-        display: block;
-
-        overflow-x: auto;
-
-        white-space: nowrap;
-
-        font-size: 11px;
-    }
-
 
     /* =====================================================
        ARTICLE END
@@ -1344,22 +1040,18 @@ html {
         margin-top: 42px;
     }
 
-
     /* =====================================================
        COMMENTS
     ===================================================== */
 
     .article-comments-section {
         margin-top: 28px;
-
         padding-top: 0;
-
         scroll-margin-top: 75px;
     }
 
     .article-comments-heading {
         align-items: center;
-
         margin-bottom: 15px;
     }
 
@@ -1367,33 +1059,24 @@ html {
         font-size: 20px;
     }
 
-
     /* =====================================================
        SIDEBAR
     ===================================================== */
 
     .article-read-sidebar {
         width: 100%;
-
         display: flex;
         flex-direction: column;
-
         gap: 11px;
-
         margin-top: 38px;
-
         max-height: none;
-
         overflow: visible;
     }
 
     .article-sidebar-card {
         width: 100%;
-
         box-sizing: border-box;
-
         padding: 15px;
-
         border-radius: var(--radius-md);
     }
 
@@ -1401,43 +1084,32 @@ html {
         max-height: none;
     }
 
-
     /* =====================================================
        LEFT RAIL → MOBILE BOTTOM BAR
     ===================================================== */
 
     .article-interaction-rail {
         position: fixed;
-
         top: auto;
         left: 0;
         right: 0;
         bottom: 0;
-
         z-index: 100;
-
         width: 100%;
         max-width: none;
         height: calc(58px + env(safe-area-inset-bottom, 0px));
-
         transform: none;
         /* zaroori: purani translateX(-50%) ko cancel karta hai */
-
         display: flex;
         flex-direction: row;
         justify-content: space-around;
         align-items: center;
-
         gap: 0;
-
         padding: 6px 8px env(safe-area-inset-bottom, 0px);
-
         border: none;
         border-top: 1px solid var(--color-border);
         border-radius: 0;
-
         background: var(--color-surface);
-
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     }
 
@@ -1445,11 +1117,9 @@ html {
         flex: 1;
         width: auto;
         min-height: 44px;
-
         flex-direction: row;
         justify-content: center;
         gap: 6px;
-
         border-radius: 9px;
     }
 
@@ -1462,13 +1132,11 @@ html {
     }
 }
 
-
 /* =========================================================
    VERY SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 400px) {
-
     .read-article-page {
         width: calc(100% - 16px);
     }
@@ -1487,7 +1155,6 @@ html {
 
     .article-meta {
         width: 100%;
-
         margin-left: 46px;
     }
 
@@ -1500,44 +1167,34 @@ html {
     }
 }
 
-
 /* =========================================================
    REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
     .read-article-page *,
     .read-article-page *::before,
     .read-article-page *::after {
         transition: none !important;
-
         scroll-behavior: auto !important;
     }
 }
 
 .article-comments-toggle {
     width: 100%;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 16px;
     margin-top: 35px;
     padding: 18px 20px;
-
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-
     background: var(--color-surface);
     box-shadow: var(--shadow-sm);
-
     font-family: var(--font-primary);
     text-align: left;
-
     cursor: pointer;
-
     transition: background var(--transition-fast);
 }
 
@@ -1555,25 +1212,19 @@ html {
 .comments-toggle-left > i {
     width: 38px;
     height: 38px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 10px;
-
     background: var(--color-accent-soft);
     color: var(--color-accent);
-
     font-size: 16px;
 }
 
 .comments-eyebrow {
     display: block;
     margin-bottom: 2px;
-
     color: var(--color-accent);
-
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -1582,21 +1233,16 @@ html {
 
 .article-comments-toggle h2 {
     margin: 0;
-
     color: var(--color-text-primary);
-
     font-size: 18px;
     font-weight: 800;
 }
 
 .comments-count {
     padding: 5px 10px;
-
     border: 1px solid var(--color-border);
     border-radius: 999px;
-
     color: var(--color-text-secondary);
-
     font-size: 11px;
     font-weight: 600;
 }
@@ -1605,3 +1251,330 @@ html {
     color: var(--color-text-muted);
     font-size: 12px;
 }
+
+/* Responsive table markup defaults: preserve the original table on desktop. */
+.article-table-wrap {
+    width: 100%;
+    min-width: 0;
+}
+
+.article-table-mobile {
+    display: none;
+}
+
+/* =========================================================
+   MOBILE READING EXPERIENCE
+   These overrides intentionally apply only to mobile widths.
+========================================================= */
+
+@media (max-width: 600px) {
+    .read-article-page {
+        width: min(calc(100% - 24px), 560px);
+        padding: 18px 0 calc(112px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .article-main-content,
+    .article-body,
+    .article-content {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .article-read-header {
+        margin-bottom: 26px;
+    }
+
+    .article-read-category {
+        display: inline-flex;
+        align-items: center;
+        min-height: 25px;
+        margin-bottom: 13px;
+        padding: 4px 9px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        background: var(--color-surface);
+        font-size: 10px;
+        letter-spacing: 0.055em;
+    }
+
+    .article-read-header h1 {
+        font-size: clamp(29px, 7.4vw, 36px);
+        line-height: 1.14;
+        letter-spacing: -0.04em;
+        overflow-wrap: anywhere;
+    }
+
+    .article-read-description {
+        margin-top: 14px;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .article-body p {
+        margin-bottom: 19px;
+        font-size: 15px;
+        line-height: 1.82;
+        overflow-wrap: break-word;
+    }
+
+    .article-body h2 {
+        margin: 36px 0 15px;
+        font-size: clamp(22px, 6vw, 26px);
+        line-height: 1.25;
+        letter-spacing: -0.025em;
+        scroll-margin-top: 22px;
+    }
+
+    .article-body h3 {
+        margin: 29px 0 12px;
+        font-size: clamp(18px, 5vw, 21px);
+        line-height: 1.32;
+        scroll-margin-top: 22px;
+    }
+
+    .article-body ul,
+    .article-body ol {
+        margin-bottom: 22px;
+        padding-left: 23px;
+    }
+
+    .article-body li {
+        margin-bottom: 9px;
+        font-size: 14.5px;
+        line-height: 1.75;
+    }
+
+    .article-body blockquote {
+        margin: 24px 0;
+        padding: 15px 16px;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+
+    .article-body img {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        margin: 22px auto;
+        border-radius: var(--radius-md);
+    }
+
+    .article-body pre {
+        max-width: 100%;
+        margin: 22px 0;
+        padding: 14px;
+        border-radius: var(--radius-md);
+        font-size: 11.5px;
+        line-height: 1.65;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .article-body :not(pre) > code {
+        overflow-wrap: anywhere;
+        white-space: break-spaces;
+    }
+
+    /* Responsive tables: desktop table is hidden; generated row cards are shown. */
+    .article-table-wrap {
+        width: 100%;
+        min-width: 0;
+        margin: 25px 0;
+    }
+
+    .article-table-desktop {
+        display: none !important;
+    }
+
+    .article-table-mobile {
+        display: grid;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .article-table-mobile-heading {
+        margin: 0 0 2px;
+        color: var(--color-text-secondary);
+        font-size: 11px;
+        font-weight: 750;
+        line-height: 1.45;
+        letter-spacing: 0.035em;
+        text-transform: uppercase;
+    }
+
+    .article-table-card {
+        min-width: 0;
+        padding: 13px 14px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .article-table-card-title {
+        margin: 0 0 9px;
+        color: var(--color-text-primary);
+        font-size: 14px;
+        font-weight: 750;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .article-table-card-field + .article-table-card-field {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .article-table-card-label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--color-text-muted);
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.4;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+    }
+
+    .article-table-card-value {
+        min-width: 0;
+        color: var(--color-text-secondary);
+        font-size: 13px;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .article-table-card-value p {
+        margin: 0 0 8px;
+        font-size: inherit;
+        line-height: inherit;
+    }
+
+    .article-table-card-value p:last-child {
+        margin-bottom: 0;
+    }
+
+    .article-table-card-value ul,
+    .article-table-card-value ol {
+        margin: 6px 0 0;
+        padding-left: 19px;
+    }
+
+    .article-table-card-value code {
+        font-size: 0.86em;
+    }
+
+    /* Tables without a usable header keep a contained scroll fallback. */
+    .article-table-wrap.is-unstructured .article-table-desktop {
+        display: table !important;
+        width: 100%;
+        min-width: 480px;
+        font-size: 12px;
+    }
+
+    .article-table-wrap.is-unstructured {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .article-table-wrap.is-unstructured .article-table-mobile {
+        display: none;
+    }
+
+    .article-comments-toggle {
+        gap: 10px;
+        margin-top: 28px;
+        padding: 14px;
+        border-radius: var(--radius-md);
+    }
+
+    .comments-toggle-left,
+    .comments-toggle-right {
+        gap: 9px;
+    }
+
+    .comments-toggle-left > i {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+    }
+
+    .article-comments-toggle h2 {
+        font-size: 17px;
+        margin-top: 5px;
+    }
+
+    .comments-count {
+        padding: 4px 7px;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .article-read-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .article-sidebar-card {
+        min-width: 0;
+        padding: 13px;
+        border-radius: var(--radius-md);
+    }
+
+    .article-outline {
+        grid-column: 1 / -1;
+    }
+
+    .article-interaction-rail {
+        height: calc(62px + env(safe-area-inset-bottom, 0px));
+        padding: 5px 10px env(safe-area-inset-bottom, 0px);
+        background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.09);
+    }
+
+    .article-rail-button {
+        min-width: 44px;
+        min-height: 44px;
+        gap: 5px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .article-rail-button:active {
+        transform: scale(0.96);
+    }
+}
+
+@media (max-width: 400px) {
+    .read-article-page {
+        width: calc(100% - 20px);
+    }
+
+    .article-read-header h1 {
+        font-size: 28px;
+    }
+
+    .article-body p {
+        font-size: 14.5px;
+    }
+
+    .article-read-sidebar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .article-outline {
+        grid-column: auto;
+    }
+
+    .article-comments-toggle {
+        padding: 12px;
+    }
+}
+
+
+
+

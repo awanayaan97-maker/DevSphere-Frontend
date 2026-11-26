@@ -79,6 +79,34 @@ function ReadArticle() {
         return "";
     }
 
+    function getTableRows(tableNode) {
+        const rows = [];
+
+        function visit(node) {
+            if (!node?.children) return;
+
+            node.children.forEach((child) => {
+                if (child.name === "tr") {
+                    rows.push(child);
+                } else if (child.name !== "table") {
+                    visit(child);
+                }
+            });
+        }
+
+        visit(tableNode);
+
+        return rows;
+    }
+
+    function getTableCells(rowNode) {
+        return (rowNode?.children || []).filter(
+            (child) =>
+                child.name === "th" ||
+                child.name === "td"
+        );
+    }
+
     function handleLikeClick() {
         toggleLikeMutation.mutate({
             url: `${API_URL}/api/article/like/${id}`,
@@ -97,7 +125,7 @@ function ReadArticle() {
 
 
     if (isLoading) return <Loader />;
-    if (error) return <ResponsePopup message={error}closePopup={() => setError(null)}/>;
+    if (error) return <ResponsePopup message={error} closePopup={() => setError(null)} />;
     if (data.length === 0) return null
 
     if (showAlert || bookmarkAlert || showLikeAlert) return <Alert
@@ -120,24 +148,248 @@ function ReadArticle() {
 
         replace: (domNode) => {
 
-            if (
-                ["h2", "h3"].includes(domNode.name)
-            ) {
+            if (domNode.name === "table") {
 
-                const text = getNodeText(
-                    domNode
-                ).trim();
+                const rows = getTableRows(domNode);
+                const headerRowIndex = rows.findIndex(
+                    (row) =>
+                        getTableCells(row).some(
+                            (cell) => cell.name === "th"
+                        )
+                );
 
+                if (headerRowIndex === -1) {
+                    return (
+                        <div className="article-table-wrap is-unstructured">
+
+                            <table className="article-table-desktop">
+                                {domToReact(domNode.children, options)}
+                            </table>
+
+                        </div>
+                    );
+                }
+
+                const headerCells = getTableCells(
+                    rows[headerRowIndex]
+                );
+
+                const headers = headerCells.map(
+                    (cell) => getNodeText(cell).trim()
+                );
+
+                const hasHeaderLabels = headers.some(
+                    (header) => header.length > 0
+                );
+
+                const dataRows = rows.filter(
+                    (_, index) => index !== headerRowIndex
+                );
+
+                if (!hasHeaderLabels || dataRows.length === 0) {
+                    return (
+                        <div className="article-table-wrap is-unstructured">
+
+                            <table className="article-table-desktop">
+                                {domToReact(domNode.children, options)}
+                            </table>
+
+                        </div>
+                    );
+                }
+
+                const isSingleColumn = headers.length === 1;
+                const firstColumnIsTitle =
+                    headers.length > 1 && !headers[0];
+
+                return (
+
+                    <div className="article-table-wrap">
+                        <table className="article-table-desktop">
+
+                            {domToReact(
+                                domNode.children,
+                                options
+                            )}
+
+                        </table>
+
+                        <div className="article-table-mobile">
+
+                            {isSingleColumn && (
+
+                                <div className="article-table-mobile-heading">
+                                    {headers[0]}
+                                </div>
+
+                            )}
+
+
+                            {dataRows.map((row, rowIndex) => {
+
+                                const cells = getTableCells(row);
+
+                                if (cells.length === 0) return null;
+
+                                if (
+                                    isSingleColumn &&
+                                    cells.length === 1
+                                ) {
+
+                                    return (
+
+                                        <div
+                                            className="article-table-card"
+                                            key={rowIndex}
+                                        >
+                                            <div className="article-table-card-value">
+
+                                                {domToReact(
+                                                    cells[0].children,
+                                                    options
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    );
+                                }
+
+                                if (firstColumnIsTitle) {
+
+                                    const title = getNodeText(
+                                        cells[0]
+                                    ).trim();
+
+                                    return (
+
+                                        <div
+                                            className="article-table-card"
+                                            key={rowIndex}
+                                        >
+
+                                            {title && (
+
+                                                <div className="article-table-card-title">
+
+                                                    {domToReact(
+                                                        cells[0].children,
+                                                        options
+                                                    )}
+
+                                                </div>
+
+                                            )}
+
+
+                                            {cells.slice(1).map(
+                                                (cell, cellIndex) => {
+
+                                                    const headerIndex = cellIndex + 1;
+
+                                                    return (
+
+                                                        <div
+                                                            className="article-table-card-field"
+                                                            key={cellIndex}
+                                                        >
+
+                                                            <span className="article-table-card-label">
+
+                                                                {headers[headerIndex] ||
+                                                                    `Column ${headerIndex + 1}`}
+
+                                                            </span>
+
+
+                                                            <div className="article-table-card-value">
+
+                                                                {domToReact(
+                                                                    cell.children,
+                                                                    options
+                                                                )}
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    );
+
+                                                }
+                                            )}
+
+                                        </div>
+
+                                    );
+                                }
+
+                                return (
+
+                                    <div
+                                        className="article-table-card"
+                                        key={rowIndex}
+                                    >
+
+                                        {cells.map((cell, cellIndex) => {
+
+                                            const label =
+                                                headers[cellIndex] ||
+                                                `Column ${cellIndex + 1}`;
+
+                                            return (
+
+                                                <div
+                                                    className="article-table-card-field"
+                                                    key={cellIndex}
+                                                >
+
+                                                    <span className="article-table-card-label">
+                                                        {label}
+                                                    </span>
+
+
+                                                    <div className="article-table-card-value">
+
+                                                        {domToReact(
+                                                            cell.children,
+                                                            options
+                                                        )}
+
+                                                    </div>
+
+                                                </div>
+
+                                            );
+
+                                        })}
+
+                                    </div>
+
+                                );
+
+                            })}
+
+                        </div>
+
+                    </div>
+
+                );
+            }
+
+
+            if (["h2", "h3"].includes(domNode.name)) {
+
+                const text = getNodeText(domNode).trim();
                 const headingId = text
                     .toLowerCase()
                     .trim()
                     .replace(/\s+/g, "-");
 
-
                 const Tag = domNode.name;
 
-
                 return (
+
                     <Tag id={headingId}>
 
                         {domToReact(
@@ -146,8 +398,10 @@ function ReadArticle() {
                         )}
 
                     </Tag>
+
                 );
             }
+
         }
 
     };
@@ -327,7 +581,7 @@ function ReadArticle() {
                             </p>
 
                         ) : null}
-    
+
                     </header>
 
 
@@ -361,7 +615,7 @@ function ReadArticle() {
                                     <div className="comments-toggle-left">
                                         <i className="fa-regular fa-comments"></i>
 
-                                        <div>
+                                        <div >
                                             <span className="comments-eyebrow">Discussion</span>
                                             <h2>Comments</h2>
                                         </div>
