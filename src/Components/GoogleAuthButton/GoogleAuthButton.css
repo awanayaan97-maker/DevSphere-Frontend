@@ -1,5 +1,8 @@
+
+
 .google-auth-wrapper {
     width: 100%;
-    display: flex;
-    justify-content: center;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
