@@ -1,12 +1,11 @@
 
-import React from "react";
+
 import { useNavigate } from "react-router-dom";
 
 function UserAvatar({ userData, id }) {
     const navigate = useNavigate();
 
     const avatarUrl = userData?.profileImage || "";
-
     const firstName = userData?.firstName || userData?.firstname || "";
     const lastName = userData?.lastName || userData?.lastname || "";
 
